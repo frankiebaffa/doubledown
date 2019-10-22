@@ -1,0 +1,23 @@
+_LAYOUT|
+    _html|
+        _body|
+            _h1#this.that||_
+            _p#P1.desc||_
+            _ul|
+                _li#list1||_
+                _li#list2||_
+            |ul_
+            _table|
+                _tbody|
+                    _tr|
+                        _td#Cell1.cell[colspan=2]||_
+                    |tr_
+                    _tr|
+                        _td#Cell2.cell||_
+                        _td#Cell3.cell||_
+                    |tr_
+                |tbody_
+            |table_
+        |body_
+    |html_
+|LAYOUT_
