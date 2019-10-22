@@ -1,0 +1,19 @@
+body{
+    font-family:arial;
+}
+h1{
+    font-size:16px;
+    color:grey;
+    text-align:center;
+}
+p,td,li{
+    font-size:12px;
+}
+table{
+    border-collapse:collapse;
+}
+table>tr,
+table>tr>td{
+    border:1px solid black;
+    text-align:center;
+}
