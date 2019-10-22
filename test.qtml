@@ -1,17 +1,23 @@
 _LAYOUT|
     _html|
-        _link[rel=stylesheet,href=test.css]||_
+        _link[rel=stylesheet,href=test.css]|
+        |link_
         _body|
-            _h1#this.that||_
-            _p#P1.desc||_
+            _h1#this.that|
+            |h1_
+            _p#P1.desc|
+            |p_
             _ul|
-                _li#list1||_
-                _li#list2||_
+                _li#list1|
+                |li_
+                _li#list2|
+                |li_
             |ul_
             _table|
                 _tbody|
                     _tr|
-                        _td#Cell1.cell[colspan=2,hidden]||_
+                        _td#Cell1.cell[colspan=2,hidden]|
+                        |td_
                     |tr_
                 |tbody_
             |table_
