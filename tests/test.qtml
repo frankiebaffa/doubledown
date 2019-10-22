@@ -1,0 +1,23 @@
+_LAYOUT|
+_html|
+    _body|
+        _div#main|
+            _h1#header||_
+            _h4#subheader||_
+            _p#b1||_
+            _br||_
+            _p#b2||_
+        |div_
+    |body_
+|html_
+|LAYOUT_
+
+_CONTENT|
+    #header    Test Document
+    #subheader This is a test of the qtml markup/markdown language
+    #b1        QTML is a markdown/markup language which allows for
+               shorthand, technical syntax to layout a document
+               followed by a neat and tidy content section.
+    #b2        QTML uses pdfkit and wkhtmltopdf to render and create
+               the pdf while python handles the backend parsing.
+|CONTENT_
