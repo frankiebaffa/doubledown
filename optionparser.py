@@ -11,12 +11,13 @@ def parseOpts(argv):
                     "layoutfile" : None,
                     "cssfile"    : None,
                     "singlefile" : None,
-                    "quiet"      : False
+                    "quiet"      : False,
+                    "html"       : False
                   }
     try:
         opts,args = getopt.getopt(
             argv,
-            "c:l:s:i:q",
+            "c:l:s:i:qh",
             [
                 "contentfile=",
                 "layoutfile=",
@@ -38,4 +39,6 @@ def parseOpts(argv):
             options["singlefile"] = arg
         elif opt == '-q':
             options["quiet"] = True
+        elif opt == '-h':
+            options["html"] = True
     return options

@@ -3,8 +3,18 @@ body{
 }
 h1{
     font-size:16px;
-    color:grey;
     text-align:center;
+}
+h4{
+    font-size:14px;
+    text-align:center;
+}
+.header,
+.subheader{
+    color:grey !important;
+}
+.subheader{
+    font-weight:normal !important;
 }
 p,td,li{
     font-size:12px;

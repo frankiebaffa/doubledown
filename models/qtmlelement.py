@@ -22,7 +22,7 @@ class QtmlElement:
         if self.qid != None:
             self.opentag += f" id=\"{self.qid}\""
         if len(self.qclass) > 0:
-            self.opentag += " class="
+            self.opentag += " class=\""
             delim = ""
             for qclass in self.qclass:
                 self.opentag += f"{delim}{qclass}"

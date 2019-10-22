@@ -30,10 +30,15 @@ def createPdf(htmlstr,cssfile):
     else:
         Pdf.makePdfFromString(htmlstr,'test.pdf')
 
+def createHtmlDoc(htmlstr):
+    with open("test.html","w") as file:
+        file.write(htmlstr)
+
 if __name__ == '__main__':
     options = parseOpts(sys.argv[1:])
     printStatus(options)
     qtml = createQtml(options)
+    if options["html"]: createHtmlDoc(qtml.html)
     createPdf(qtml.html,options["cssfile"])
     print('*** success!')
     sys.exit(2)
