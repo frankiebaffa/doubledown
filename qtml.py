@@ -20,30 +20,29 @@ class QtmlElement:
             printid = "No ID"
         else:
             printid = self.qid
-        return f"<{self.qtag} | {printid} | classes:{len(self.qclass)}>"
-
-class QtmlDocument:
-    qtmlelements = []
+        return f"<{self.qtag} | {printid} | classes:{len(self.qclass)} | inner:{len(self.qinner)}>"
 
 class QtmlParser:
     qinput    = None
-    qoutput   = None
-    qdocument = None
+    qdocument = QtmlElement()
 
     def __init__(self,qfilepath):
+        self.qdocument.qtag = "document"
+        self.qdocument.qid  = "Document"
         with open(qfilepath,'r') as file:
             doctxt = file.read()
+            self.qinput = doctxt
             arr = doctxt.split('\n')
-            QtmlParser.mainLoop(arr)
+            QtmlParser.mainLoop(self,arr)
 
-    @staticmethod
-    def mainLoop(arr):
-        QtmlParser.getLayout(arr)
+    def mainLoop(self,arr):
+        QtmlParser.getLayout(self,arr)
 
-    @staticmethod
-    def getLayout(arr):
+    def getLayout(self,arr):
         layoutstart = arr.index('_LAYOUT|')
         layoutend   = arr.index('|LAYOUT_')
+        nestpath    = [self.qdocument]
+        nestcount   = 0
         for i in range(layoutstart+1,layoutend):
             line = arr[i].lstrip()
             elementstart = None
@@ -55,6 +54,15 @@ class QtmlParser:
                 print(f'Malformed QTML on line {i}')
             if elementstart < elementend:
                 elementstr  = line[elementstart+1:elementend]
+                inlineclose   = False
+                try:
+                    lineend    = line[elementend+1:len(line)]
+                    closepipe  = lineend.index('|')
+                    closeunder = lineend.index('_')
+                    if closepipe < closeunder:
+                        inlineclose = True
+                except:
+                    continue
                 qelement    = QtmlElement()
                 qelement,\
                 elementstr  = QtmlParser.checkGetName(elementstr,qelement)
@@ -62,10 +70,13 @@ class QtmlParser:
                 elementstr  = QtmlParser.checkGetAttr(elementstr,qelement)
                 qelement,\
                 elementstr  = QtmlParser.checkGetClass(elementstr,qelement)
-                print(qelement)
+                nestpath[nestcount].qinner.append(qelement)
+                #if not inlineclose:
+                nestpath.append(nestpath[nestcount].qinner[len(nestpath[nestcount].qinner)-1])
+                nestcount += 1
+                #else:
             else:
-                # nothing yet
-                continue
+                nestcount -= 1
 
     @staticmethod
     def checkGetName(elementstr,qelement):
