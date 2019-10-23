@@ -1,29 +1,107 @@
 _LAYOUT|
-_html|
-    _body|
-        _div#main|
-            _h1#header.header||_
-            _h4#subheader.subheader||_
-            _p#b1||_
+_body|
+    _h1#TopHead.header||_
+    _div.lcr-container|
+        _div.left|
+            _p#SubHeader1.subheader||_
         |div_
-    |body_
-|html_
+        _div.center|
+            _div.inner-center|
+                _p#SubHeader2.subheader||_
+            |div_
+        |div_
+        _div.right|
+            _p#SubHeader3.subheader||_
+        |div_
+    |div_
+    _hr#RuleBumpDown||_
+    _p#Bulk1||_
+    _h4#SH1.sectionheader||_
+    _p#D1.sectiondescriptior||_
+    _code#C1.sectioncode||_
+|body_
 |LAYOUT_
 
 _CONTENT|
-    #header    Test Document
-    #subheader This is a test of the _qtml_ markup/markdown language
-    #b1        QTML is a markdown/markup language which allows for
-               shorthand, technical syntax to layout a document
-               followed by a neat and tidy content section.--
-               QTML uses pdfkit and wkhtmltopdf to render and create
-               the pdf while python handles the backend parsing.
+ #TopHead    QTML
+ #SubHeader1 Readable
+ #SubHeader2 Functional
+ #SubHeader3 Versatile
+ #Bulk1      QTML is a Markup/Markdown syntax and parser. The purpose of this
+             is to have the functionality of html and css while still coming
+             close to the quickness of writing basic markdown. Currently,
+             the PDF exporting is done with PDFKit and WKHtmlToPdf.--
+             --
+             QTML looks for 3 different _blocks_. These are the *LAYOUT*,
+             *CONTENT*, and *STYLE* blocks.--
+             --
+ #SH1        *LAYOUT* Block
+ #D1         The layout block reads out very similar to html. Only with subtle
+             differences focused on typing speed.
+ #C1         \_div#Container.example|--
+             &#9;\_p#ExampleId.example||\_ --
+             |div\_
 |CONTENT_
 
 _STYLE|
-#header{
-    display:block;
+body{
+    font-family:arial;
+    width:100%;
+}
+h1{
+    font-size:26px;
+}
+p,
+span{
+    font-size:12px;
+}
+hr{
+    margin-left:0px;
+    margin-right:0px;
+    padding-left:0px;
+    padding-right:0px;
+    width:100%;
+}
+#RuleBumpDown{
+    margin-top:50px;
+}
+.header,
+.subheader{
+    color:grey;
+    text-align:center;
+}
+.lcr-container{
+    position:relative;
+}
+.left{
+    position:absolute;
+    left:0;
+}
+.left>p{
     text-align:left;
 }
-
+.center{
+    position:absolute;
+    display:block;
+    width:100%;
+}
+.inner-center{
+    display:block;
+    width:auto;
+    margin:0px auto;
+}
+.inner-center>p{
+    text-align:center;
+}
+.right{
+    position:absolute;
+    right:0;
+}
+.right>p{
+    text-align:right;
+}
+.sectionheader{
+    font-size:18px;
+    color:grey;
+}
 |STYLE_
