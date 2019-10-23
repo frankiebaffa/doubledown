@@ -20,6 +20,7 @@ class QtmlParser:
                 arr = doctxt.split('\n')
                 self.getContent(arr)
                 self.getLayout(arr)
+                self.getStyle(arr)
         elif contentfile != None and layoutfile != None:
             with open(contentfile,'r') as file:
                 doctxt = file.read()
@@ -33,23 +34,26 @@ class QtmlParser:
                 self.getLayout(arr)
 
     def getContent(self,arr):
-        contentstart  = arr.index('_CONTENT|')
-        contentend    = arr.index('|CONTENT_')
-        previousId    = None
-        contentconcat = ''
-        for i in range(contentstart+1,contentend):
-            line = arr[i].lstrip().rstrip()
-            if line[0:1] == '#':
-                kv            =  line.split(' ',1)
-                cid           =  kv[0][1:len(kv[0])]
-                contentconcat += kv[1].lstrip()
-                previousId    =  cid
-            else:
-                contentconcat += f" {line}"
-            if i == contentend-1 or arr[i+1].lstrip().rstrip()[0:1] == '#':
-                if contentconcat != None and contentconcat != '':
-                    self.content[previousId] = QtmlParser.checkContentForInline(contentconcat)
-                    contentconcat =  ''
+        try:
+            contentstart  = arr.index('_CONTENT|')
+            contentend    = arr.index('|CONTENT_')
+            previousId    = None
+            contentconcat = ''
+            for i in range(contentstart+1,contentend):
+                line = arr[i].lstrip().rstrip()
+                if line[0:1] == '#':
+                    kv            =  line.split(' ',1)
+                    cid           =  kv[0][1:len(kv[0])]
+                    contentconcat += kv[1].lstrip()
+                    previousId    =  cid
+                else:
+                    contentconcat += f" {line}"
+                if i == contentend-1 or arr[i+1].lstrip().rstrip()[0:1] == '#':
+                    if contentconcat != None and contentconcat != '':
+                        self.content[previousId] = QtmlParser.checkContentForInline(contentconcat)
+                        contentconcat =  ''
+        except:
+            print("No content block")
 
     @staticmethod
     def checkContentForInline(text):
@@ -77,63 +81,66 @@ class QtmlParser:
         return text
 
     def getLayout(self,arr):
-        layoutstart = arr.index('_LAYOUT|')
-        layoutend   = arr.index('|LAYOUT_')
-        nestpath    = [self.qdocument]
-        nestcount   = 0
-        tabcount    = 0
-        for i in range(layoutstart+1,layoutend):
-            inlineclose = False
-            line = arr[i].lstrip().rstrip()
-            elementstart = None
-            elementend   = None
+        try:
+            layoutstart = arr.index('_LAYOUT|')
+            layoutend   = arr.index('|LAYOUT_')
+            nestpath    = [self.qdocument]
+            nestcount   = 0
+            tabcount    = 0
+            for i in range(layoutstart+1,layoutend):
+                inlineclose = False
+                line = arr[i].lstrip().rstrip()
+                elementstart = None
+                elementend   = None
 
-            try:
-                elementstart = line.index('_')
-                elementend   = line.index('|')
-            except:
-                print(f'Malformed QTML on line {i}')
-                sys.exit(2)
+                try:
+                    elementstart = line.index('_')
+                    elementend   = line.index('|')
+                except:
+                    print(f'Malformed QTML on line {i}')
+                    sys.exit(2)
 
-            line = line.replace('|','',1)
-            line = line.replace('_','',1)
-            if line[len(line)-2:len(line)] == '|_':
-                inlineclose = True
-                line = line.replace('|_','',1)
+                line = line.replace('|','',1)
+                line = line.replace('_','',1)
+                if line[len(line)-2:len(line)] == '|_':
+                    inlineclose = True
+                    line = line.replace('|_','',1)
 
-            if elementstart < elementend:
-                elementstr  = line
-                qelement    = QtmlElement()
-                qelement,\
-                elementstr  = QtmlParser.checkGetTag(elementstr,qelement)
-                qelement,\
-                elementstr  = QtmlParser.checkGetAttr(elementstr,qelement)
-                qelement,\
-                elementstr  = QtmlParser.checkGetClass(elementstr,qelement)
-                qelement,\
-                elementstr  = QtmlParser.checkGetId(elementstr,qelement)
-                qelement.generateHtml()
+                if elementstart < elementend:
+                    elementstr  = line
+                    qelement    = QtmlElement()
+                    qelement,\
+                    elementstr  = QtmlParser.checkGetTag(elementstr,qelement)
+                    qelement,\
+                    elementstr  = QtmlParser.checkGetAttr(elementstr,qelement)
+                    qelement,\
+                    elementstr  = QtmlParser.checkGetClass(elementstr,qelement)
+                    qelement,\
+                    elementstr  = QtmlParser.checkGetId(elementstr,qelement)
+                    qelement.generateHtml()
 
-                for i in range(tabcount): self.html+="\t"
-                self.html += f"{qelement.opentag}\n"
-                tabcount += 1
-
-                if qelement.qid in self.content.keys():
                     for i in range(tabcount): self.html+="\t"
-                    self.html += f"{self.content[qelement.qid]}\n"
+                    self.html += f"{qelement.opentag}\n"
+                    tabcount += 1
 
-                nestpath[nestcount].qinner.append(qelement)
-                nestpath.append(nestpath[nestcount].qinner[len(nestpath[nestcount].qinner)-1])
-                nestcount += 1
-            if elementstart > elementend or inlineclose:
-                removedpath =  nestpath[nestcount:len(nestpath)]
-                removedpath =  removedpath[::-1]
-                for elem in removedpath:
-                    tabcount -= 1
-                    for i in range(tabcount): self.html+="\t"
-                    self.html += f"{elem.closetag}\n"
-                nestpath    =  nestpath[0:nestcount]
-                nestcount   -= 1
+                    if qelement.qid in self.content.keys():
+                        for i in range(tabcount): self.html+="\t"
+                        self.html += f"{self.content[qelement.qid]}\n"
+
+                    nestpath[nestcount].qinner.append(qelement)
+                    nestpath.append(nestpath[nestcount].qinner[len(nestpath[nestcount].qinner)-1])
+                    nestcount += 1
+                if elementstart > elementend or inlineclose:
+                    removedpath =  nestpath[nestcount:len(nestpath)]
+                    removedpath =  removedpath[::-1]
+                    for elem in removedpath:
+                        tabcount -= 1
+                        for i in range(tabcount): self.html+="\t"
+                        self.html += f"{elem.closetag}\n"
+                    nestpath    =  nestpath[0:nestcount]
+                    nestcount   -= 1
+        except:
+            print("No layout block")
 
     @staticmethod
     def checkGetTag(elementstr,qelement):
@@ -173,3 +180,15 @@ class QtmlParser:
             elementstr = elementstr.replace("#"+qid,'',1)
             qelement.qid = qid
         return qelement,elementstr
+
+    def getStyle(self,arr):
+        try:
+            layoutstart = arr.index('_STYLE|')
+            layoutend   = arr.index('|STYLE_')
+            self.html += "<style>\n"
+            for i in range(layoutstart+1,layoutend):
+                line = arr[i].rstrip()
+                self.html += f"\t{line}\n"
+            self.html += "</style>"
+        except:
+            pass
