@@ -33,7 +33,7 @@ syn region qtmlOpenTag  contained containedin=qtmlLayout oneline contains=qtmlId
 syn region qtmlCloseTag contained containedin=qtmlLayout oneline contains=qtmlTagName                               start="|\(CONTENT\|LAYOUT\)\@!" end="\(CONTENT\|LAYOUT\)\@<!_"
 
 " Content Id
-syn match qtmlContentId contained containedin=qtmlContent nextgroup=qtmlInnerText "\(^\s*\)\@<=#[a-zA-Z0-9]\+\(\s\+\)\@="
+syn match qtmlContentId contained containedin=qtmlContent "\(^\s*\)\@<=#[a-zA-Z0-9]\+\(\s\+\)\@="
 
 " Style
 syn match  qtmlStyleValue  contained containedin=qtmlStyleRegion                                      "[a-zA-Z0-9\-]\+;"
@@ -56,6 +56,7 @@ hi def link qtmlStyleRegion  Exception
 hi def link qtmlStyleKey     Title
 hi def link qtmlStyleValue   Type
 hi def link qtmlContentId    Type
+hi def link qtmlInnerText    Special
 hi def link qtmlCloseTag     Exception
 hi def link qtmlOpenTag      Exception
 hi def link qtmlAttrList     Exception
