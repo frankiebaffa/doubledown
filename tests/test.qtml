@@ -19,3 +19,11 @@ _CONTENT|
                QTML uses pdfkit and wkhtmltopdf to render and create
                the pdf while python handles the backend parsing.
 |CONTENT_
+
+_STYLE|
+#header{
+    display:block;
+    text-align:left;
+}
+
+|STYLE_
