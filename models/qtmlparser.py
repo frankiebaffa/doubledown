@@ -57,28 +57,45 @@ class QtmlParser:
 
     @staticmethod
     def checkContentForInline(text):
-        openclose  = {"_" : "em",
-                      "*" : "strong"}
-        standalone = {"--" : "br"}
-        for key in openclose.keys():
-            while key in text:
-                openi  = None
-                closei = None
-                try:
-                    openi = text.find(key)
-                    try:
-                        closei = text.find(key,openi+1)
-                        text = text.replace(key,f"<{openclose[key]}>",1)
-                        text = text.replace(key,f"</{openclose[key]}>",1)
-                    except:
-                        print('Malformed inline element')
-                        sys.exit(2)
-                except:
-                    pass
-        for key in standalone.keys():
-            text = text.replace(key+" ",f"<{standalone[key]}>")
-            text = text.replace(key,f"<{standalone[key]}>")
+        try:
+            openclose  = {r"(?<!\\)_" : "em",
+                          r"(?<!\\)\*" : "strong"}
+            standalone = {r"(?<!\\)-- " : "br"} # space due to how content processes
+            linktext   = r"(?<=\[).+(?=\])"
+            link       = r"(?<=\().+(?=\))"
+
+            for key in openclose.keys():
+                matches = re.findall(key,text)
+                count   = len(matches)
+                evenodd = count%2
+                for i in range(count-evenodd):
+                    if i%2 == 0:
+                        text = re.sub(key,f"<{openclose[key]}>",text,1)
+                    elif i%2 == 1:
+                        text = re.sub(key,f"</{openclose[key]}>",text,1)
+
+            for key in standalone.keys():
+                text = re.sub(key,f"<{standalone[key]}>",text)
+
+            matchobj    = [(m.start(0),m.end(0)) for m in re.finditer(linktext,text)]
+            match       = matchobj[0]
+            linkstr     = text[match[0]:match[1]]
+            removestr   = r"\["+linkstr+"\]"
+            matchobj    = [(m.start(0),m.end(0)) for m in re.finditer(link,text)]
+            match       = matchobj[0]
+            linkhyper   = text[match[0]:match[1]]
+            removehyper = r"\("+linkhyper+"\)"
+            if linkstr not in (None,'') and linkhyper not in (None,''):
+                text = re.sub(removestr,f"<a href=\"{linkhyper}\">{linkstr}</a>",text)
+                text = re.sub(removehyper,"",text)
+            print(text)
+        except:
+            pass
+
         return text
+        #for key in standalone.keys():
+        #    text = text.replace(key+" ",f"<{standalone[key]}>")
+        #    text = text.replace(key,f"<{standalone[key]}>")
 
     def getLayout(self,arr):
         try:
