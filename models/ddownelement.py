@@ -1,4 +1,4 @@
-class QtmlElement:
+class DDownElement:
     qtag        = None
     qid         = None
     qclass      = None
@@ -35,7 +35,7 @@ class QtmlElement:
             elif type(attr) == type(''):
                 self.opentag += f" {attr}"
         self.opentag += ">"
-        if not QtmlElement.isAutoClosing(self.qtag):
+        if not DDownElement.isAutoClosing(self.qtag):
             self.closetag = f"</{self.qtag}>"
 
     @staticmethod

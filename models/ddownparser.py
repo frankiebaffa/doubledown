@@ -1,9 +1,9 @@
 import re
-from   models.qtmlelement import QtmlElement
+from   models.ddownelement import DDownElement
 
-class QtmlParser:
+class DDownParser:
     qinput    = None
-    qdocument = QtmlElement()
+    qdocument = DDownElement()
     html      = None
     content   = None
 
@@ -50,7 +50,7 @@ class QtmlParser:
                     contentconcat += f" {line}"
                 if i == contentend-1 or arr[i+1].lstrip().rstrip()[0:1] == '#':
                     if contentconcat != None and contentconcat != '':
-                        self.content[previousId] = QtmlParser.checkContentForInline(contentconcat)
+                        self.content[previousId] = DDownParser.checkContentForInline(contentconcat)
                         contentconcat =  ''
         except:
             print("No content block")
@@ -124,15 +124,15 @@ class QtmlParser:
 
                 if elementstart < elementend:
                     elementstr  = line
-                    qelement    = QtmlElement()
+                    qelement    = DDownElement()
                     qelement,\
-                    elementstr  = QtmlParser.checkGetTag(elementstr,qelement)
+                    elementstr  = DDownParser.checkGetTag(elementstr,qelement)
                     qelement,\
-                    elementstr  = QtmlParser.checkGetAttr(elementstr,qelement)
+                    elementstr  = DDownParser.checkGetAttr(elementstr,qelement)
                     qelement,\
-                    elementstr  = QtmlParser.checkGetClass(elementstr,qelement)
+                    elementstr  = DDownParser.checkGetClass(elementstr,qelement)
                     qelement,\
-                    elementstr  = QtmlParser.checkGetId(elementstr,qelement)
+                    elementstr  = DDownParser.checkGetId(elementstr,qelement)
                     qelement.generateHtml()
 
                     for i in range(tabcount): self.html+="\t"

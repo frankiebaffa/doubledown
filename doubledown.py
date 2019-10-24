@@ -1,6 +1,5 @@
-#!/home/frankiebaffa/git/qtml/venv/bin/python3
 import sys
-from   models.qtmlparser import QtmlParser
+from   models.ddownparser import DDownParser
 from   models.pdf        import Pdf
 from   optionparser      import parseOpts
 
@@ -16,13 +15,13 @@ def printStatus(options):
         if options['cssfile'] != None:
             print(f"CSS    : {options['cssfile']}")
 
-def createQtml(options):
-    qtml = QtmlParser(
+def createDDown(options):
+    ddown = DDownParser(
             layoutfile = options['layoutfile'],
             contentfile= options['contentfile'],
             singlefile = options['singlefile']
             )
-    return qtml
+    return ddown
 
 def createPdf(htmlstr,cssfile,output):
     if cssfile != None:
@@ -37,8 +36,8 @@ def createHtmlDoc(htmlstr):
 if __name__ == '__main__':
     options = parseOpts(sys.argv[1:])
     printStatus(options)
-    qtml = createQtml(options)
-    if options["html"]: createHtmlDoc(qtml.html)
-    createPdf(qtml.html,options["cssfile"],options["output"])
+    ddown = createDDown(options)
+    if options["html"]: createHtmlDoc(ddown.html)
+    createPdf(ddown.html,options["cssfile"],options["output"])
     print('*** success!')
     sys.exit(2)
