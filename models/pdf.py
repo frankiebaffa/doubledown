@@ -4,7 +4,7 @@ import pdfkit
 class Pdf:
     @staticmethod
     def makePdfFromString(html,name,css=None):
-        options = {'page-size':'A4',
+        options = {'page-size':'Letter',
                    'margin-top':'1.00in',
                    'margin-right':'1.00in',
                    'margin-bottom':'1.00in',
