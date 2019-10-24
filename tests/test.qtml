@@ -29,12 +29,11 @@ _CONTENT|
  #SubHeader3 Versatile
  #Bulk1      QTML is a Markup/Markdown syntax and parser. The purpose of this
              is to have the functionality of html and css while still coming
-             close to the quickness of writing basic markdown. Currently,
+             close to the quickness of -writing- basic markdown. Currently,
              the PDF exporting is done with PDFKit and WKHtmlToPdf.--
              --
              QTML looks for 3 different _blocks_. These are the *LAYOUT*,
-             *CONTENT*, and *STYLE* blocks.--
-             --
+             *CONTENT*, and *STYLE* blocks.
  #SH1        *LAYOUT* Block
  #D1         The layout block reads out very similar to html. Only with subtle
              differences focused on typing speed.
