@@ -24,11 +24,11 @@ def createQtml(options):
             )
     return qtml
 
-def createPdf(htmlstr,cssfile):
+def createPdf(htmlstr,cssfile,output):
     if cssfile != None:
-        Pdf.makePdfFromString(htmlstr,'test.pdf',css=cssfile)
+        Pdf.makePdfFromString(htmlstr,output,css=cssfile)
     else:
-        Pdf.makePdfFromString(htmlstr,'test.pdf')
+        Pdf.makePdfFromString(htmlstr,output)
 
 def createHtmlDoc(htmlstr):
     with open("test.html","w") as file:
@@ -39,6 +39,6 @@ if __name__ == '__main__':
     printStatus(options)
     qtml = createQtml(options)
     if options["html"]: createHtmlDoc(qtml.html)
-    createPdf(qtml.html,options["cssfile"])
+    createPdf(qtml.html,options["cssfile"],options["output"])
     print('*** success!')
     sys.exit(2)
