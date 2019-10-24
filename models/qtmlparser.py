@@ -58,8 +58,10 @@ class QtmlParser:
     @staticmethod
     def checkContentForInline(text):
         try:
-            openclose  = {r"(?<!\\)_" : "em",
-                          r"(?<!\\)\*" : "strong"}
+            openclose  = {r"(?<!\\)_"  : "em",
+                          r"(?<!\\)\*" : "strong",
+                          r"(?<!\\)-"  : "s",
+                          r"(?<!\\)\|" : "li"}
             standalone = {r"(?<!\\)-- " : "br"} # space due to how content processes
             linktext   = r"(?<=\[).+(?=\])"
             link       = r"(?<=\().+(?=\))"
@@ -93,9 +95,6 @@ class QtmlParser:
             pass
 
         return text
-        #for key in standalone.keys():
-        #    text = text.replace(key+" ",f"<{standalone[key]}>")
-        #    text = text.replace(key,f"<{standalone[key]}>")
 
     def getLayout(self,arr):
         try:
