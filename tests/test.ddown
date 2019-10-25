@@ -1,106 +1,105 @@
-_LAYOUT|
-_body|
-    _h1#TopHead.header||_
-    _div.lcr-container|
-        _div.left|
-            _p#SubHeader1.subheader||_
-        |div_
-        _div.center|
-            _div.inner-center|
-                _p#SubHeader2.subheader||_
-            |div_
-        |div_
-        _div.right|
-            _p#SubHeader3.subheader||_
-        |div_
-    |div_
-    _hr#RuleBumpDown||_
-    _p#Bulk1||_
-    _h4#SH1.sectionheader||_
-    _p#D1.sectiondescriptior||_
-    _code#C1.sectioncode||_
-|body_
-|LAYOUT_
-
 _CONTENT|
- #TopHead    QTML
- #SubHeader1 Readable
- #SubHeader2 Functional
- #SubHeader3 Versatile
- #Bulk1      QTML is a Markup/Markdown syntax and parser. The purpose of this
-             is to have the functionality of html and css while still coming
-             close to the quickness of -writing- basic markdown. Currently,
-             the PDF exporting is done with PDFKit and WKHtmlToPdf.--
-             --
-             QTML looks for 3 different _blocks_. These are the *LAYOUT*,
-             *CONTENT*, and *STYLE* blocks.
- #SH1        *LAYOUT* Block
- #D1         The layout block reads out very similar to html. Only with subtle
-             differences focused on typing speed.
- #C1         \_div#Container.example|--
-             &#9;\_p#ExampleId.example||\_ --
-             |div\_
+    #MainHead   DoubleDown
+    #SubHead    _A markup-specific document notation parsed in python._
+    #Left1      Versitile
+    #Center1    Readable
+    #Right1     Extensive
+    #Goals      DoubleDown was written to uphold versitility of HTML/CSS IDs,
+                classes, attributes while maintaining markdown's readability.
+                The solution to this was to break out the syntax into three
+                main sections: *layout*, *content*, *style*. _Layout_ contains
+                a shorthand syntax for html which is run through a python-based
+                parser. The _content_ section maps text and inline styling elements
+                to html IDs. The _style_ section accepts pure css. _Content_ is
+                parsed first to create a map. The _layout_ section follows and is
+                handled as a single 'DDownElement' object which contains an
+                'inner' attribute containing the nested 'DDownElements'.
+    #Foot       written and formatted using DoubleDown
 |CONTENT_
 
+@LAYOUT|
+    @lcr|
+        _table.lcrContainer|
+            _tbody|
+                _tr|
+                    _td#.descript||_
+                    _td#.descript||_
+                    _td#.descript||_
+                |tr_
+            |tbody_
+        |table_
+    |lcr@
+|LAYOUT@
+
+_LAYOUT|
+    _h1#MainHead.header||_
+    _p#SubHead.subheader||_
+    @lcr#Left1#Center1#Right1
+    _hr||_
+    _p#Goals.descript||_
+    _p#Foot.footer||_
+|LAYOUT_
+
 _STYLE|
-body{
-    font-family:arial;
-    width:100%;
-}
-h1{
-    font-size:26px;
-}
+h1,
+h2,
+h3
+h4,
+h5,
+h6,
+span,
 p,
-span{
-    font-size:12px;
+li,
+td{
+    font-family:arial;
+    font-weight:normal;
+    font-style:normal;
 }
-hr{
-    margin-left:0px;
-    margin-right:0px;
-    padding-left:0px;
-    padding-right:0px;
-    width:100%;
+.header{
+    font-size:20px;
 }
-#RuleBumpDown{
-    margin-top:50px;
+.subheader{
+    font-size:16px;
 }
 .header,
 .subheader{
-    color:grey;
     text-align:center;
 }
-.lcr-container{
-    position:relative;
+.header,
+.subheader,
+.sectionHeader,
+.lcrContainer>tbody>tr>td{
+    color:grey;
 }
-.left{
-    position:absolute;
-    left:0;
+.descript{
+    font-size:12px;
 }
-.left>p{
+.lcrContainer{
+    width:100%;
+    table-layout:fixed;
+    margin-bottom:0px;
+}
+hr{
+    margin-top:0px;
+}
+.lcrContainer>tbody>tr>td{
+    width:50%;
+}
+#Left1{
     text-align:left;
 }
-.center{
-    position:absolute;
-    display:block;
-    width:100%;
-}
-.inner-center{
-    display:block;
-    width:auto;
-    margin:0px auto;
-}
-.inner-center>p{
+#Center1{
     text-align:center;
 }
-.right{
-    position:absolute;
-    right:0;
-}
-.right>p{
+#Right1{
     text-align:right;
 }
-.sectionheader{
-    font-size:18px;
+#Foot{
+    font-size:10px;
     color:grey;
+    position:absolute;
+    right:0;
+    bottom:0;
 }
 |STYLE_
+
