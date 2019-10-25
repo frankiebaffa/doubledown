@@ -2,6 +2,8 @@
 " Language:        DoubleDown
 " Maintainer:      Frankie Baffa
 " Latest Revision: 18 Oct 2019
+" TODO: fix highlighting of layout block tag
+"       following a variable
 
 if exists("b:current_syntax")
   finish
@@ -16,8 +18,7 @@ syn case ignore
 
 syn match ddownTagName contained containedin=ddownCloseTag,ddownOpenTag "\(_\)\@<=[a-zA-Z0-9]\+\(\.\||\|#\|\[\)\@="
 syn match ddownTagName contained containedin=ddownCloseTag,ddownOpenTag "\(|\)\@<=[a-zA-Z0-9]\+\(_\)\@="
-syn match ddownId      contained containedin=ddownOpenTag               "\(#\)\@<=[a-zA-Z0-9]\+\(\.\||\|\[\)\@="
-syn match ddownId      contained containedin=ddownVarTag                "\(#\)\@<=[a-zA-Z0-9]\+\(#\|$\)\@="
+syn match ddownId      contained containedin=ddownOpenTag,ddownVarTag   "\(#\)\@<=[a-zA-Z0-9]\+\(\.\||\|\[\|@\|#\)\@="
 syn match ddownClass   contained containedin=ddownOpenTag              "\(\.\)\@<=[a-zA-Z0-9]\+\(\.\||\|#\|\[\)\@="
 
 " Attributes
@@ -32,7 +33,7 @@ syn region ddownAttrList contained containedin=ddownOpenTag contains=ddownAttr,d
 syn match ddownVarName contained containedin=ddownVarName "\(@\)\@<=[a-zA-Z0-9]\+"
 
 " Tag Elements
-syn region ddownVarTag   contained containedin=ddownLayout                oneline contains=ddownId,ddownVarName                          start="@\([a-zA-Z0-9]\)\@="     end="$"
+syn region ddownVarTag   contained containedin=ddownLayout                oneline contains=ddownId,ddownVarName                          start="@\([a-zA-Z0-9]\)\@="     end="@"
 syn region ddownOpenTag  contained containedin=ddownLayoutVar,ddownLayout oneline contains=ddownId,ddownClass,ddownTagName,ddownAttrList start="_\(CONTENT\|LAYOUT\)\@!" end="\(CONTENT\|LAYOUT\)\@<!|"
 syn region ddownCloseTag contained containedin=ddownLayoutVar,ddownLayout oneline contains=ddownTagName                                  start="|\(CONTENT\|LAYOUT\)\@!" end="\(CONTENT\|LAYOUT\)\@<!_"
 
