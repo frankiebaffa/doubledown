@@ -94,11 +94,10 @@ class DDownParser:
             if linkstr not in (None,'') and linkhyper not in (None,''):
                 text = re.sub(removestr,f"<a href=\"{linkhyper}\">{linkstr}</a>",text)
                 text = re.sub(removehyper,"",text)
-            print(text)
         except:
             pass
 
-        return text
+        return text.replace("\\","")
 
     def getLayoutVars(self,arr):
         try:
