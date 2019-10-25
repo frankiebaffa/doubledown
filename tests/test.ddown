@@ -34,7 +34,7 @@ _CONTENT|
 _LAYOUT|
     _h1#MainHead.header||_
     _p#SubHead.subheader||_
-    @lcr#Left1#Center1#Right1
+    @lcr#Left1#Center1#Right1@
     _hr||_
     _p#Goals.descript||_
     _p#Foot.footer||_

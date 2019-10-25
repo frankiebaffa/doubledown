@@ -141,7 +141,7 @@ class DDownParser:
             tabcount    = 0
             for i in range(len(newarr)):
                 line = newarr[i].lstrip().rstrip()
-                lvarstarti = [(m.start(0),m.end(0)) for m in re.finditer(r"(?<=@)[a-zA-Z0-9]+(?=[#$])",line)]
+                lvarstarti = [(m.start(0),m.end(0)) for m in re.finditer(r"(?<=@)[a-zA-Z0-9]+(?=[#@])",line)]
                 if len(lvarstarti) > 0:
                     varname = line[lvarstarti[0][0]:lvarstarti[0][1]]
                     var = None
@@ -150,7 +150,7 @@ class DDownParser:
                     except:
                         print(f"Found undefined variable [{varname}] in layout")
                         sys.exit(2)
-                    ids = re.findall(r"(?<=#)[a-zA-Z0-9]+",line)
+                    ids = re.findall(r"(?<=#)[a-zA-Z0-9]+(?=[@#])",line)
                     idcount = 0
                     for l in var:
                         if '#' in l:
