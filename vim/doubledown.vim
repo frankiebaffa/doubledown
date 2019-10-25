@@ -40,24 +40,21 @@ syn region ddownCloseTag contained containedin=ddownLayoutVar,ddownLayout onelin
 " Content Id
 syn match ddownContentId contained containedin=ddownContent "\(^\s*\)\@<=#[a-zA-Z0-9]\+\(\s\+\)\@="
 
-" Style
-syn match  ddownStyleValue  contained containedin=ddownStyleRegion                                      "[a-zA-Z0-9\-]\+;"
-syn match  ddownStyleKey    contained containedin=ddownStyleRegion nextgroup=ddownStyleValue             "[a-zA-Z0-9\-]\+:"
-syn region ddownStyleRegion contained containedin=ddownStyle       contains=ddownStyleKey,ddownStyleValue start="{" end="}"
-syn match  ddownStyleIdent  contained containedin=ddownStyle       nextgroup=ddownStyleRegion            "\(^\s*\)\@<=\(#\|\.\|[a-zA-Z0-9\-\.,#]*\)[a-zA-Z0-9]\+"
-
 syn region ddownLayoutVar contained containedin=ddownLayoutVarSec contains=ddownOpenTag,ddownCloseTag start="@\(CONTENT\|LAYOUT\)\@![a-zA-Z0-9]\+|" end="|\(CONTENT\|LAYOUT\)\@![a-zA-Z0-9]\+@"
+
+" Import CSS
+syn include @css syntax/css.vim
 
 " Content region
 syn region  ddownLayout       start=+^_LAYOUT|$+  end=+^|LAYOUT_$+  contains=ddownOpenTag,ddownCloseTag
 syn region  ddownLayoutVarSec start=+^@LAYOUT|$+  end=+^|LAYOUT@$+  contains=ddownLayoutVar
 syn region  ddownContent      start=+^_CONTENT|$+ end=+^|CONTENT_$+ contains=ddownContentId
-syn region  ddownStyle        start=+^_STYLE|$+   end=+^|STYLE_$+   contains=ddownStyleIdent
-syn match   ddownProcTag      +^\(__\|||\)\(LAYOUT\|CONTENT\)\(__\|||\)$+
+syn region  ddownStyle        start=+^_STYLE|$+   end=+^|STYLE_$+   contains=@css
 
 hi def link ddownStyle        Comment
 hi def link ddownContent      Comment
 hi def link ddownLayoutVarSec Comment
+hi def link ddownHtml         Comment
 hi def link ddownLayout       Comment
 hi def link ddownStyleIdent   Special
 hi def link ddownStyleRegion  Exception
