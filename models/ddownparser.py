@@ -5,12 +5,14 @@ class DDownParser:
     qinput    = None
     qdocument = DDownElement()
     html      = None
+    lvars     = None
     content   = None
 
     def __init__(self,singlefile=None,contentfile=None,layoutfile=None):
         self.qdocument.qtag = "document"
         self.qdocument.qid  = "Document"
         self.html = ''
+        self.lvars = {}
         self.content = {}
 
         if singlefile != None:
@@ -19,6 +21,7 @@ class DDownParser:
                 self.qinput = doctxt
                 arr = doctxt.split('\n')
                 self.getContent(arr)
+                self.getLayoutVars(arr)
                 self.getLayout(arr)
                 self.getStyle(arr)
         elif contentfile != None and layoutfile != None:
@@ -31,6 +34,7 @@ class DDownParser:
                 doctxt = file.read()
                 self.qinput = doctxt
                 arr = doctxt.split('\n')
+                self.getLayoutVar(arr)
                 self.getLayout(arr)
 
     def getContent(self,arr):
@@ -96,16 +100,78 @@ class DDownParser:
 
         return text
 
+    def getLayoutVars(self,arr):
+        try:
+            lvarstart = arr.index('@LAYOUT|')
+            lvarend   = arr.index('|LAYOUT@')
+            newarr    = []
+            for i in arr[lvarstart+1:lvarend]:
+                newarr.append(i.rstrip().lstrip())
+            lvarstarts = []
+            lvarends   = []
+            lvarnames  = []
+            try:
+                for i in range(len(newarr)):
+                    line = newarr[i].rstrip().lstrip()
+                    lvarstarti = [(m.start(0),m.end(0)) for m in re.finditer(r"(?<=@)[a-zA-Z0-9]+(?=\|)",line)]
+                    lvarendi   = [(m.start(0),m.end(0)) for m in re.finditer(r"\|[a-zA-Z0-9]*@",line)]
+                    if len(lvarstarti) > 0:
+                        lvarstarts.append(i)
+                        lvarnames.append(line[lvarstarti[0][0]:lvarstarti[0][1]])
+                    if len(lvarendi) > 0:
+                        lvarends.append(i)
+
+                for i in range(len(lvarstarts)):
+                    vararr = newarr[lvarstarts[i]+1:lvarends[i]]
+                    self.lvars[lvarnames[i]] = vararr
+            except:
+                pass
+
+        except:
+            pass
+
     def getLayout(self,arr):
         try:
             layoutstart = arr.index('_LAYOUT|')
             layoutend   = arr.index('|LAYOUT_')
+            newarr      = arr[layoutstart+1:layoutend]
+            finalarr    = []
             nestpath    = [self.qdocument]
             nestcount   = 0
             tabcount    = 0
-            for i in range(layoutstart+1,layoutend):
+            for i in range(len(newarr)):
+                line = newarr[i].lstrip().rstrip()
+                lvarstarti = [(m.start(0),m.end(0)) for m in re.finditer(r"(?<=@)[a-zA-Z0-9]+(?=[#$])",line)]
+                if len(lvarstarti) > 0:
+                    varname = line[lvarstarti[0][0]:lvarstarti[0][1]]
+                    var = None
+                    try:
+                        var = self.lvars[varname]
+                    except:
+                        print(f"Found undefined variable [{varname}] in layout")
+                        sys.exit(2)
+                    ids = re.findall(r"(?<=#)[a-zA-Z0-9]+",line)
+                    idcount = 0
+                    for l in var:
+                        if '#' in l:
+                            idcount += 1
+                    if len(ids) == idcount:
+                        idcount = 0
+                        for j in range(len(var)):
+                            l = var[j]
+                            if '#' in l:
+                                var[j] = l.replace('#',f"#{ids[idcount]}",1)
+                                idcount += 1
+                    else:
+                        print(f"Defined variable [{varname}] not given correct # of ids")
+                        sys.exit(2)
+                    finalarr[i:1] = var
+                else:
+                    finalarr.append(line)
+
+            for i in range(len(finalarr)):
                 inlineclose = False
-                line = arr[i].lstrip().rstrip()
+                line = finalarr[i].lstrip().rstrip()
                 elementstart = None
                 elementend   = None
 
