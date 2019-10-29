@@ -62,10 +62,10 @@ class DDownParser:
     @staticmethod
     def checkContentForInline(text):
         try:
-            openclose  = {r"(?<!\\)_"  : "em",
-                          r"(?<!\\)\*" : "strong",
-                          r"(?<!\\)-"  : "s",
-                          r"(?<!\\)\|" : "li"}
+            openclose  = {r"(?<!\\)_"          : "em",
+                          r"(?<!\\)\*"         : "strong",
+                          r"(?<![\\\-])-(?!-)" : "s",
+                          r"(?<!\\)\|"         : "li"}
             standalone = {r"(?<!\\)-- " : "br"} # space due to how content processes
             linktext   = r"(?<=\[).+(?=\])"
             link       = r"(?<=\().+(?=\))"
@@ -125,7 +125,6 @@ class DDownParser:
                     self.lvars[lvarnames[i]] = vararr
             except:
                 pass
-
         except:
             pass
 
@@ -144,8 +143,10 @@ class DDownParser:
                 if len(lvarstarti) > 0:
                     varname = line[lvarstarti[0][0]:lvarstarti[0][1]]
                     var = None
+                    layoutvars = None
                     try:
-                        var = self.lvars[varname]
+                        layoutvars = self.lvars.copy()
+                        var = layoutvars[varname].copy()
                     except:
                         print(f"Found undefined variable [{varname}] in layout")
                         sys.exit(2)
@@ -164,7 +165,8 @@ class DDownParser:
                     else:
                         print(f"Defined variable [{varname}] not given correct # of ids")
                         sys.exit(2)
-                    finalarr[i:1] = var
+                    for j in var:
+                        finalarr.append(j)
                 else:
                     finalarr.append(line)
 
