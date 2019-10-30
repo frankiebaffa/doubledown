@@ -3,6 +3,7 @@ from   models.ddownparser import DDownParser
 from   models.pdf        import Pdf
 from   optionparser      import parseOpts
 import requests
+import os
 
 def printStatus(options):
     if not options["quiet"]:
@@ -24,11 +25,21 @@ def createDDown(options):
             )
     return ddown
 
-def createPdf(htmlstr,cssfile,output):
+def createPdf(htmlstr,cssfile,output,css):
     if cssfile != None:
-        Pdf.makePdfFromString(htmlstr,output,css=cssfile)
+        Pdf.makePdfFromString(htmlstr,f"{output}.pdf",css=cssfile)
     else:
-        Pdf.makePdfFromString(htmlstr,output)
+        tmpcss = None
+        exists = True
+        existi = 0
+        while exists:
+            tmpcss =  f"{output}.tmp{existi}.css"
+            exists =  os.path.exists(tmpcss)
+            existi += 1
+        with open(tmpcss,"w") as file:
+            file.write(css)
+        Pdf.makePdfFromString(htmlstr,f"{output}.pdf",css=tmpcss)
+        os.remove(tmpcss)
 
 def createHtmlDoc(htmlstr,output):
     from bs4 import BeautifulSoup
@@ -42,6 +53,5 @@ if __name__ == '__main__':
     printStatus(options)
     ddown = createDDown(options)
     if options["html"]: createHtmlDoc(ddown.html,f"{options['output']}.html")
-    createPdf(ddown.html,options["cssfile"],f"{options['output']}.pdf")
+    createPdf(ddown.html,options["cssfile"],options["output"],ddown.css)
     print('*** success!')
-    sys.exit(2)
