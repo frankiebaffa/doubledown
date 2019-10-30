@@ -1,28 +1,28 @@
 _CONTENT|
-    #MainHead   DoubleDown
-    #SubHead    _A markup-specific document notation parsed in python._
-    #Left1      Versitile
-    #Center1    Readable
-    #Right1     Extensive
-    #Goals      DoubleDown was written to uphold versitility of HTML/CSS IDs,
-                classes, attributes while maintaining markdown's readability.
-                The solution to this was to break out the syntax into three
-                main sections: *layout*, *content*, *style*. _Layout_ contains
-                a shorthand syntax for html which is run through a python-based
-                parser. The _content_ section maps text and inline styling elements
-                to html IDs. The _style_ section accepts pure css. _Content_ is
-                parsed first to create a map. The _layout_ section follows and is
-                handled as a single 'DDownElement' object which contains an
-                'inner' attribute containing the nested 'DDownElements'.
-    #ul1        |This is the original list style|
-    #p1         %>|This is the new list style|
-                  |I should be able to add multiple list elements|
-                  %>|And also nest elements|
-                    |Like this|<%
-                  $>|And also ordered lists|
-                    |Like this|<$<%
-                $>|Ordered list|<$
-    #Foot       written and formatted using DoubleDown
+#MainHead   DoubleDown
+#SubHead    _A markup-specific document notation parsed in python._
+#Left1      Versitile
+#Center1    Readable
+#Right1     Extensive
+#Goals      DoubleDown was written to uphold versitility of HTML/CSS IDs,
+            classes, attributes while maintaining markdown's readability.
+            The solution to this was to break out the syntax into three
+            main sections: *layout*, *content*, *style*. _Layout_ contains
+            a shorthand syntax for html which is run through a python-based
+            parser. The _content_ section maps text and inline styling elements
+            to html IDs. The _style_ section accepts pure css. _Content_ is
+            parsed first to create a map. The _layout_ section follows and is
+            handled as a single 'DDownElement' object which contains an
+            'inner' attribute containing the nested 'DDownElements'.
+#ul1        |This is the original list style|
+#p1         %>|This is the new list style|
+              |I should be able to add multiple list elements|
+              %>|And also nest elements|
+                |Like this|<%
+              $>|And also ordered lists|
+                |Like this|<$<%
+            $>|Ordered list|<$
+#Foot       written and formatted using DoubleDown
 |CONTENT_
 
 @LAYOUT|
