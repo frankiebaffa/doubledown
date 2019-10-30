@@ -62,13 +62,23 @@ class DDownParser:
     @staticmethod
     def checkContentForInline(text):
         try:
-            openclose  = {r"(?<!\\)_"          : "em",
-                          r"(?<!\\)\*"         : "strong",
-                          r"(?<![\\\-])-(?!-)" : "s",
-                          r"(?<!\\)\|"         : "li"}
-            standalone = {r"(?<!\\)-- " : "br"} # space due to how content processes
-            linktext   = r"(?<=\[).+(?=\])"
-            link       = r"(?<=\().+(?=\))"
+            openclose     = {r"(?<!\\)_"          : "em",
+                             r"(?<!\\)\*"         : "strong",
+                             r"(?<![\\\-])-(?!-)" : "s",
+                             r"(?<![\\])\|"       : "li"}
+            opendiffclose = {"ul" : {"open"  : r"(?<![\\])\%\>",
+                                     "close" : r"(?<![\\])\<\%"},
+                             "ol" : {"open"  : r"(?<![\\])\$\>",
+                                     "close" : r"(?<![\\])\<\$"}}
+            standalone    = {r"(?<!\\)-- " : "br"} # space due to how content processes
+            linktext      = r"(?<=\[).+(?=\])"
+            link          = r"(?<=\().+(?=\))"
+
+            for tagname in opendiffclose.keys():
+                openpat = opendiffclose[tagname]["open"]
+                clospat = opendiffclose[tagname]["close"]
+                text    = re.sub(openpat,f"\\<{tagname}\\>",text)
+                text    = re.sub(clospat,f"\\</{tagname}\\>",text)
 
             for key in openclose.keys():
                 matches = re.findall(key,text)
@@ -97,7 +107,8 @@ class DDownParser:
         except:
             pass
 
-        return text.replace("\\","")
+        text = text.replace("\\","")
+        return text
 
     def getLayoutVars(self,arr):
         try:
