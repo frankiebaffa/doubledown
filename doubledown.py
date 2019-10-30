@@ -2,6 +2,7 @@ import sys
 from   models.ddownparser import DDownParser
 from   models.pdf        import Pdf
 from   optionparser      import parseOpts
+import requests
 
 def printStatus(options):
     if not options["quiet"]:
@@ -17,9 +18,9 @@ def printStatus(options):
 
 def createDDown(options):
     ddown = DDownParser(
-            layoutfile = options['layoutfile'],
-            contentfile= options['contentfile'],
-            singlefile = options['singlefile']
+            layoutfile    = options['layoutfile'],
+            contentfile   = options['contentfile'],
+            singlefile    = options['singlefile']
             )
     return ddown
 
