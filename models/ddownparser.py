@@ -250,7 +250,7 @@ class DDownParser:
 
     @staticmethod
     def checkGetClass(elementstr,qelement):
-        classes = re.findall(r"(?<=\.)[a-zA-Z0-9]+",elementstr)
+        classes = re.findall(r"(?<=\.)[a-zA-Z0-9\-]+",elementstr)
         for qclass in classes:
             elementstr = elementstr.replace("."+qclass,'',1)
             qelement.qclass.append(qclass)
