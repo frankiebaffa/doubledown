@@ -6,25 +6,22 @@ def parseOpts(argv):
     layoutfile  = None
     cssfile     = None
     opts        = None
-    options     = {
-                    "contentfile": None,
-                    "layoutfile" : None,
-                    "cssfile"    : None,
-                    "singlefile" : None,
-                    "output"     : None,
-                    "quiet"      : False,
-                    "html"       : False
-                  }
+    options     = {"contentfile"  : None,
+                   "layoutfile"   : None,
+                   "cssfile"      : None,
+                   "singlefile"   : None,
+                   "output"       : None,
+                   "quiet"        : False,
+                   "html"         : False}
     try:
         opts,args = getopt.getopt(
             argv,
             "c:l:s:i:o:qh",
-            [
-                "contentfile=",
-                "layoutfile=",
-                "cssfile=",
-                "singlefile="
-            ]
+            ["contentfile=",
+             "layoutfile=",
+             "cssfile=",
+             "singlefile=",
+             "outputfile="]
         )
     except getopt.GetoptError:
         print('Error getting opts')
