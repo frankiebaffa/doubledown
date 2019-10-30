@@ -63,15 +63,25 @@ class DDownParser:
     @staticmethod
     def checkContentForInline(text):
         try:
-            openclose     = {r"(?<!\\)_"          : "em",
-                             r"(?<!\\)\*"         : "strong",
-                             r"(?<![\\\-])-(?!-)" : "s",
-                             r"(?<![\\])\|"       : "li"}
-            opendiffclose = {"ul" : {"open"  : r"(?<![\\])\%\>",
-                                     "close" : r"(?<![\\])\<\%"},
-                             "ol" : {"open"  : r"(?<![\\])\$\>",
-                                     "close" : r"(?<![\\])\<\$"}}
-            standalone    = {r"(?<!\\)-- " : "br"} # space due to how content processes
+            openclose = {
+                         r"(?<!\\)_"          : "em",
+                         r"(?<!\\)\*"         : "strong",
+                         r"(?<![\\\-])-(?!-)" : "s",
+                         r"(?<![\\])\|"       : "li"
+                        }
+
+            opendiffclose = {
+                             "ul" : {
+                                     "open"  : r"(?<![\\])\%\>",
+                                     "close" : r"(?<![\\])\<\%"
+                                    },
+                             "ol" : {
+                                     "open"  : r"(?<![\\])\$\>",
+                                     "close" : r"(?<![\\])\<\$"
+                                    }
+                            }
+
+            standalone    = {r"(?<!\\)[\s]*\-\-[\s]*" : "br"} # space due to how content processes
             linktext      = r"(?<=\[).+(?=\])"
             link          = r"(?<=\().+(?=\))"
 
@@ -92,6 +102,7 @@ class DDownParser:
                         text = re.sub(key,f"</{openclose[key]}>",text,1)
 
             for key in standalone.keys():
+                matches = re.findall(key,text)
                 text = re.sub(key,f"<{standalone[key]}>",text)
 
             matchobj    = [(m.start(0),m.end(0)) for m in re.finditer(linktext,text)]
