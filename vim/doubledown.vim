@@ -38,7 +38,7 @@ syn region ddownOpenTag  contained containedin=ddownLayoutVar,ddownLayout onelin
 syn region ddownCloseTag contained containedin=ddownLayoutVar,ddownLayout oneline contains=ddownTagName                                  start="|\(CONTENT\|LAYOUT\)\@!" end="\(CONTENT\|LAYOUT\)\@<!_"
 
 " Content Id
-syn region ddownContentText                            contained containedin=ddownContent start="\(\(^\s*\)\@<=#[a-zA-Z0-9]\+\s\+\)\@<=\s\([a-zA-Z0-9%><|\*_]\)\@=" end="^\(\(\(^\s*\)\@<=#[a-zA-Z0-9]\+\(\s\+\)\@=\)\|^\(|CONTENT_\)\@=\)\@="
+syn region ddownContentText                            contained containedin=ddownContent start="\(\(^\s*\)\@<=#[a-zA-Z0-9]\+\s*\)\@<=\s\([a-zA-Z0-9%><|\*_]\)\@=" end="^\(\(\(^\s*\)\@<=#[a-zA-Z0-9]\+\(\s\+\)\@=\)\|^\(|CONTENT_\)\@=\)\@="
 syn match  ddownInlineChar                             contained containedin=ddownContentText "\(%>\|<%\|\$>\|<\$\||\|_\|\*\)"
 syn match  ddownContentId   nextgroup=ddownContentText contained containedin=ddownContent "\(^\s*\)\@<=#[a-zA-Z0-9]\+\(\s\+\)\@="
 
