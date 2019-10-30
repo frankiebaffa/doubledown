@@ -5,6 +5,7 @@ class DDownParser:
     qinput    = None
     qdocument = DDownElement()
     html      = None
+    css       = None
     lvars     = None
     content   = None
 
@@ -147,7 +148,6 @@ class DDownParser:
             finalarr    = []
             nestpath    = [self.qdocument]
             nestcount   = 0
-            tabcount    = 0
             for i in range(len(newarr)):
                 line = newarr[i].lstrip().rstrip()
                 lvarstarti = [(m.start(0),m.end(0)) for m in re.finditer(r"(?<=@)[a-zA-Z0-9]+(?=[#@])",line)]
@@ -213,13 +213,10 @@ class DDownParser:
                     elementstr  = DDownParser.checkGetId(elementstr,qelement)
                     qelement.generateHtml()
 
-                    for i in range(tabcount): self.html+="\t"
-                    self.html += f"{qelement.opentag}\n"
-                    tabcount += 1
+                    self.html += f"{qelement.opentag}"
 
                     if qelement.qid in self.content.keys():
-                        for i in range(tabcount): self.html+="\t"
-                        self.html += f"{self.content[qelement.qid]}\n"
+                        self.html += f"{self.content[qelement.qid]}"
 
                     nestpath[nestcount].qinner.append(qelement)
                     nestpath.append(nestpath[nestcount].qinner[len(nestpath[nestcount].qinner)-1])
@@ -228,9 +225,7 @@ class DDownParser:
                     removedpath =  nestpath[nestcount:len(nestpath)]
                     removedpath =  removedpath[::-1]
                     for elem in removedpath:
-                        tabcount -= 1
-                        for i in range(tabcount): self.html+="\t"
-                        self.html += f"{elem.closetag}\n"
+                        self.html += f"{elem.closetag}"
                     nestpath    =  nestpath[0:nestcount]
                     nestcount   -= 1
         except:
@@ -279,10 +274,9 @@ class DDownParser:
         try:
             layoutstart = arr.index('_STYLE|')
             layoutend   = arr.index('|STYLE_')
-            self.html += "<style>\n"
+            self.css    = ''
             for i in range(layoutstart+1,layoutend):
                 line = arr[i].rstrip()
-                self.html += f"\t{line}\n"
-            self.html += "</style>"
+                self.css += f"{line}"
         except:
             pass
