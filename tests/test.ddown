@@ -14,6 +14,14 @@ _CONTENT|
                 parsed first to create a map. The _layout_ section follows and is
                 handled as a single 'DDownElement' object which contains an
                 'inner' attribute containing the nested 'DDownElements'.
+    #ul1        |This is the original list style|
+    #p1         %>|This is the new list style|
+                  |I should be able to add multiple list elements|
+                  %>|And also nest elements|
+                    |Like this|<%
+                  $>|And also ordered lists|
+                    |Like this|<$<%
+                $>|Ordered list|<$
     #Foot       written and formatted using DoubleDown
 |CONTENT_
 
@@ -37,6 +45,8 @@ _LAYOUT|
     @lcr#Left1#Center1#Right1@
     _hr||_
     _p#Goals.descript||_
+    _ul#ul1.descript||_
+    _p#p1.descript||_
     _p#Foot.footer||_
 |LAYOUT_
 
@@ -71,7 +81,9 @@ td{
 .lcrContainer>tbody>tr>td{
     color:grey;
 }
-.descript{
+.descript,
+.descript>ul>li,
+li{
     font-size:12px;
 }
 .lcrContainer{
