@@ -65,6 +65,13 @@ td{
     font-weight:normal;
     font-style:normal;
 }
+p,
+li,
+span,
+strong,
+em{
+    font-size:12px
+}
 .header{
     font-size:20px;
 }
@@ -80,11 +87,6 @@ td{
 .sectionHeader,
 .lcrContainer>tbody>tr>td{
     color:grey;
-}
-.descript,
-.descript>ul>li,
-li{
-    font-size:12px;
 }
 .lcrContainer{
     width:100%;
