@@ -30,15 +30,18 @@ def createPdf(htmlstr,cssfile,output):
     else:
         Pdf.makePdfFromString(htmlstr,output)
 
-def createHtmlDoc(htmlstr):
-    with open("test.html","w") as file:
-        file.write(htmlstr)
+def createHtmlDoc(htmlstr,output):
+    from bs4 import BeautifulSoup
+    soup       = BeautifulSoup(htmlstr,features="html.parser")
+    prettyhtml = soup.prettify()
+    with open(output,"w") as file:
+        file.write(prettyhtml)
 
 if __name__ == '__main__':
     options = parseOpts(sys.argv[1:])
     printStatus(options)
     ddown = createDDown(options)
-    if options["html"]: createHtmlDoc(ddown.html)
-    createPdf(ddown.html,options["cssfile"],options["output"])
+    if options["html"]: createHtmlDoc(ddown.html,f"{options['output']}.html")
+    createPdf(ddown.html,options["cssfile"],f"{options['output']}.pdf")
     print('*** success!')
     sys.exit(2)
