@@ -40,6 +40,9 @@ _CONTENT|
 |LAYOUT@
 
 _LAYOUT|
+_head|
+|head_
+_body|
     _h1#MainHead.header||_
     _p#SubHead.subheader||_
     @lcr#Left1#Center1#Right1@
@@ -47,7 +50,9 @@ _LAYOUT|
     _p#Goals.descript||_
     _ul#ul1.descript||_
     _p#p1.descript||_
+    _canvas#canvas||_
     _p#Foot.footer||_
+|body_
 |LAYOUT_
 
 _STYLE|
@@ -117,3 +122,10 @@ hr{
 }
 |STYLE_
 
+_SCRIPT|
+    var c = document.getElementById('canvas');
+    var ctx = c.getContext('2d');
+    ctx.moveTo(0,0);
+    ctx.lineTo(200,200);
+    ctx.stroke();
+|SCRIPT_
