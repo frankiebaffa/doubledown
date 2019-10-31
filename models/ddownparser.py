@@ -28,18 +28,51 @@ class DDownParser:
                 self.getStyle(arr)
                 self.getScript(arr)
                 self.html += f"\n<script>\n{self.script}\n</script>"
-        elif contentfile != None and layoutfile != None:
-            with open(contentfile,'r') as file:
-                doctxt = file.read()
-                self.qinput = doctxt
-                arr = doctxt.split('\n')
-                self.getContent(arr)
-            with open(layoutfile,'r') as file:
+        elif contentfile != None and layoutfile != None and
+             varfile != None and scriptfile != None and
+             cssfile != None:
+
+            with open(varfile,'r') as file:
                 doctxt = file.read()
                 self.qinput = doctxt
                 arr = doctxt.split('\n')
                 self.getLayoutVar(arr)
+            with open(layoutfile,'r') as file:
+                doctxt = file.read()
+                self.qinput = doctxt
+                arr = doctxt.split('\n')
                 self.getLayout(arr)
+            with open(cssfile,'r') as file:
+                doctxt = file.read()
+                self.qinput = doctxt
+                arr = doctxt.split('\n')
+                self.getStyle(arr)
+            with open(scriptfile,'r') as file:
+                doctxt = file.read()
+                self.qinput = doctxt
+                arr = doctxt.split('\n')
+                self.getScript(arr)
+                self.html += f"\n<script>\n{self.script}\n</script>"
+
+    def initContent(contentfile=None):
+        with open(contentfile,'r') as file:
+            doctxt = file.read()
+            self.qinput = doctxt
+            arr = doctxt.split('\n')
+            self.getContent(arr)
+
+    def initLayoutVar(varfile=None):
+
+
+    def initLayout(layoutfile=None):
+
+
+    def initStyle(cssfile=None):
+
+
+    def initScript(scriptfile=None):
+
+
 
     def getContent(self,arr):
         try:
