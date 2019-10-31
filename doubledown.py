@@ -8,14 +8,18 @@ import os
 def printStatus(options):
     if not options["quiet"]:
         if options['layoutfile'] != None:
-            print(f"Layout : {options['layoutfile']}")
+            print(f"Layout   : {options['layoutfile']}")
         if options['contentfile'] != None:
-            print(f"Content: {options['contentfile']}")
+            print(f"Content  : {options['contentfile']}")
         if options['singlefile'] != None:
-            print(f"Layout : {options['singlefile']}")
-            print(f"Content: {options['singlefile']}")
+            print(f"Layout   : {options['singlefile']}")
+            print(f"Content  : {options['singlefile']}")
         if options['cssfile'] != None:
-            print(f"CSS    : {options['cssfile']}")
+            print(f"CSS      : {options['cssfile']}")
+        if options['output'] != None:
+            print(f"Out      : {options['output']}")
+        if options['html'] != None:
+            print(f"HtmlFile : {options['htmlfile']}")
 
 def createDDown(options):
     ddown = DDownParser(
@@ -50,8 +54,20 @@ def createHtmlDoc(htmlstr,output):
 
 if __name__ == '__main__':
     options = parseOpts(sys.argv[1:])
+    if options = None:
+        print("Error getting opts.")
+        sys.exit(2)
+    elif options["output"] == None:
+        print("Include -o switch to define output file.")
+        sys.exit(2)
+
     printStatus(options)
+
     ddown = createDDown(options)
-    if options["html"]: createHtmlDoc(ddown.html,f"{options['output']}.html")
+
+    if options["html"]:
+        createHtmlDoc(ddown.html,f"{options['output']}.html")
+
     createPdf(ddown.html,options["cssfile"],options["output"],ddown.css)
-    print('*** success!')
+
+    if not options["quiet"]: print('*** success!')
