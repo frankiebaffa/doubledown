@@ -8,6 +8,7 @@ class DDownParser:
     css       = None
     lvars     = None
     content   = None
+    script    = None
 
     def __init__(self,singlefile=None,contentfile=None,layoutfile=None):
         self.qdocument.qtag = "document"
@@ -25,6 +26,8 @@ class DDownParser:
                 self.getLayoutVars(arr)
                 self.getLayout(arr)
                 self.getStyle(arr)
+                self.getScript(arr)
+                self.html += f"\n<script>\n{self.script}\n</script>"
         elif contentfile != None and layoutfile != None:
             with open(contentfile,'r') as file:
                 doctxt = file.read()
@@ -251,7 +254,7 @@ class DDownParser:
 
     @staticmethod
     def checkGetAttr(elementstr,qelement):
-        attrs = re.findall(r"(?<=\[)[a-zA-Z0-9=,\.]+(?=\])",elementstr)
+        attrs = re.findall(r"(?<=\[)[a-zA-Z0-9=,\./:\-\;]+(?=\])",elementstr)
         for match in attrs:
             elementstr = elementstr.replace(match,'',1)
             attrsplit = match.split(',')
@@ -283,11 +286,22 @@ class DDownParser:
 
     def getStyle(self,arr):
         try:
-            layoutstart = arr.index('_STYLE|')
-            layoutend   = arr.index('|STYLE_')
+            stylestart = arr.index('_STYLE|')
+            styleend   = arr.index('|STYLE_')
             self.css    = ''
-            for i in range(layoutstart+1,layoutend):
+            for i in range(stylestart+1,styleend):
                 line = arr[i].rstrip()
                 self.css += f"{line}"
+        except:
+            pass
+
+    def getScript(self,arr):
+        try:
+            scriptstart = arr.index('_SCRIPT|')
+            scriptend   = arr.index('|SCRIPT_')
+            self.script = ''
+            for i in range(scriptstart+1,scriptend):
+                line = arr[i].rstrip()
+                self.script += f"{line}\n"
         except:
             pass
