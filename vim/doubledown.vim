@@ -23,7 +23,7 @@ syn match ddownClass   contained containedin=ddownOpenTag              "\(\.\)\@
 
 " Attributes
 syn match  ddownAttr         contained containedin=ddownAtterList                                "[a-zA-Z]\+"
-syn match  ddownAttrVal      contained containedin=ddownAtterList                                "[a-zA-Z0-9\.]\+"
+syn match  ddownAttrVal      contained containedin=ddownAtterList                                "[a-zA-Z0-9\.\-\/:]\+"
 syn match  ddownAttrValDelim contained containedin=ddownAtterList nextgroup=ddownAttrVal          "="
 syn match  ddownAttrKey      contained containedin=ddownAtterList nextgroup=ddownAttrValDelim     "[a-zA-Z]\+"
 syn match  ddownAttrDelim    contained containedin=ddownAtterList nextgroup=ddownAttrKey,ddownAttr ","
@@ -44,20 +44,26 @@ syn match  ddownContentId   nextgroup=ddownContentText contained containedin=ddo
 
 syn region ddownLayoutVar contained containedin=ddownLayoutVarSec contains=ddownOpenTag,ddownCloseTag start="@\(CONTENT\|LAYOUT\)\@![a-zA-Z0-9]\+|" end="|\(CONTENT\|LAYOUT\)\@![a-zA-Z0-9]\+@"
 
-" Import CSS
+" Imports
 syn include @css syntax/css.vim
+syn include @js  syntax/javascript.vim
+
+syn region ddownScriptInner contained containedin=ddownScript start="\(_SCRIPT|\)\@<=$" end="^\(|SCRIPT_\)\@=" contains=@js
 
 " Content region
 syn region  ddownLayout       start=+^_LAYOUT|$+  end=+^|LAYOUT_$+  contains=ddownOpenTag,ddownCloseTag
 syn region  ddownLayoutVarSec start=+^@LAYOUT|$+  end=+^|LAYOUT@$+  contains=ddownLayoutVar
 syn region  ddownContent      start=+^_CONTENT|$+ end=+^|CONTENT_$+ contains=ddownContentId
 syn region  ddownStyle        start=+^_STYLE|$+   end=+^|STYLE_$+   contains=@css
+syn region  ddownScript       start="\(^\)\@<=_SCRIPT|\($\)\@="  end="\(^\)\@<=|SCRIPT_\($\)\@="  contains=ddownScriptInner
 
+hi def link ddownScript       Comment
 hi def link ddownStyle        Comment
 hi def link ddownContent      Comment
 hi def link ddownLayoutVarSec Comment
 hi def link ddownHtml         Comment
 hi def link ddownLayout       Comment
+hi def link ddownScriptInner  Normal
 hi def link ddownStyleIdent   Special
 hi def link ddownStyleRegion  Exception
 hi def link ddownStyleKey     Title
