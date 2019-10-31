@@ -19,7 +19,7 @@ def printStatus(options):
         if options['output'] != None:
             print(f"Out      : {options['output']}")
         if options['html'] != None:
-            print(f"HtmlFile : {options['htmlfile']}")
+            print(f"HtmlFile : {options['html']}")
 
 def createDDown(options):
     ddown = DDownParser(
@@ -54,7 +54,7 @@ def createHtmlDoc(htmlstr,output):
 
 if __name__ == '__main__':
     options = parseOpts(sys.argv[1:])
-    if options = None:
+    if options == None:
         print("Error getting opts.")
         sys.exit(2)
     elif options["output"] == None:
