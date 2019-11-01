@@ -10,68 +10,32 @@ class DDownParser:
     content   = None
     script    = None
 
-    def __init__(self,singlefile=None,contentfile=None,layoutfile=None):
+    def __init__(self,options=None,testinput=None):
         self.qdocument.qtag = "document"
         self.qdocument.qid  = "Document"
         self.html = ''
         self.lvars = {}
         self.content = {}
 
-        if singlefile != None:
+        startpass = False
+        if options['singlefile'] != None:
             with open(singlefile,'r') as file:
                 doctxt = file.read()
                 self.qinput = doctxt
-                arr = doctxt.split('\n')
-                self.getContent(arr)
-                self.getLayoutVars(arr)
-                self.getLayout(arr)
-                self.getStyle(arr)
-                self.getScript(arr)
-                self.html += f"\n<script>\n{self.script}\n</script>"
-        elif contentfile != None and layoutfile != None and\
-             varfile     != None and scriptfile != None and\
-             cssfile     != None:
-            self.initContent(options["contentfile"])
-            self.initLayoutVar(options["varfile"])
-            self.initLayout(options["layoutfile"])
-            self.initStyle(options["cssfile"])
-            self.initScript(options["scripfile"])
+                startpass = True
+        if options['test'] and testinput != None:
+            self.qinput = testinput
+            startpass = True
 
-    def initContent(contentfile):
-        with open(contentfile,'r') as file:
-            doctxt = file.read()
-            self.qinput = doctxt
-            arr = doctxt.split('\n')
+        if startpass:
+            arr = self.qinput.split('\n')
             self.getContent(arr)
-
-    def initLayoutVar(varfile):
-        with open(varfile,'r') as file:
-            doctxt = file.read()
-            self.qinput = doctxt
-            arr = doctxt.split('\n')
-            self.getLayoutVar(arr)
-
-    def initLayout(layoutfile):
-        with open(layoutfile,'r') as file:
-            doctxt = file.read()
-            self.qinput = doctxt
-            arr = doctxt.split('\n')
+            self.getLayoutVars(arr)
             self.getLayout(arr)
-
-    def initStyle(cssfile):
-        with open(cssfile,'r') as file:
-            doctxt = file.read()
-            self.qinput = doctxt
-            arr = doctxt.split('\n')
             self.getStyle(arr)
-
-    def initScript(scriptfile):
-        with open(scriptfile,'r') as file:
-            doctxt = file.read()
-            self.qinput = doctxt
-            arr = doctxt.split('\n')
             self.getScript(arr)
-            self.html += f"\n<script>\n{self.script}\n</script>"
+            if self.script != None:
+                self.html += f"\n<script>\n{self.script}\n</script>"
 
     def getContent(self,arr):
         try:
