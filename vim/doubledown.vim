@@ -38,8 +38,8 @@ syn region ddownOpenTag  contained containedin=ddownLayoutVar,ddownLayout onelin
 syn region ddownCloseTag contained containedin=ddownLayoutVar,ddownLayout oneline contains=ddownTagName                                  start="|\(CONTENT\|LAYOUT\)\@!" end="\(CONTENT\|LAYOUT\)\@<!_"
 
 " Content Id
-syn region ddownContentText                            contained containedin=ddownContent start="\(\(^\s*\)\@<=#[a-zA-Z0-9]\+\s*\)\@<=\s\([a-zA-Z0-9%><|\*_]\)\@=" end="^\(\(\(^\s*\)\@<=#[a-zA-Z0-9]\+\(\s\+\)\@=\)\|^\(|CONTENT_\)\@=\)\@="
-syn match  ddownInlineChar                             contained containedin=ddownContentText "\(\\\)\@<!\(%>\|<%\|\$>\|<\$\||\|_\|\*\)"
+syn region ddownContentText                            contained containedin=ddownContent start="\(\(^\s*\)\@<=#[a-zA-Z0-9]\+\s*\)\@<=\s\([a-zA-Z0-9%><|\*_\-]\)\@=" end="^\(\(\(^\s*\)\@<=#[a-zA-Z0-9]\+\(\s\+\)\@=\)\|^\(|CONTENT_\)\@=\)\@="
+syn match  ddownInlineChar                             contained containedin=ddownContentText "\(\\\)\@<!\(%>\|<%\|\$>\|<\$\||\|_\|\*\|-\)"
 syn match  ddownContentId   nextgroup=ddownContentText contained containedin=ddownContent "\(^\s*\)\@<=#[a-zA-Z0-9]\+\(\s\+\)\@="
 
 syn region ddownLayoutVar contained containedin=ddownLayoutVarSec contains=ddownOpenTag,ddownCloseTag start="@\(CONTENT\|LAYOUT\)\@![a-zA-Z0-9]\+|" end="|\(CONTENT\|LAYOUT\)\@![a-zA-Z0-9]\+@"
@@ -70,7 +70,7 @@ hi def link ddownStyleKey     Title
 hi def link ddownStyleValue   Type
 hi def link ddownContentId    Type
 hi def link ddownContentText  Title
-hi def link ddownInlineChar   Exception
+hi def link ddownInlineChar   Comment
 hi def link ddownInnerText    Special
 hi def link ddownLayoutVar    Special
 hi def link ddownOpenTag      Exception
