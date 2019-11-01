@@ -14,7 +14,8 @@ _CONTENT|
             parsed first to create a map. The _layout_ section follows and is
             handled as a single 'DDownElement' object which contains an
             'inner' attribute containing the nested 'DDownElements'.
-#ul1        |This is the original list style|
+#ul1        -|This is the original list style with a strike through|-
+             |This is the original list style without a strike through|
 #p1         %>|This is the new list style|
               |I should be able to add multiple list elements|
               %>|And also nest elements|
