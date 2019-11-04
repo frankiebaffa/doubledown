@@ -2,7 +2,7 @@ import sys
 from   models.ddownparser import DDownParser
 from   models.pdf         import Pdf
 from   optionparser       import parseOpts
-from   test               import Test
+from   test               import TestSuite as Test
 import requests
 import os
 

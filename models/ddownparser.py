@@ -2,6 +2,7 @@ import re
 from   models.ddownelement import DDownElement
 
 class DDownParser:
+    options   = None
     qinput    = None
     qdocument = DDownElement()
     html      = None
@@ -16,6 +17,7 @@ class DDownParser:
         self.html = ''
         self.lvars = {}
         self.content = {}
+        self.options = options
 
         startpass = False
         if options['singlefile'] != None:
@@ -56,8 +58,33 @@ class DDownParser:
                     if contentconcat != None and contentconcat != '':
                         self.content[previousId] = DDownParser.checkContentForInline(contentconcat)
                         contentconcat =  ''
+            for key in self.content.keys():
+                block    = self.content[key]
+                patt     = r"</*(li|ul|ol)>"
+                matchobj = [(m.start(0),m.end(0)) for m in re.finditer(patt,block)]
+                if len(matchobj) > 0:
+                    newblock = ""
+                    le = None
+                    ls = None
+                    itercount = 0
+                    for s,e in matchobj:
+                        if itercount > 0:
+                            check = block[le:s]
+                            if check == " ":
+                                newpart = f"{block[s:e]}"
+                            else:
+                                newpart = f"{block[le:e]}"
+                            newblock += newpart
+                        else:
+                            newblock = f"{block[s:e]}"
+                        le = e
+                        ls = s
+                        itercount += 1
+                    self.content[key] = newblock
         except:
-            print("No content block")
+            if not self.options["quiet"] and\
+               not self.options["test"]:
+                print("No content block")
 
     @staticmethod
     def checkContentForInline(text):
@@ -169,7 +196,9 @@ class DDownParser:
                         layoutvars = self.lvars.copy()
                         var = layoutvars[varname].copy()
                     except:
-                        print(f"Found undefined variable [{varname}] in layout")
+                        if not self.options["quiet"] and\
+                           not self.options["test"]:
+                            print(f"Found undefined variable [{varname}] in layout")
                         sys.exit(2)
                     ids = re.findall(r"(?<=#)[a-zA-Z0-9]+(?=[@#])",line)
                     idcount = 0
@@ -184,7 +213,9 @@ class DDownParser:
                                 var[j] = l.replace('#',f"#{ids[idcount]}",1)
                                 idcount += 1
                     else:
-                        print(f"Defined variable [{varname}] not given correct # of ids")
+                        if not self.options["quiet"] and\
+                           not self.options["test"]:
+                            print(f"Defined variable [{varname}] not given correct # of ids")
                         sys.exit(2)
                     for j in var:
                         finalarr.append(j)
@@ -201,7 +232,9 @@ class DDownParser:
                     elementstart = line.index('_')
                     elementend   = line.index('|')
                 except:
-                    print(f'Malformed QTML on line {i}')
+                    if not self.options["quiet"] and\
+                       not self.options["test"]:
+                        print(f'Malformed QTML on line {i}')
                     sys.exit(2)
 
                 line = line.replace('|','',1)
@@ -239,7 +272,9 @@ class DDownParser:
                     nestpath    =  nestpath[0:nestcount]
                     nestcount   -= 1
         except:
-            print("No layout block")
+            if not self.options["quiet"] and\
+               not self.options["test"]:
+                print("No layout block")
 
     @staticmethod
     def checkGetTag(elementstr,qelement):
