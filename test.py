@@ -55,7 +55,6 @@ class FinalHtmlTest:
         self.name = name
         self.testinput  = f"_CONTENT|\n{contentin}\n|CONTENT_\n\n"
         self.testinput += f"_LAYOUT|\n{layoutin}\n|LAYOUT_"
-        print(self.testinput)
         self.accepted = accepted
 
     def __repr__(self):
@@ -204,8 +203,27 @@ class TestSuite:
                                                  "|tbody_\n"
                                              "|table_\n"
                                          "|div_"),
-                                        ("#P1 This is a paragraph\n"
-                                         "#TD1 Cell 1"
-                                         "#TD2 Cell 2"
-                                         "#TD3 Cell 3"),
-                                         ))
+                                        ("#P1  This is a paragraph\n"
+                                         "#TD1 Cell 1\n"
+                                         "#TD2 Cell 2\n"
+                                         "#TD3 Cell 3\n"),
+                                        ("<div id=\"Id\" class=\"class\" width=\"20\" height=\"30\" hidden>"
+                                             "<p id=\"P1\" onclick=\"someMethod\">"
+                                                 "This is a paragraph"
+                                             "</p>"
+                                             "<table>"
+                                                 "<tbody>"
+                                                     "<tr>"
+                                                         "<td id=\"TD1\">"
+                                                             "Cell 1"
+                                                         "</td>"
+                                                         "<td id=\"TD2\">"
+                                                             "Cell 2"
+                                                         "</td>"
+                                                         "<td id=\"TD3\">"
+                                                             "Cell 3"
+                                                         "</td>"
+                                                     "</tr>"
+                                                 "<tbody>"
+                                             "</table>"
+                                         "</div>")))
