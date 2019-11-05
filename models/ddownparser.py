@@ -21,7 +21,7 @@ class DDownParser:
 
         startpass = False
         if options['singlefile'] != None:
-            with open(singlefile,'r') as file:
+            with open(options['singlefile'],'r') as file:
                 doctxt = file.read()
                 self.qinput = doctxt
                 startpass = True
@@ -58,6 +58,8 @@ class DDownParser:
                     if contentconcat != None and contentconcat != '':
                         self.content[previousId] = DDownParser.checkContentForInline(contentconcat)
                         contentconcat =  ''
+
+            # HOTFIX FOR UNECESSARY SPACES BETWEEN EMPTY TAGS
             for key in self.content.keys():
                 block    = self.content[key]
                 patt     = r"</*(li|ul|ol)>"
@@ -81,6 +83,18 @@ class DDownParser:
                         ls = s
                         itercount += 1
                     self.content[key] = newblock
+
+            # HOTFIX FOR UNECESSARY SPACES AFTER TEXT IN TAG
+            for key in self.content.keys():
+                block = self.content[key]
+                patt  = r"(?<=\S)\s(?=$)"
+                matchobj = [(m.start(0),m.end(0)) for m in re.finditer(patt,block)]
+                newblock = None
+                if len(matchobj) > 0:
+                    match    = matchobj[0]
+                    newblock = block[0:match[0]]
+                    self.content[key] = newblock
+
         except:
             if not self.options["quiet"] and\
                not self.options["test"]:

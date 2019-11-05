@@ -2,13 +2,9 @@ import sys
 from   models.ddownparser import DDownParser
 from   models.pdf         import Pdf
 from   optionparser       import parseOpts
-from   test               import TestSuite as Test
+from   tests.testsuite    import TestSuite as Test
 import requests
 import os
-
-def printStatus(options):
-    if not options["quiet"]:
-        print(f"Processing: {options['singlefile']}")
 
 def createDDown(options):
     ddown = DDownParser(options=options)
@@ -51,8 +47,6 @@ if __name__ == '__main__':
     if options["test"] == True:
         runTests(options)
     else:
-        printStatus(options)
-
         ddown = createDDown(options)
 
         if options["html"]:
