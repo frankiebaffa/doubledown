@@ -31,7 +31,7 @@ def createHtmlDoc(htmlstr,output):
         file.write(prettyhtml)
 
 def runTests(options):
-    print("*** Running Testing Suite ***")
+    print("*** Running Testing Suite ***\n")
     t = Test(options)
 
 if __name__ == '__main__':

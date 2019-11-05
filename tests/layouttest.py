@@ -1,6 +1,7 @@
 from models.ddownparser import DDownParser
 
 class LayoutTest:
+    testtype  = "LAYOUT"
     lbopen    = "_LAYOUT|\n"
     lbclos    = "\n|LAYOUT_"
     name      = None

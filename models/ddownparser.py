@@ -192,6 +192,38 @@ class DDownParser:
             pass
 
     def getLayout(self,arr):
+        def countIds(variable,pattern):
+            idcount = 0
+            for l in variable:
+                matches = [(m.start(0),m.end(0)) for m in re.finditer(p,l)]
+                if len(matches) > 0:
+                    idcount += 1
+            return idcount
+
+        def subIds(variable):
+            idcount = 0
+            for j in range(len(variable)):
+                l = variable[j]
+                matches = [(m.start(0),m.end(0)) for m in re.finditer(p,l)]
+                if len(matches) > 0:
+                    variable[j] = re.sub(p,f"#{ids[idcount]}",l,1)
+                    idcount += 1
+            return variable
+
+        def constructElement(line):
+            elementstr  = line
+            qelement    = DDownElement()
+            qelement,\
+            elementstr  = DDownParser.checkGetTag(elementstr,qelement)
+            qelement,\
+            elementstr  = DDownParser.checkGetAttr(elementstr,qelement)
+            qelement,\
+            elementstr  = DDownParser.checkGetClass(elementstr,qelement)
+            qelement,\
+            elementstr  = DDownParser.checkGetId(elementstr,qelement)
+            qelement.generateHtml()
+            return qelement,elementstr
+
         try:
             layoutstart = arr.index('_LAYOUT|')
             layoutend   = arr.index('|LAYOUT_')
@@ -215,17 +247,10 @@ class DDownParser:
                             print(f"Found undefined variable [{varname}] in layout")
                         sys.exit(2)
                     ids = re.findall(r"(?<=#)[a-zA-Z0-9]+(?=[@#])",line)
-                    idcount = 0
-                    for l in var:
-                        if '#' in l:
-                            idcount += 1
+                    p = r"#(?![a-zA-Z0-9]+)"
+                    idcount = countIds(var,p)
                     if len(ids) == idcount:
-                        idcount = 0
-                        for j in range(len(var)):
-                            l = var[j]
-                            if '#' in l:
-                                var[j] = l.replace('#',f"#{ids[idcount]}",1)
-                                idcount += 1
+                        var = subIds(var)
                     else:
                         if not self.options["quiet"] and\
                            not self.options["test"]:
@@ -258,17 +283,8 @@ class DDownParser:
                     line = line.replace('|_','',1)
 
                 if elementstart < elementend:
-                    elementstr  = line
-                    qelement    = DDownElement()
                     qelement,\
-                    elementstr  = DDownParser.checkGetTag(elementstr,qelement)
-                    qelement,\
-                    elementstr  = DDownParser.checkGetAttr(elementstr,qelement)
-                    qelement,\
-                    elementstr  = DDownParser.checkGetClass(elementstr,qelement)
-                    qelement,\
-                    elementstr  = DDownParser.checkGetId(elementstr,qelement)
-                    qelement.generateHtml()
+                    elementstr = constructElement(line)
 
                     self.html += f"{qelement.opentag}"
 

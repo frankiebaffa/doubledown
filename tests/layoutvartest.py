@@ -1,6 +1,7 @@
 from models.ddownparser import DDownParser
 
 class LayoutVarTest:
+    testtype  = "VARIABLE"
     name      = None
     lvarname  = None
     accepted  = None

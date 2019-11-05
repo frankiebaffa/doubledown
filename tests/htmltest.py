@@ -1,6 +1,7 @@
 from models.ddownparser import DDownParser
 
 class HtmlTest:
+    testtype  = "HTML OUT"
     name      = None
     accepted  = None
     testinput = None
@@ -33,12 +34,14 @@ class HtmlTest:
                               layoutin="_p#Id||_",
                               contentin="#Id Paragraph Tag",
                               accepted="<p id=\"Id\">Paragraph Tag</p>"))
+
         tests.append(HtmlTest("Multi Element",
                               layoutin=("_div|\n"
                                             "_p#Id||_\n"
                                         "|div_"),
                               contentin="#Id lorem ipsum",
                               accepted="<div><p id=\"Id\">lorem ipsum</p></div>"))
+
         tests.append(HtmlTest("Complex Nesting / Elements",
                               layoutin=("_div#Id.class[width=20,height=30,hidden]|\n"
                                             "_p#P1[onclick=someMethod]||_\n"
@@ -71,12 +74,14 @@ class HtmlTest:
                                                             "Cell 2"
                                                         "</td>"
                                                         "<td id=\"TD3\">"
-                                                            "This is the third cell, I am just testing a multi line."
+                                                            "This is the third cell, "
+                                                            "I am just testing a multi line."
                                                         "</td>"
                                                     "</tr>"
                                                 "</tbody>"
                                             "</table>"
                                         "</div>")))
+
         tests.append(HtmlTest("Variable Assignment",
                               varin=("@var|\n"
                                          "_p#||_\n"
@@ -96,4 +101,24 @@ class HtmlTest:
                                         "<p id=\"Id3\">"
                                             "variable."
                                         "</p>")))
+
+        tests.append(HtmlTest("Variable With A Preset Id",
+                              varin=("@var|\n"
+                                         "_div#Vdiv|\n"
+                                             "_p#||_\n"
+                                             "_p#||_\n"
+                                         "|div_\n"
+                                     "|var@"),
+                              layoutin="@var#P1#P2@",
+                              contentin=("#P1 Paragraph 1\n"
+                                         "#P2 Paragraph 2"),
+                              accepted=("<div id=\"Vdiv\">"
+                                            "<p id=\"P1\">"
+                                                "Paragraph 1"
+                                            "</p>"
+                                            "<p id=\"P2\">"
+                                                "Paragraph 2"
+                                            "</p>"
+                                        "</div>")))
+
         return tests

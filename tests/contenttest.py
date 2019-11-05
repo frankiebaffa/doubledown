@@ -1,6 +1,7 @@
 from models.ddownparser import DDownParser
 
 class ContentTest:
+    testtype  = "CONTENT"
     cbopen    = "_CONTENT|\n"
     cbclos    = "\n|CONTENT_"
     name      = None
