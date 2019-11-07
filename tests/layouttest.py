@@ -48,11 +48,11 @@ class LayoutTest:
                                  "|table_"),
                                 "<table id=\"t1\" class=\"tableOne classTwo whatever\"><tbody><tr><td></td></tr></tbody></table>"))
 
-        tests.append(LayoutTest("Attribute Test",
+        tests.append(LayoutTest("Attribute",
                                 "_p#Id.class[hidden]||_",
                                 "<p id=\"Id\" class=\"class\" hidden></p>"))
 
-        tests.append(LayoutTest("Attribute Value",
+        tests.append(LayoutTest("Attribute With Value",
                                 "_div[height=20,width=30]||_",
                                 "<div height=\"20\" width=\"30\"></div>"))
 
