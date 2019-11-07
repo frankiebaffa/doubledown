@@ -120,5 +120,4 @@ class HtmlTest:
                                                 "Paragraph 2"
                                             "</p>"
                                         "</div>")))
-
         return tests
