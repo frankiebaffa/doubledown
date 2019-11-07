@@ -1,3 +1,7 @@
+_HEADCONTENT|
+#Header This is the header
+|HEADCONTENT_
+
 _CONTENT|
 #MainHead   DoubleDown
 #SubHead    _A markup-specific document notation parsed in python._
@@ -26,6 +30,10 @@ _CONTENT|
 #Foot       written and formatted using DoubleDown
 |CONTENT_
 
+_FOOTCONTENT|
+#Footer This is the footer
+|FOOTCONTENT_
+
 @LAYOUT|
     @lcr|
         _table.lcrContainer|
@@ -40,26 +48,34 @@ _CONTENT|
     |lcr@
 |LAYOUT@
 
+_HEADLAYOUT|
+	_p#Header||_
+|HEADLAYOUT_
+
 _LAYOUT|
-_head|
-|head_
-_body|
-    _h1#MainHead.header||_
-    _p#SubHead.subheader||_
-    @lcr#Left1#Center1#Right1@
-    _hr||_
-    _p#Goals.descript||_
-    _ul#ul1.descript||_
-    _p#p1.descript||_
-    _canvas#canvas||_
-    _p#Foot.footer||_
-|body_
+_html|
+	_body|
+		_h1#MainHead.header||_
+		_p#SubHead.subheader||_
+		@lcr#Left1#Center1#Right1@
+		_hr||_
+		_p#Goals.descript||_
+		_ul#ul1.descript||_
+		_p#p1.descript||_
+		_canvas#canvas||_
+		_p#Foot.footer||_
+	|body_
+|html_
 |LAYOUT_
+
+_FOOTLAYOUT|
+	_p#Footer||_
+|FOOTLAYOUT_
 
 _STYLE|
 h1,
 h2,
-h3
+h3,
 h4,
 h5,
 h6,

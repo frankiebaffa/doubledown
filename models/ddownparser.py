@@ -2,21 +2,37 @@ import re
 from   models.ddownelement import DDownElement
 
 class DDownParser:
-    options   = None
-    qinput    = None
-    qdocument = DDownElement()
-    html      = None
-    css       = None
-    lvars     = None
-    content   = None
-    script    = None
+    options     = None
+    qinput      = None
+    qdocument   = DDownElement()
+    html        = None
+    css         = None
+    lvars       = None
+    content     = None
+    script      = None
+    hdocument   = DDownElement()
+    headarr     = None
+    headcontent = None
+    headhtml    = None
+    fdocument   = DDownElement()
+    footarr     = None
+    foothtml    = None
+    footcontent = None
 
     def __init__(self,options=None,testinput=None):
         self.qdocument.qtag = "document"
         self.qdocument.qid  = "Document"
-        self.html = ''
+        self.hdocument.qtag = "document"
+        self.hdocument.qid  = "Document"
+        self.fdocument.qtag = "document"
+        self.fdocument.qid  = "Document"
+        self.html = '<!DOCTYPE html>\n'
+        self.headhtml = ''
+        self.foothtml = ''
         self.lvars = {}
         self.content = {}
+        self.headcontent = {}
+        self.footcontent = {}
         self.options = options
 
         startpass = False
@@ -31,15 +47,73 @@ class DDownParser:
 
         if startpass:
             arr = self.qinput.split('\n')
+            arr = self.pullHeader(arr)
+            arr = self.pullFooter(arr)
             self.getContent(arr)
             self.getLayoutVars(arr)
             self.getLayout(arr)
             self.getStyle(arr)
             self.getScript(arr)
+            if self.headarr != None:
+                self.getContent(self.headarr,loc="header")
+                self.getLayoutVars(self.headarr)
+                self.getLayout(self.headarr,loc="header")
+                self.getStyle(self.headarr)
+                self.getScript(self.headarr)
+            if self.footarr != None:
+                self.getContent(self.footarr,loc="footer")
+                self.getLayoutVars(self.footarr)
+                self.getLayout(self.footarr,loc="footer")
+                self.getStyle(self.footarr)
+                self.getScript(self.footarr)
             if self.script != None:
                 self.html += f"\n<script>\n{self.script}\n</script>"
+                self.headhtml += f"\n<script>\n{self.script}\n</script>"
+                self.foothtml += f"\n<script>\n{self.script}\n</script>"
 
-    def getContent(self,arr):
+    def pullHeader(self,arr):
+        try:
+            contentstart = arr.index('_HEADCONTENT|')
+            contentend   = arr.index('|HEADCONTENT_')
+            newarr = ['_CONTENT|']
+            for i in range(contentstart+1,contentend):
+                newarr.append(arr[i])
+            newarr.append('|CONTENT_')
+            arr = arr[0:contentstart]+arr[contentend+1:len(arr)]
+            layoutstart = arr.index('_HEADLAYOUT|')
+            layoutend   = arr.index('|HEADLAYOUT_')
+            newarr.append('_LAYOUT|')
+            for i in range(layoutstart+1,layoutend):
+                newarr.append(arr[i])
+            newarr.append('|LAYOUT_')
+            arr = arr[0:layoutstart]+arr[layoutend+1:len(arr)]
+            self.headarr = newarr
+        except:
+            pass
+        return arr
+
+    def pullFooter(self,arr):
+        try:
+            contentstart = arr.index('_FOOTCONTENT|')
+            contentend   = arr.index('|FOOTCONTENT_')
+            newarr = ['_CONTENT|']
+            for i in range(contentstart+1,contentend):
+                newarr.append(arr[i])
+            newarr.append('|CONTENT_')
+            arr = arr[0:contentstart]+arr[contentend+1:len(arr)]
+            layoutstart = arr.index('_FOOTLAYOUT|')
+            layoutend   = arr.index('|FOOTLAYOUT_')
+            newarr.append('_LAYOUT|')
+            for i in range(layoutstart+1,layoutend):
+                newarr.append(arr[i])
+            newarr.append('|LAYOUT_')
+            arr = arr[0:layoutstart]+arr[layoutend+1:len(arr)]
+            self.footarr = newarr
+        except:
+            pass
+        return arr
+
+    def getContent(self,arr,loc=None):
         try:
             contentstart  = arr.index('_CONTENT|')
             contentend    = arr.index('|CONTENT_')
@@ -56,7 +130,12 @@ class DDownParser:
                     contentconcat += f" {line}"
                 if i == contentend-1 or arr[i+1].lstrip().rstrip()[0:1] == '#':
                     if contentconcat != None and contentconcat != '':
-                        self.content[previousId] = DDownParser.checkContentForInline(contentconcat)
+                        if loc == None:
+                            self.content[previousId] = DDownParser.checkContentForInline(contentconcat)
+                        elif loc == "header":
+                            self.headcontent[previousId] = DDownParser.checkContentForInline(contentconcat)
+                        elif loc == "footer":
+                            self.footcontent[previousId] = DDownParser.checkContentForInline(contentconcat)
                         contentconcat =  ''
 
             # HOTFIX FOR UNECESSARY SPACES BETWEEN EMPTY TAGS
@@ -82,18 +161,41 @@ class DDownParser:
                         le = e
                         ls = s
                         itercount += 1
-                    self.content[key] = newblock
+                    if loc == None:
+                        self.content[key] = newblock
+                    elif loc == "header":
+                        self.headcontent[key] = newblock
+                    elif loc == "footer":
+                        self.footcontent[key] = newblock
 
             # HOTFIX FOR UNECESSARY SPACES AFTER TEXT IN TAG
-            for key in self.content.keys():
-                block = self.content[key]
+            keys = None
+            if loc == None:
+                keys = self.content.keys()
+            elif loc == "header":
+                keys = self.headcontent.keys()
+            elif loc == "footer":
+                keys = self.footcontent.keys()
+            for key in keys:
+                block = None
+                if loc == None:
+                    block = self.content[key]
+                elif loc == "header":
+                    block = self.headcontent[key]
+                elif loc == "footer":
+                    block = self.footcontent[key]
                 patt  = r"(?<=\S)\s(?=$)"
                 matchobj = [(m.start(0),m.end(0)) for m in re.finditer(patt,block)]
                 newblock = None
                 if len(matchobj) > 0:
                     match    = matchobj[0]
                     newblock = block[0:match[0]]
-                    self.content[key] = newblock
+                    if loc == None:
+                        self.content[key] = newblock
+                    elif loc == "header":
+                        self.headcontent[key] = newblock
+                    elif loc == "footer":
+                        self.footcontent[key] = newblock
 
         except:
             if not self.options["quiet"] and\
@@ -191,7 +293,7 @@ class DDownParser:
         except:
             pass
 
-    def getLayout(self,arr):
+    def getLayout(self,arr,loc=None):
         def countIds(variable,pattern):
             idcount = 0
             for l in variable:
@@ -229,7 +331,13 @@ class DDownParser:
             layoutend   = arr.index('|LAYOUT_')
             newarr      = arr[layoutstart+1:layoutend]
             finalarr    = []
-            nestpath    = [self.qdocument]
+            nestpath    = []
+            if loc == None:
+                nestpath = [self.qdocument]
+            elif loc == "header":
+                nestpath = [self.hdocument]
+            elif loc == "footer":
+                nestpath = [self.fdocument]
             nestcount   = 0
             for i in range(len(newarr)):
                 line = newarr[i].lstrip().rstrip()
@@ -286,10 +394,22 @@ class DDownParser:
                     qelement,\
                     elementstr = constructElement(line)
 
-                    self.html += f"{qelement.opentag}"
+                    if loc == None:
+                        self.html += f"{qelement.opentag}"
+                    elif loc == "header":
+                        self.headhtml += f"{qelement.opentag}"
+                    elif loc == "footer":
+                        self.foothtml += f"{qelement.opentag}"
 
-                    if qelement.qid in self.content.keys():
-                        self.html += f"{self.content[qelement.qid]}"
+                    if loc == None:
+                        if qelement.qid in self.content.keys():
+                            self.html += f"{self.content[qelement.qid]}"
+                    elif loc == "header":
+                        if qelement.qid in self.headcontent.keys():
+                            self.headhtml += f"{self.headcontent[qelement.qid]}"
+                    elif loc == "footer":
+                        if qelement.qid in self.footcontent.keys():
+                            self.foothtml += f"{self.footcontent[qelement.qid]}"
 
                     nestpath[nestcount].qinner.append(qelement)
                     nestpath.append(nestpath[nestcount].qinner[len(nestpath[nestcount].qinner)-1])
@@ -298,7 +418,12 @@ class DDownParser:
                     removedpath =  nestpath[nestcount:len(nestpath)]
                     removedpath =  removedpath[::-1]
                     for elem in removedpath:
-                        self.html += f"{elem.closetag}"
+                        if loc == None:
+                            self.html += f"{elem.closetag}"
+                        elif loc == "header":
+                            self.headhtml += f"{elem.closetag}"
+                        elif loc == "footer":
+                            self.foothtml += f"{elem.closetag}"
                     nestpath    =  nestpath[0:nestcount]
                     nestcount   -= 1
         except:
@@ -345,7 +470,7 @@ class DDownParser:
             qelement.qid = qid
         return qelement,elementstr
 
-    def getStyle(self,arr):
+    def getStyle(self,arr,loc=None):
         try:
             stylestart = arr.index('_STYLE|')
             styleend   = arr.index('|STYLE_')
