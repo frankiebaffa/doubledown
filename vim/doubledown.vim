@@ -16,81 +16,81 @@ syntax spell toplevel
 
 syn case ignore
 
-syn match ddownTagName contained containedin=ddownCloseTag,ddownOpenTag "\(_\)\@<=[a-zA-Z0-9]\+\(\.\||\|#\|\[\)\@="
-syn match ddownTagName contained containedin=ddownCloseTag,ddownOpenTag "\(|\)\@<=[a-zA-Z0-9]\+\(_\)\@="
-syn match ddownId      contained containedin=ddownOpenTag,ddownVarTag   "\(#\)\@<=[a-zA-Z0-9]\+\(\.\||\|\[\|@\|#\)\@="
-syn match ddownClass   contained containedin=ddownOpenTag              "\(\.\)\@<=[a-zA-Z0-9]\+\(\.\||\|#\|\[\)\@="
+syn match marktwoTagName contained containedin=marktwoCloseTag,marktwoOpenTag "\(_\)\@<=[a-zA-Z0-9]\+\(\.\||\|#\|\[\)\@="
+syn match marktwoTagName contained containedin=marktwoCloseTag,marktwoOpenTag "\(|\)\@<=[a-zA-Z0-9]\+\(_\)\@="
+syn match marktwoId      contained containedin=marktwoOpenTag,marktwoVarTag   "\(#\)\@<=[a-zA-Z0-9]\+\(\.\||\|\[\|@\|#\)\@="
+syn match marktwoClass   contained containedin=marktwoOpenTag              "\(\.\)\@<=[a-zA-Z0-9]\+\(\.\||\|#\|\[\)\@="
 
 " Attributes
-syn match  ddownAttr         contained containedin=ddownAtterList                                "[a-zA-Z]\+"
-syn match  ddownAttrVal      contained containedin=ddownAtterList                                "[a-zA-Z0-9\.\-\/:]\+"
-syn match  ddownAttrValDelim contained containedin=ddownAtterList nextgroup=ddownAttrVal          "="
-syn match  ddownAttrKey      contained containedin=ddownAtterList nextgroup=ddownAttrValDelim     "[a-zA-Z]\+"
-syn match  ddownAttrDelim    contained containedin=ddownAtterList nextgroup=ddownAttrKey,ddownAttr ","
+syn match  marktwoAttr         contained containedin=marktwoAtterList                                "[a-zA-Z]\+"
+syn match  marktwoAttrVal      contained containedin=marktwoAtterList                                "[a-zA-Z0-9\.\-\/:]\+"
+syn match  marktwoAttrValDelim contained containedin=marktwoAtterList nextgroup=marktwoAttrVal          "="
+syn match  marktwoAttrKey      contained containedin=marktwoAtterList nextgroup=marktwoAttrValDelim     "[a-zA-Z]\+"
+syn match  marktwoAttrDelim    contained containedin=marktwoAtterList nextgroup=marktwoAttrKey,marktwoAttr ","
 
-syn region ddownAttrList contained containedin=ddownOpenTag contains=ddownAttr,ddownAttrVal,ddownAttrValDelim,ddownAttrKey,ddownAttrDelim start="\[" end="\]"
+syn region marktwoAttrList contained containedin=marktwoOpenTag contains=marktwoAttr,marktwoAttrVal,marktwoAttrValDelim,marktwoAttrKey,marktwoAttrDelim start="\[" end="\]"
 
-syn match ddownVarName contained containedin=ddownVarName "\(@\)\@<=[a-zA-Z0-9]\+"
+syn match marktwoVarName contained containedin=marktwoVarName "\(@\)\@<=[a-zA-Z0-9]\+"
 
 " Tag Elements
-syn region ddownVarTag   contained containedin=ddownLayout,ddownHeadLayout,ddownFootLayout                oneline contains=ddownId,ddownVarName                          start="@\([a-zA-Z0-9]\)\@="     end="@"
-syn region ddownOpenTag  contained containedin=ddownLayoutVar,ddownLayout,ddownHeadLayout,ddownFootLayout oneline contains=ddownId,ddownClass,ddownTagName,ddownAttrList start="_\(CONTENT\|LAYOUT\)\@!" end="\(CONTENT\|LAYOUT\)\@<!|"
-syn region ddownCloseTag contained containedin=ddownLayoutVar,ddownLayout,ddownHeadLayout,ddownFootLayout oneline contains=ddownTagName                                  start="|\(CONTENT\|LAYOUT\)\@!" end="\(CONTENT\|LAYOUT\)\@<!_"
+syn region marktwoVarTag   contained containedin=marktwoLayout,marktwoHeadLayout,marktwoFootLayout                oneline contains=marktwoId,marktwoVarName                          start="@\([a-zA-Z0-9]\)\@="     end="@"
+syn region marktwoOpenTag  contained containedin=marktwoLayoutVar,marktwoLayout,marktwoHeadLayout,marktwoFootLayout oneline contains=marktwoId,marktwoClass,marktwoTagName,marktwoAttrList start="_\(CONTENT\|LAYOUT\)\@!" end="\(CONTENT\|LAYOUT\)\@<!|"
+syn region marktwoCloseTag contained containedin=marktwoLayoutVar,marktwoLayout,marktwoHeadLayout,marktwoFootLayout oneline contains=marktwoTagName                                  start="|\(CONTENT\|LAYOUT\)\@!" end="\(CONTENT\|LAYOUT\)\@<!_"
 
 " Content Id
-syn region ddownContentText                            contained containedin=ddownContent,ddownHeadContent,ddownFootContent start="\(\(^\s*\)\@<=#[a-zA-Z0-9]\+\s*\)\@<=\s\([a-zA-Z0-9%><|\*_\-]\)\@=" end="^\(\(\(^\s*\)\@<=#[a-zA-Z0-9]\+\(\s\+\)\@=\)\|^\(|CONTENT_\||HEADCONTENT_\||FOOTCONTENT_\)\@=\)\@="
-syn match  ddownInlineChar                             contained containedin=ddownContentText                               "\(\\\)\@<!\(%>\|<%\|\$>\|<\$\||\|_\|\*\|-\|\^\|\~\)"
-syn match  ddownContentId   nextgroup=ddownContentText contained containedin=ddownContent,ddownHeadContent,ddownFootContent "\(^\s*\)\@<=#[a-zA-Z0-9]\+\(\s\+\)\@="
+syn region marktwoContentText                            contained containedin=marktwoContent,marktwoHeadContent,marktwoFootContent start="\(\(^\s*\)\@<=#[a-zA-Z0-9]\+\s*\)\@<=\s\([a-zA-Z0-9%><|\*_\-]\)\@=" end="^\(\(\(^\s*\)\@<=#[a-zA-Z0-9]\+\(\s\+\)\@=\)\|^\(|CONTENT_\||HEADCONTENT_\||FOOTCONTENT_\)\@=\)\@="
+syn match  marktwoInlineChar                             contained containedin=marktwoContentText                               "\(\\\)\@<!\(%>\|<%\|\$>\|<\$\||\|_\|\*\|-\|\^\|\~\)"
+syn match  marktwoContentId   nextgroup=marktwoContentText contained containedin=marktwoContent,marktwoHeadContent,marktwoFootContent "\(^\s*\)\@<=#[a-zA-Z0-9]\+\(\s\+\)\@="
 
-syn region ddownLayoutVar contained containedin=ddownLayoutVarSec contains=ddownOpenTag,ddownCloseTag start="@\(CONTENT\|LAYOUT\)\@![a-zA-Z0-9]\+|" end="|\(CONTENT\|LAYOUT\)\@![a-zA-Z0-9]\+@"
+syn region marktwoLayoutVar contained containedin=marktwoLayoutVarSec contains=marktwoOpenTag,marktwoCloseTag start="@\(CONTENT\|LAYOUT\)\@![a-zA-Z0-9]\+|" end="|\(CONTENT\|LAYOUT\)\@![a-zA-Z0-9]\+@"
 
 " Imports
 syn include @css syntax/css.vim
 syn include @js  syntax/javascript.vim
 
-syn region ddownScriptInner contained containedin=ddownScript start="\(_SCRIPT|\)\@<=$" end="^\(|SCRIPT_\)\@=" contains=@js
+syn region marktwoScriptInner contained containedin=marktwoScript start="\(_SCRIPT|\)\@<=$" end="^\(|SCRIPT_\)\@=" contains=@js
 
 " Content regions
-syn region ddownHeadLayout   start=+_HEADLAYOUT|$+  end=+|HEADLAYOUT_$+  contains=ddownOpenTag,ddownCloseTag
-syn region ddownHeadContent  start=+_HEADCONTENT|$+ end=+|HEADCONTENT_$+ contains=ddownContentId,ddownContentText
-syn region ddownFootLayout   start=+_FOOTLAYOUT|$+  end=+|FOOTLAYOUT_$+  contains=ddownOpenTag,ddownCloseTag
-syn region ddownFootContent  start=+_FOOTCONTENT|$+ end=+|FOOTCONTENT_$+ contains=ddownContentId,ddownContentText
-syn region ddownLayout       start=+_LAYOUT|$+  end=+|LAYOUT_$+  contains=ddownOpenTag,ddownCloseTag
-syn region ddownLayoutVarSec start=+^@LAYOUT|$+  end=+^|LAYOUT@$+  contains=ddownLayoutVar
-syn region ddownContent      start=+_CONTENT|$+ end=+|CONTENT_$+ contains=ddownContentId,ddownContentText
-syn region ddownStyle        start=+^_STYLE|$+   end=+^|STYLE_$+   contains=@css
-syn region ddownScript       start="\(^\)\@<=_SCRIPT|\($\)\@="  end="\(^\)\@<=|SCRIPT_\($\)\@="  contains=ddownScriptInner
+syn region marktwoHeadLayout   start=+_HEADLAYOUT|$+  end=+|HEADLAYOUT_$+  contains=marktwoOpenTag,marktwoCloseTag
+syn region marktwoHeadContent  start=+_HEADCONTENT|$+ end=+|HEADCONTENT_$+ contains=marktwoContentId,marktwoContentText
+syn region marktwoFootLayout   start=+_FOOTLAYOUT|$+  end=+|FOOTLAYOUT_$+  contains=marktwoOpenTag,marktwoCloseTag
+syn region marktwoFootContent  start=+_FOOTCONTENT|$+ end=+|FOOTCONTENT_$+ contains=marktwoContentId,marktwoContentText
+syn region marktwoLayout       start=+_LAYOUT|$+  end=+|LAYOUT_$+  contains=marktwoOpenTag,marktwoCloseTag
+syn region marktwoLayoutVarSec start=+^@LAYOUT|$+  end=+^|LAYOUT@$+  contains=marktwoLayoutVar
+syn region marktwoContent      start=+_CONTENT|$+ end=+|CONTENT_$+ contains=marktwoContentId,marktwoContentText
+syn region marktwoStyle        start=+^_STYLE|$+   end=+^|STYLE_$+   contains=@css
+syn region marktwoScript       start="\(^\)\@<=_SCRIPT|\($\)\@="  end="\(^\)\@<=|SCRIPT_\($\)\@="  contains=marktwoScriptInner
 
-hi def link ddownScript       Comment
-hi def link ddownStyle        Comment
-hi def link ddownContent      Comment
-hi def link ddownHeadLayout   Comment
-hi def link ddownHeadContent  Comment
-hi def link ddownFootLayout   Comment
-hi def link ddownFootContent  Comment
-hi def link ddownLayoutVarSec Comment
-hi def link ddownHtml         Comment
-hi def link ddownLayout       Comment
-hi def link ddownScriptInner  Normal
-hi def link ddownStyleIdent   Special
-hi def link ddownStyleRegion  Exception
-hi def link ddownStyleKey     Title
-hi def link ddownStyleValue   Type
-hi def link ddownContentId    Type
-hi def link ddownContentText  Title
-hi def link ddownInlineChar   Comment
-hi def link ddownInnerText    Special
-hi def link ddownLayoutVar    Special
-hi def link ddownOpenTag      Exception
-hi def link ddownVarTag       Exception
-hi def link ddownCloseTag     Exception
-hi def link ddownAttrList     Exception
-hi def link ddownAttrDelim    Comment
-hi def link ddownAttrKey      Title
-hi def link ddownAttrValDelim Special
-hi def link ddownAttrVal      Type
-hi def link ddownAttr         Title
-hi def link ddownClass        Type
-hi def link ddownId           Type
-hi def link ddownTagName      Title
-hi def link ddownVarName      Special
+hi def link marktwoScript       Comment
+hi def link marktwoStyle        Comment
+hi def link marktwoContent      Comment
+hi def link marktwoHeadLayout   Comment
+hi def link marktwoHeadContent  Comment
+hi def link marktwoFootLayout   Comment
+hi def link marktwoFootContent  Comment
+hi def link marktwoLayoutVarSec Comment
+hi def link marktwoHtml         Comment
+hi def link marktwoLayout       Comment
+hi def link marktwoScriptInner  Normal
+hi def link marktwoStyleIdent   Special
+hi def link marktwoStyleRegion  Exception
+hi def link marktwoStyleKey     Title
+hi def link marktwoStyleValue   Type
+hi def link marktwoContentId    Type
+hi def link marktwoContentText  Title
+hi def link marktwoInlineChar   Comment
+hi def link marktwoInnerText    Special
+hi def link marktwoLayoutVar    Special
+hi def link marktwoOpenTag      Exception
+hi def link marktwoVarTag       Exception
+hi def link marktwoCloseTag     Exception
+hi def link marktwoAttrList     Exception
+hi def link marktwoAttrDelim    Comment
+hi def link marktwoAttrKey      Title
+hi def link marktwoAttrValDelim Special
+hi def link marktwoAttrVal      Type
+hi def link marktwoAttr         Title
+hi def link marktwoClass        Type
+hi def link marktwoId           Type
+hi def link marktwoTagName      Title
+hi def link marktwoVarName      Special

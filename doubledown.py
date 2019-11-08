@@ -1,14 +1,14 @@
 import sys
-from   models.ddownparser import DDownParser
+from   models.marktwoparser import MarkTwoParser
 from   models.pdf         import Pdf
 from   optionparser       import parseOpts
 from   tests.testsuite    import TestSuite as Test
 import requests
 import os
 
-def createDDown(options):
-    ddown = DDownParser(options=options)
-    return ddown
+def createMarkTwo(options):
+    marktwo = MarkTwoParser(options=options)
+    return marktwo
 
 def createPdf(htmlstr,headhtmlstr,foothtmlstr,output):
     options = {}
@@ -67,12 +67,12 @@ if __name__ == '__main__':
     if options["test"] == True:
         runTests(options)
     else:
-        ddown = createDDown(options)
+        marktwo = createMarkTwo(options)
 
         if options["html"]:
-            createHtmlDoc(ddown.html,f"{options['output']}.html")
+            createHtmlDoc(marktwo.html,f"{options['output']}.html")
 
-        createPdf(ddown.html,ddown.headhtml,ddown.foothtml,options["output"])
+        createPdf(marktwo.html,marktwo.headhtml,marktwo.foothtml,options["output"])
 
         if not options["quiet"]:
             print(f"Successfully created {options['output']}.pdf")

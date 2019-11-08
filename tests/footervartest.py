@@ -1,4 +1,4 @@
-from models.ddownparser import DDownParser
+from models.marktwoparser import MarkTwoParser
 
 class FooterHtmlTest:
     testtype  = "FOOTER HTML"
@@ -23,7 +23,7 @@ class FooterHtmlTest:
         return f"<FooterHtmlTest: {self.name} = {self.passed}>"
 
     def run(self,options):
-        self.response = DDownParser(options=options,
+        self.response = MarkTwoParser(options=options,
                                     testinput=self.testinput).foothtml
         self.passed   = self.response == self.accepted
 

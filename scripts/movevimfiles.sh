@@ -1,6 +1,6 @@
 #!/bin/bash
-sudo rm /usr/share/vim/vim80/syntax/doubledown.vim
-sudo cp ./vim/doubledown.vim /usr/share/vim/vim80/syntax/doubledown.vim
+sudo rm /usr/share/vim/vim80/syntax/marktwo.vim
+sudo cp ./vim/marktwo.vim /usr/share/vim/vim80/syntax/marktwo.vim
 
-rm ~/.vim/syntax/doubledown.vim
-cp ./vim/doubledown.vim ~/.vim/syntax/doubledown.vim
+rm ~/.vim/syntax/marktwo.vim
+cp ./vim/marktwo.vim ~/.vim/syntax/marktwo.vim

@@ -1,4 +1,4 @@
-from models.ddownparser import DDownParser
+from models.marktwoparser import MarkTwoParser
 
 class LayoutVarTest:
     testtype  = "VARIABLE"
@@ -19,7 +19,7 @@ class LayoutVarTest:
         return f"<LayoutVarTest: {self.name} = {self.passed}>"
 
     def run(self,options):
-        self.response = DDownParser(options=options,
+        self.response = MarkTwoParser(options=options,
                                     testinput=self.testinput).lvars[self.lvarname]
         self.passed   = self.response == self.accepted
 

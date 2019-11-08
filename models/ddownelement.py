@@ -1,4 +1,4 @@
-class DDownElement:
+class MarkTwoElement:
     qtag        = None
     qid         = None
     qclass      = None
@@ -35,7 +35,7 @@ class DDownElement:
             elif type(attr) == type(''):
                 self.opentag += f" {attr}"
         self.opentag += ">"
-        if not DDownElement.isAutoClosing(self.qtag):
+        if not MarkTwoElement.isAutoClosing(self.qtag):
             self.closetag = f"</{self.qtag}>"
 
     @staticmethod

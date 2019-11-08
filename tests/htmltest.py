@@ -1,4 +1,4 @@
-from models.ddownparser import DDownParser
+from models.marktwoparser import MarkTwoParser
 
 class HtmlTest:
     testtype  = "HTML OUT"
@@ -23,7 +23,7 @@ class HtmlTest:
         return f"<HtmlTest: {self.name} = {self.passed}>"
 
     def run(self,options):
-        self.response = DDownParser(options=options,
+        self.response = MarkTwoParser(options=options,
                                     testinput=self.testinput).html
         self.passed   = self.response == self.accepted
 

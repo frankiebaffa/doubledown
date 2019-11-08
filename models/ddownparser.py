@@ -1,20 +1,20 @@
 import re
-from   models.ddownelement import DDownElement
+from   models.marktwoelement import MarkTwoElement
 
-class DDownParser:
+class MarkTwoParser:
     options     = None
     qinput      = None
-    qdocument   = DDownElement()
+    qdocument   = MarkTwoElement()
     html        = None
     css         = None
     lvars       = None
     content     = None
     script      = None
-    hdocument   = DDownElement()
+    hdocument   = MarkTwoElement()
     headarr     = None
     headcontent = None
     headhtml    = None
-    fdocument   = DDownElement()
+    fdocument   = MarkTwoElement()
     footarr     = None
     foothtml    = None
     footcontent = None
@@ -135,11 +135,11 @@ class DDownParser:
                 if i == contentend-1 or arr[i+1].lstrip().rstrip()[0:1] == '#':
                     if contentconcat != None and contentconcat != '':
                         if loc == None:
-                            self.content[previousId] = DDownParser.checkContentForInline(contentconcat)
+                            self.content[previousId] = MarkTwoParser.checkContentForInline(contentconcat)
                         elif loc == "header":
-                            self.headcontent[previousId] = DDownParser.checkContentForInline(contentconcat)
+                            self.headcontent[previousId] = MarkTwoParser.checkContentForInline(contentconcat)
                         elif loc == "footer":
-                            self.footcontent[previousId] = DDownParser.checkContentForInline(contentconcat)
+                            self.footcontent[previousId] = MarkTwoParser.checkContentForInline(contentconcat)
                         contentconcat =  ''
 
             # HOTFIX FOR UNECESSARY SPACES BETWEEN EMPTY TAGS
@@ -320,15 +320,15 @@ class DDownParser:
 
         def constructElement(line):
             elementstr  = line
-            qelement    = DDownElement()
+            qelement    = MarkTwoElement()
             qelement,\
-            elementstr  = DDownParser.checkGetTag(elementstr,qelement)
+            elementstr  = MarkTwoParser.checkGetTag(elementstr,qelement)
             qelement,\
-            elementstr  = DDownParser.checkGetAttr(elementstr,qelement)
+            elementstr  = MarkTwoParser.checkGetAttr(elementstr,qelement)
             qelement,\
-            elementstr  = DDownParser.checkGetClass(elementstr,qelement)
+            elementstr  = MarkTwoParser.checkGetClass(elementstr,qelement)
             qelement,\
-            elementstr  = DDownParser.checkGetId(elementstr,qelement)
+            elementstr  = MarkTwoParser.checkGetId(elementstr,qelement)
             qelement.generateHtml()
             return qelement,elementstr
 

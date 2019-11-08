@@ -1,4 +1,4 @@
-from models.ddownparser import DDownParser
+from models.marktwoparser import MarkTwoParser
 
 class ContentTest:
     testtype  = "CONTENT"
@@ -19,7 +19,7 @@ class ContentTest:
         return f"<ContentTest: {self.name} = {self.passed}>"
 
     def run(self,options):
-        self.response = DDownParser(options=options,
+        self.response = MarkTwoParser(options=options,
                                     testinput=self.testinput).content
         self.passed   = self.response == self.accepted
 
