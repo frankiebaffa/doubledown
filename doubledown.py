@@ -10,18 +10,11 @@ def createDDown(options):
     ddown = DDownParser(options=options)
     return ddown
 
-def createPdf(htmlstr,headhtmlstr,foothtmlstr,output,css):
+def createPdf(htmlstr,headhtmlstr,foothtmlstr,output):
     options = {}
     tmpcss  = None
     exists  = True
     existi  = 0
-    while exists:
-        tmpcss =  f"{output}.tmp{existi}.css"
-        exists =  os.path.exists(tmpcss)
-        existi += 1
-    with open(tmpcss,"w") as file:
-        file.write(css)
-
     tmphead = None
     if headhtmlstr != None:
         exists = True
@@ -46,8 +39,7 @@ def createPdf(htmlstr,headhtmlstr,foothtmlstr,output,css):
             file.write(foothtmlstr)
         options["footer-html"] = tmpfoot
 
-    Pdf.makePdfFromString(htmlstr,f"{output}.pdf",options=options,css=tmpcss)
-    os.remove(tmpcss)
+    Pdf.makePdfFromString(htmlstr,f"{output}.pdf",options=options)
     os.remove(tmphead)
     os.remove(tmpfoot)
 
@@ -80,7 +72,7 @@ if __name__ == '__main__':
         if options["html"]:
             createHtmlDoc(ddown.html,f"{options['output']}.html")
 
-        createPdf(ddown.html,ddown.headhtml,ddown.foothtml,options["output"],ddown.css)
+        createPdf(ddown.html,ddown.headhtml,ddown.foothtml,options["output"])
 
         if not options["quiet"]:
             print(f"Successfully created {options['output']}.pdf")

@@ -26,7 +26,7 @@ class DDownParser:
         self.hdocument.qid  = "Document"
         self.fdocument.qtag = "document"
         self.fdocument.qid  = "Document"
-        self.html = '<!DOCTYPE html>\n'
+        self.html = ''
         self.headhtml = ''
         self.foothtml = ''
         self.lvars = {}
@@ -66,8 +66,12 @@ class DDownParser:
                 self.getLayout(self.footarr,loc="footer")
                 self.getStyle(self.footarr)
                 self.getScript(self.footarr)
+            if self.css != None:
+                self.html     += f"\n<style>\n{self.css}\n</style>"
+                self.headhtml += f"\n<style>\n{self.css}\n</style>"
+                self.foothtml += f"\n<style>\n{self.css}\n</style>"
             if self.script != None:
-                self.html += f"\n<script>\n{self.script}\n</script>"
+                self.html     += f"\n<script>\n{self.script}\n</script>"
                 self.headhtml += f"\n<script>\n{self.script}\n</script>"
                 self.foothtml += f"\n<script>\n{self.script}\n</script>"
 
@@ -209,7 +213,9 @@ class DDownParser:
                          r"(?<!\\)_"          : "em",
                          r"(?<!\\)\*"         : "strong",
                          r"(?<![\\\-])-(?!-)" : "s",
-                         r"(?<![\\])\|"       : "li"
+                         r"(?<![\\])\|"       : "li",
+                         r"(?<![\\])\^"       : "sup",
+                         r"(?<![\\])\~"       : "sub"
                         }
 
             opendiffclose = {

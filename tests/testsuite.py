@@ -2,6 +2,7 @@ from tests.contenttest   import ContentTest
 from tests.layouttest    import LayoutTest
 from tests.htmltest      import HtmlTest
 from tests.layoutvartest import LayoutVarTest
+from tests.footervartest import FooterHtmlTest
 
 def tryIndex(s,t):
     x = -1
@@ -60,11 +61,11 @@ class TestSuite:
                         fnames.append(testnames[i])
                         fstats.append(teststats[i])
 
+                        srtdiff = 0
+                        enddiff = 0
                         for j in range(len(testrespo[i])):
                             acpt    = testaccep[i]
                             resp    = testrespo[i]
-                            srtdiff = 0
-                            enddiff = 0
                             if (acpt != resp):
                                 srtcomp = 0
                                 endcomp = 0
@@ -99,6 +100,7 @@ class TestSuite:
         self.tests += LayoutTest.get()
         self.tests += LayoutVarTest.get()
         self.tests += HtmlTest.get()
+        self.tests += FooterHtmlTest.get()
 
     # where tarr is a 2d array in which the
     # 2nd dimensions are of equal length
