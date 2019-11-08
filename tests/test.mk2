@@ -1,0 +1,151 @@
+_HEADCONTENT|
+#Header     This is the header
+|HEADCONTENT_
+
+_CONTENT|
+#MainHead   Mark^two^
+#SubHead    _A markup-specific document notation parsed in python._
+#Left1      Versitile
+#Center1    Readable
+#Right1     Extensive
+#Goals      DoubleDown was written to uphold versitility of HTML/CSS IDs,
+            classes, attributes while maintaining markdown's readability.
+            The solution to this was to break out the syntax into three
+            main sections: *layout*, *content*, *style*. _Layout_ contains
+            a shorthand syntax for html which is run through a python-based
+            parser. The _content_ section maps text and inline styling elements
+            to html IDs. The _style_ section accepts pure css. _Content_ is
+            parsed first to create a map. The _layout_ section follows and is
+            handled as a single 'DDownElement' object which contains an
+            'inner' attribute containing the nested 'DDownElements'.
+#ul1        -|This is the original list style with a strike through|-
+             |This is the original list style without a strike through|
+#p1         %>|This is the new list style|
+              |I should be able to add multiple list elements|
+              %>|And also nest elements|
+                |Like this|<%
+              $>|And also ordered lists|
+                |Like this|<$<%
+            $>|Ordered list|<$
+            %>|Mark^two^|
+              |sub~script~|<%
+#Foot       written and formatted using DoubleDown
+|CONTENT_
+
+_FOOTCONTENT|
+#FL         Created With DoubleDown
+#FR         github.com/frankiebaffa/doubledown
+|FOOTCONTENT_
+
+@LAYOUT|
+    @lcr|
+        _table.lcrContainer|
+            _tbody|
+                _tr|
+                    _td#.descript||_
+                    _td#.descript||_
+                    _td#.descript||_
+                |tr_
+            |tbody_
+        |table_
+    |lcr@
+|LAYOUT@
+
+_HEADLAYOUT|
+    _p#Header||_
+|HEADLAYOUT_
+
+_LAYOUT|
+_html|
+    _body|
+        _h1#MainHead.header||_
+        _p#SubHead.subheader||_
+        @lcr#Left1#Center1#Right1@
+        _hr||_
+        _p#Goals.descript||_
+        _ul#ul1.descript||_
+        _p#p1.descript||_
+        _canvas#canvas||_
+        _p#Foot.footer||_
+    |body_
+|html_
+|LAYOUT_
+
+_FOOTLAYOUT|
+    @lcr#FL#FC#FR@
+|FOOTLAYOUT_
+
+_STYLE|
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+span,
+p,
+li,
+td{
+    font-family:arial;
+    font-weight:normal;
+    font-style:normal;
+}
+p,
+li,
+span,
+strong,
+em{
+    font-size:12px
+}
+.header{
+    font-size:20px;
+}
+.subheader{
+    font-size:16px;
+}
+.header,
+.subheader{
+    text-align:center;
+}
+.header,
+.subheader,
+.sectionHeader,
+.lcrContainer>tbody>tr>td{
+    color:grey;
+}
+.lcrContainer{
+    width:100%;
+    table-layout:fixed;
+    margin-bottom:0px;
+}
+hr{
+    margin-top:0px;
+}
+.lcrContainer>tbody>tr>td{
+    width:50%;
+}
+#Left1{
+    text-align:left;
+}
+#Center1{
+    text-align:center;
+}
+#Right1{
+    text-align:right;
+}
+#Foot{
+    font-size:10px;
+    color:grey;
+    position:absolute;
+    right:0;
+    bottom:0;
+}
+|STYLE_
+
+_SCRIPT|
+    var c = document.getElementById('canvas');
+    var ctx = c.getContext('2d');
+    ctx.moveTo(0,0);
+    ctx.lineTo(200,200);
+    ctx.stroke();
+|SCRIPT_
