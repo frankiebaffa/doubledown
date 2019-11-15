@@ -38,7 +38,7 @@ syn region marktwoOpenTag  contained containedin=marktwoLayoutVar,marktwoLayout,
 syn region marktwoCloseTag contained containedin=marktwoLayoutVar,marktwoLayout,marktwoHeadLayout,marktwoFootLayout oneline contains=marktwoTagName                                  start="|\(CONTENT\|LAYOUT\)\@!" end="\(CONTENT\|LAYOUT\)\@<!_"
 
 " Content Id
-syn region marktwoContentVar contained containedin=marktwoContentText start="\(^\s*\)\@<=@" end="\(\S*\)\@<=@$"
+syn region marktwoContentVar contained containedin=marktwoContentText oneline start="\(^\s*\)\@<=@" end="\(\S*\)\@<=@$"
 syn region marktwoContentText contained containedin=marktwoContent,marktwoHeadContent,marktwoFootContent contains=marktwoContentVar start="\(\(^\s*\)\@<=#[a-zA-Z0-9]\+\s*\)\@<=\s\([a-zA-Z0-9%><|\*_\-]\)\@=" end="^\(\(\(^\s*\)\@<=#[a-zA-Z0-9]\+\(\s\+\)\@=\)\|^\(|CONTENT_\||HEADCONTENT_\||FOOTCONTENT_\)\@=\)\@="
 syn match  marktwoInlineChar contained containedin=marktwoContentText                               "\(\\\)\@<!\(%>\|<%\|\$>\|<\$\||\|_\|\*\|-\|\^\|\~\)"
 syn match  marktwoContentId nextgroup=marktwoContentText contained containedin=marktwoContent,marktwoHeadContent,marktwoFootContent "\(^\s*\)\@<=#[a-zA-Z0-9]\+\(\s\+\)\@="
