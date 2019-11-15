@@ -1,3 +1,7 @@
+# TODO: footcontent gets stuffed with content at some point.
+#       footarr does not contain any of content's elements.
+#       unknown if this occurs with headcontent as well.
+
 import re
 from   models.marktwoelement import MarkTwoElement
 
@@ -50,18 +54,21 @@ class MarkTwoParser:
             arr = self.pullHeader(arr)
             arr = self.pullFooter(arr)
             self.getContent(arr)
+            self.getContentVars(self.content)
             self.getLayoutVars(arr)
             self.getLayout(arr)
             self.getStyle(arr)
             self.getScript(arr)
             if self.headarr != None:
                 self.getContent(self.headarr,loc="header")
+                self.getContentVars(self.headcontent)
                 self.getLayoutVars(self.headarr)
                 self.getLayout(self.headarr,loc="header")
                 self.getStyle(self.headarr)
                 self.getScript(self.headarr)
             if self.footarr != None:
                 self.getContent(self.footarr,loc="footer")
+                self.getContentVars(self.footcontent)
                 self.getLayoutVars(self.footarr)
                 self.getLayout(self.footarr,loc="footer")
                 self.getStyle(self.footarr)
@@ -200,7 +207,6 @@ class MarkTwoParser:
                         self.headcontent[key] = newblock
                     elif loc == "footer":
                         self.footcontent[key] = newblock
-
         except:
             if not self.options["quiet"] and\
                not self.options["test"]:
@@ -269,6 +275,19 @@ class MarkTwoParser:
 
         text = text.replace("\\","")
         return text
+
+    @staticmethod
+    def getContentVars(content):
+        contentvars = {
+                       "breaker":"<div style='page-break-before:always;display:block;width:0px;height:0px;'></div>"
+                      }
+        for block in content.keys():
+            text = content[block]
+            for var in contentvars.keys():
+                pat  = r"@"+var+"@"
+                newtext = re.sub(pat,contentvars[var],text)
+                if newtext != text:
+                    content[block] = newtext
 
     def getLayoutVars(self,arr):
         try:

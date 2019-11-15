@@ -38,9 +38,10 @@ syn region marktwoOpenTag  contained containedin=marktwoLayoutVar,marktwoLayout,
 syn region marktwoCloseTag contained containedin=marktwoLayoutVar,marktwoLayout,marktwoHeadLayout,marktwoFootLayout oneline contains=marktwoTagName                                  start="|\(CONTENT\|LAYOUT\)\@!" end="\(CONTENT\|LAYOUT\)\@<!_"
 
 " Content Id
-syn region marktwoContentText                            contained containedin=marktwoContent,marktwoHeadContent,marktwoFootContent start="\(\(^\s*\)\@<=#[a-zA-Z0-9]\+\s*\)\@<=\s\([a-zA-Z0-9%><|\*_\-]\)\@=" end="^\(\(\(^\s*\)\@<=#[a-zA-Z0-9]\+\(\s\+\)\@=\)\|^\(|CONTENT_\||HEADCONTENT_\||FOOTCONTENT_\)\@=\)\@="
-syn match  marktwoInlineChar                             contained containedin=marktwoContentText                               "\(\\\)\@<!\(%>\|<%\|\$>\|<\$\||\|_\|\*\|-\|\^\|\~\)"
-syn match  marktwoContentId   nextgroup=marktwoContentText contained containedin=marktwoContent,marktwoHeadContent,marktwoFootContent "\(^\s*\)\@<=#[a-zA-Z0-9]\+\(\s\+\)\@="
+syn region marktwoContentVar contained containedin=marktwoContentText start="\(^\s*\)\@<=@" end="\(\S*\)\@<=@$"
+syn region marktwoContentText contained containedin=marktwoContent,marktwoHeadContent,marktwoFootContent contains=marktwoContentVar start="\(\(^\s*\)\@<=#[a-zA-Z0-9]\+\s*\)\@<=\s\([a-zA-Z0-9%><|\*_\-]\)\@=" end="^\(\(\(^\s*\)\@<=#[a-zA-Z0-9]\+\(\s\+\)\@=\)\|^\(|CONTENT_\||HEADCONTENT_\||FOOTCONTENT_\)\@=\)\@="
+syn match  marktwoInlineChar contained containedin=marktwoContentText                               "\(\\\)\@<!\(%>\|<%\|\$>\|<\$\||\|_\|\*\|-\|\^\|\~\)"
+syn match  marktwoContentId nextgroup=marktwoContentText contained containedin=marktwoContent,marktwoHeadContent,marktwoFootContent "\(^\s*\)\@<=#[a-zA-Z0-9]\+\(\s\+\)\@="
 
 syn region marktwoLayoutVar contained containedin=marktwoLayoutVarSec contains=marktwoOpenTag,marktwoCloseTag start="@\(CONTENT\|LAYOUT\)\@![a-zA-Z0-9]\+|" end="|\(CONTENT\|LAYOUT\)\@![a-zA-Z0-9]\+@"
 
@@ -78,6 +79,7 @@ hi def link marktwoStyleKey     Title
 hi def link marktwoStyleValue   Type
 hi def link marktwoContentId    Type
 hi def link marktwoContentText  Title
+hi def link marktwoContentVar   Special
 hi def link marktwoInlineChar   Comment
 hi def link marktwoInnerText    Special
 hi def link marktwoLayoutVar    Special
