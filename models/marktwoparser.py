@@ -1,7 +1,3 @@
-# TODO: footcontent gets stuffed with content at some point.
-#       footarr does not contain any of content's elements.
-#       unknown if this occurs with headcontent as well.
-
 import re
 from   models.marktwoelement import MarkTwoElement
 
@@ -54,21 +50,18 @@ class MarkTwoParser:
             arr = self.pullHeader(arr)
             arr = self.pullFooter(arr)
             self.getContent(arr)
-            self.getContentVars(self.content)
             self.getLayoutVars(arr)
             self.getLayout(arr)
             self.getStyle(arr)
             self.getScript(arr)
             if self.headarr != None:
                 self.getContent(self.headarr,loc="header")
-                self.getContentVars(self.headcontent)
                 self.getLayoutVars(self.headarr)
                 self.getLayout(self.headarr,loc="header")
                 self.getStyle(self.headarr)
                 self.getScript(self.headarr)
             if self.footarr != None:
                 self.getContent(self.footarr,loc="footer")
-                self.getContentVars(self.footcontent)
                 self.getLayoutVars(self.footarr)
                 self.getLayout(self.footarr,loc="footer")
                 self.getStyle(self.footarr)
@@ -142,70 +135,69 @@ class MarkTwoParser:
                 if i == contentend-1 or arr[i+1].lstrip().rstrip()[0:1] == '#':
                     if contentconcat != None and contentconcat != '':
                         if loc == None:
-                            self.content[previousId] = MarkTwoParser.checkContentForInline(contentconcat)
+                            contentconcat = MarkTwoParser.checkContentForInline(contentconcat)
+                            self.content[previousId] = MarkTwoParser.checkContentForVars(contentconcat)
                         elif loc == "header":
-                            self.headcontent[previousId] = MarkTwoParser.checkContentForInline(contentconcat)
+                            contentconcat = MarkTwoParser.checkContentForInline(contentconcat)
+                            self.headcontent[previousId] = MarkTwoParser.checkContentForVars(contentconcat)
                         elif loc == "footer":
-                            self.footcontent[previousId] = MarkTwoParser.checkContentForInline(contentconcat)
+                            contentconcat = MarkTwoParser.checkContentForInline(contentconcat)
+                            self.footcontent[previousId] = MarkTwoParser.checkContentForVars(contentconcat)
                         contentconcat =  ''
 
             # HOTFIX FOR UNECESSARY SPACES BETWEEN EMPTY TAGS
-            for key in self.content.keys():
-                block    = self.content[key]
-                patt     = r"</*(li|ul|ol)>"
-                matchobj = [(m.start(0),m.end(0)) for m in re.finditer(patt,block)]
-                if len(matchobj) > 0:
-                    newblock = ""
-                    le = None
-                    ls = None
-                    itercount = 0
-                    for s,e in matchobj:
-                        if itercount > 0:
-                            check = block[le:s]
-                            if check == " ":
-                                newpart = f"{block[s:e]}"
-                            else:
-                                newpart = f"{block[le:e]}"
-                            newblock += newpart
-                        else:
-                            newblock = f"{block[s:e]}"
-                        le = e
-                        ls = s
-                        itercount += 1
-                    if loc == None:
-                        self.content[key] = newblock
-                    elif loc == "header":
-                        self.headcontent[key] = newblock
-                    elif loc == "footer":
-                        self.footcontent[key] = newblock
+            if loc == None:
+                for key in self.content.keys():
+                    block    = self.content[key]
+                    patt     = r"(?<!\s)\>\s\<"
+                    block    = re.sub(patt,"><",block)
+                    self.content[key] = block
+            if loc == "header":
+                for key in self.headcontent.keys():
+                    block    = self.headcontent[key]
+                    patt     = r"(?<!\s)\>\s\<"
+                    block    = re.sub(patt,"><",block)
+                    self.headcontent[key] = block
+            if loc == "footer":
+                for key in self.footcontent.keys():
+                    block    = self.footcontent[key]
+                    patt     = r"(?<!\s)\>\s\<"
+                    block    = re.sub(patt,"><",block)
+                    self.footcontent[key] = block
 
             # HOTFIX FOR UNECESSARY SPACES AFTER TEXT IN TAG
-            keys = None
             if loc == None:
-                keys = self.content.keys()
-            elif loc == "header":
-                keys = self.headcontent.keys()
-            elif loc == "footer":
-                keys = self.footcontent.keys()
-            for key in keys:
-                block = None
-                if loc == None:
+                for key in self.content.keys():
+                    block = None
                     block = self.content[key]
-                elif loc == "header":
-                    block = self.headcontent[key]
-                elif loc == "footer":
-                    block = self.footcontent[key]
-                patt  = r"(?<=\S)\s(?=$)"
-                matchobj = [(m.start(0),m.end(0)) for m in re.finditer(patt,block)]
-                newblock = None
-                if len(matchobj) > 0:
-                    match    = matchobj[0]
-                    newblock = block[0:match[0]]
-                    if loc == None:
+                    patt  = r"(?<=\S)\s(?=$)"
+                    matchobj = [(m.start(0),m.end(0)) for m in re.finditer(patt,block)]
+                    newblock = None
+                    if len(matchobj) > 0:
+                        match    = matchobj[0]
+                        newblock = block[0:match[0]]
                         self.content[key] = newblock
-                    elif loc == "header":
+            elif loc == "header":
+                for key in self.headcontent.keys():
+                    block = None
+                    block = self.headcontent[key]
+                    patt  = r"(?<=\S)\s(?=$)"
+                    matchobj = [(m.start(0),m.end(0)) for m in re.finditer(patt,block)]
+                    newblock = None
+                    if len(matchobj) > 0:
+                        match    = matchobj[0]
+                        newblock = block[0:match[0]]
                         self.headcontent[key] = newblock
-                    elif loc == "footer":
+            if loc == "footer":
+                for key in self.footcontent.keys():
+                    block = None
+                    block = self.footcontent[key]
+                    patt  = r"(?<=\S)\s(?=$)"
+                    matchobj = [(m.start(0),m.end(0)) for m in re.finditer(patt,block)]
+                    newblock = None
+                    if len(matchobj) > 0:
+                        match    = matchobj[0]
+                        newblock = block[0:match[0]]
                         self.footcontent[key] = newblock
         except:
             if not self.options["quiet"] and\
@@ -277,17 +269,14 @@ class MarkTwoParser:
         return text
 
     @staticmethod
-    def getContentVars(content):
+    def checkContentForVars(content):
         contentvars = {
                        "breaker":"<div style='page-break-before:always;display:block;width:0px;height:0px;'></div>"
                       }
-        for block in content.keys():
-            text = content[block]
-            for var in contentvars.keys():
-                pat  = r"@"+var+"@"
-                newtext = re.sub(pat,contentvars[var],text)
-                if newtext != text:
-                    content[block] = newtext
+        for var in contentvars.keys():
+            pat  = r"@"+var+"@"
+            content  = re.sub(pat,contentvars[var],content)
+        return content
 
     def getLayoutVars(self,arr):
         try:
