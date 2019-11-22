@@ -78,23 +78,25 @@ class MarkTwoParser:
     @staticmethod
     def _getDefaultLayoutVars():
         lvars = {
+                 # THREE INLINE TEXT ELEMENTS ALIGNED LEFT, CENTER, RIGHT; RESPECTIVELY
                  "lcr":[
-                        "_table.lcrContainer[style=width:100%;table-layout:fixed;margin-bottom:0px;]|",
+                        "_table.lcrContainer[style=width:100%;table-layout:fixed;]|",
                         "_tbody|",
                         "_tr|",
-                        "_td#[style=width:50%;]||_",
-                        "_td#[style=width:50%;]||_",
-                        "_td#[style=width:50%;]||_",
+                        "_td#[style=width:50%;text-align:left;]||_",
+                        "_td#[style=width:50%;text-align:center;]||_",
+                        "_td#[style=width:50%;text-align:right;]||_",
                         "|tr_",
                         "|tbody_",
                         "|table_"
                        ],
+                 # TWO INLINE TEXT ELEMENTS ALIGNED LEFT, RIGHT; RESPECTIVELY
                  "lr": [
-                        "_table.lrContainer[style=width:100%;table-layout:fixed;margin-bottom:0px;]|",
+                        "_table.lrContainer[style=width:100%;table-layout:fixed;]|",
                         "_tbody|",
                         "_tr|",
-                        "_td#[style=width:50%;]||_",
-                        "_td#[style=width:50%;]||_",
+                        "_td#[style=width:50%;text-align:left]||_",
+                        "_td#[style=width:50%;text-align:right;]||_",
                         "|tr_",
                         "|tbody_",
                         "|table_"
