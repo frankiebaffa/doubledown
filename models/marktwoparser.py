@@ -29,7 +29,7 @@ class MarkTwoParser:
         self.html = ''
         self.headhtml = ''
         self.foothtml = ''
-        self.lvars = {}
+        self.lvars = MarkTwoParser._getDefaultLayoutVars()
         self.content = {}
         self.headcontent = {}
         self.footcontent = {}
@@ -74,6 +74,34 @@ class MarkTwoParser:
                 self.html     += f"\n<script>\n{self.script}\n</script>"
                 self.headhtml += f"\n<script>\n{self.script}\n</script>"
                 self.foothtml += f"\n<script>\n{self.script}\n</script>"
+
+    @staticmethod
+    def _getDefaultLayoutVars():
+        lvars = {
+                 "lcr":[
+                        "_table.lcrContainer[style=width:100%;table-layout:fixed;margin-bottom:0px;]|",
+                        "_tbody|",
+                        "_tr|",
+                        "_td#[style=width:50%;]||_",
+                        "_td#[style=width:50%;]||_",
+                        "_td#[style=width:50%;]||_",
+                        "|tr_",
+                        "|tbody_",
+                        "|table_"
+                       ],
+                 "lr": [
+                        "_table.lrContainer[style=width:100%;table-layout:fixed;margin-bottom:0px;]|",
+                        "_tbody|",
+                        "_tr|",
+                        "_td#[style=width:50%;]||_",
+                        "_td#[style=width:50%;]||_",
+                        "|tr_",
+                        "|tbody_",
+                        "|table_"
+                       ]
+                }
+        
+        return lvars
 
     def pullHeader(self,arr):
         try:
@@ -454,18 +482,19 @@ class MarkTwoParser:
 
     @staticmethod
     def checkGetAttr(elementstr,qelement):
-        attrs = re.findall(r"(?<=\[)[a-zA-Z0-9=,\./:\-\;]+(?=\])",elementstr)
-        for match in attrs:
-            elementstr = elementstr.replace(match,'',1)
-            attrsplit = match.split(',')
-            for attr in attrsplit:
-                kv = attr.split('=')
-                if len(kv) == 1:
-                    qelement.qattributes.append(kv[0])
-                elif len(kv) == 2:
-                    qelement.qattributes.append({kv[0]:kv[1]})
-        elementstr = elementstr.replace('[','')
-        elementstr = elementstr.replace(']','')
+        attrsnoval = re.findall(r"(?<=[\[,])[a-zA-Z]+(?=[,\]])",elementstr)
+        for match in attrsnoval:
+            qelement.qattributes.append(match)
+
+        attrswval  = re.findall(r"(?<=[\[,])[a-zA-Z]+=[a-zA-Z0-9=\./:\-\;%]+(?=[,\]])",elementstr)
+        for match in attrswval:
+            kv = match.split("=")
+            qelement.qattributes.append({kv[0]:kv[1]})
+
+        allattrstorem = re.findall(r"\[[a-zA-Z0-9=\./:\-\;%,]+\]",elementstr)
+        for match in allattrstorem:
+            elementstr = elementstr.replace(match,"")
+
         return qelement,elementstr
 
     @staticmethod

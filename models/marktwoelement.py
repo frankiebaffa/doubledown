@@ -32,6 +32,7 @@ class MarkTwoElement:
             if type(attr) == type({}):
                 for key in attr.keys():
                     self.opentag += f" {key}=\"{attr[key]}\""
+                    break
             elif type(attr) == type(''):
                 self.opentag += f" {attr}"
         self.opentag += ">"

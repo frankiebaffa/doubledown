@@ -74,7 +74,7 @@ _CONTENT|
             --
 |CONTENT_
 _FOOTCONTENT|
-#FootL      Written and formatted using Mark^two^.
+#FootL      Written and formatted using Mark^two^
 #FootR      github.com/frankiebaffa/marktwo
 |FOOTCONTENT_
 
@@ -85,49 +85,26 @@ _body|
     _br||_
     @lcr#Left1#Center1#Right1@
     _hr||_
-    _p#P1.descript||_
+    _p#P1||_
     _h4#S1.sectionHeader||_
-    _ul#L1.descript||_
+    _ul#L1||_
     _h4#S2.sectionHeader||_
-    _p#P2.descript||_
-    _p#C1.descript.tab.code||_
-    _p#C2.descript.tab2.code||_
-    _p#C3.descript.tab.code||_
-    _p#P3.descript||_
-    _p#C4.descript.tab.code||_
-    _p#C5.descript.tab2.code||_
-    _p#C6.descript.tab3.code||_
-    _p#C7.descript.tab2.code||_
-    _p#C8.descript.tab.code||_
+    _p#P2||_
+    _p#C1.tab.code||_
+    _p#C2.tab2.code||_
+    _p#C3.tab.code||_
+    _p#P3||_
+    _p#C4.tab.code||_
+    _p#C5.tab2.code||_
+    _p#C6.tab3.code||_
+    _p#C7.tab2.code||_
+    _p#C8.tab.code||_
+    _p#Test.test[hidden]||_
 |body_
 |LAYOUT_
 _FOOTLAYOUT|
 @lr#FootL#FootR@
 |FOOTLAYOUT_
-
-@LAYOUT|
-    @lcr|
-        _table.lcrContainer|
-            _tbody|
-                _tr|
-                    _td#.descript||_
-                    _td#.descript||_
-                    _td#.descript||_
-                |tr_
-            |tbody_
-        |table_
-    |lcr@
-    @lr|
-        _table.lrContainer|
-            _tbody|
-                _tr|
-                    _td#.descript||_
-                    _td#.descript||_
-                |tr_
-            |tbody_
-        |table_
-    |lr@
-|LAYOUT@
 
 _STYLE|
 @font-face{
@@ -179,18 +156,8 @@ h6{font-weight:normal;}
 .header,.subheader,.sectionHeader,.lcrContainer>tbody>tr>td{
     color:grey;
 }
-.lcrContainer,
-.lrContainer{
-    width:100%;
-    table-layout:fixed;
-    margin-bottom:0px;
-}
 hr{
     margin-top:0px;
-}
-.lcrContainer>tbody>tr>td,
-.lrContainer>tbody>tr>td{
-    width:50%;
 }
 #FootL,
 #FootR{
