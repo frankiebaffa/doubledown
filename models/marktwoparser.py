@@ -271,7 +271,7 @@ class MarkTwoParser:
     @staticmethod
     def checkContentForVars(content):
         contentvars = {
-                       "breaker":"<div style='page-break-before:always;display:block;width:0px;height:0px;'></div>"
+                       "pagebreak":"<div style='page-break-before:always;display:block;width:0px;height:0px;'></div>"
                       }
         for var in contentvars.keys():
             pat  = r"@"+var+"@"
