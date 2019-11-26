@@ -38,11 +38,13 @@ syn region marktwoOpenTag  contained containedin=marktwoLayoutVar,marktwoLayout,
 syn region marktwoCloseTag contained containedin=marktwoLayoutVar,marktwoLayout,marktwoHeadLayout,marktwoFootLayout oneline contains=marktwoTagName                                  start="|\(CONTENT\|LAYOUT\)\@!" end="\(CONTENT\|LAYOUT\)\@<!_"
 
 " Content Id
-syn region marktwoContentVar contained containedin=marktwoContentText oneline start="\(^\s*\)\@<=@" end="\(\S*\)\@<=@$"
-syn region marktwoContentText contained containedin=marktwoContent,marktwoHeadContent,marktwoFootContent contains=marktwoContentVar start="\(\(^\s*\)\@<=#[a-zA-Z0-9]\+\s*\)\@<=\s\([a-zA-Z0-9%><|\*_\-]\)\@=" end="^\(\(\(^\s*\)\@<=#[a-zA-Z0-9]\+\(\s\+\)\@=\)\|^\(|CONTENT_\||HEADCONTENT_\||FOOTCONTENT_\)\@=\)\@="
-syn match  marktwoInlineChar contained containedin=marktwoContentText                               "\(\\\)\@<!\(%>\|<%\|\$>\|<\$\||\|_\|\*\|-\|\^\|\~\)"
-syn match  marktwoContentId nextgroup=marktwoContentText contained containedin=marktwoContent,marktwoHeadContent,marktwoFootContent "\(^\s*\)\@<=#[a-zA-Z0-9]\+\(\s\+\)\@="
+syn region	marktwoContentVar	contained containedin=marktwoContentText																oneline	start="\(^\s*\)\@<=@" end="\(\S*\)\@<=@$"
+syn region	marktwoContentText	contained containedin=marktwoContent,marktwoHeadContent,marktwoFootContent	contains=marktwoContentVar			start="\(\(^[\t\s]*\)\@<=#[a-zA-Z0-9]\+[\t\s]*\)\@<=[\t\s]\([a-zA-Z0-9%><|\*_\-]\)\@=" end="^\(\([\t\s]*\(#[a-zA-Z0-9]\)\@=\)\@=\|\(|CONTENT_\||HEADCONTENT_\||FOOTCONTENT_\)\@=\)"
+"end="^\(\(\(^[\t\s]*\)\@<=#[a-zA-Z0-9]\+\([\t\s]\+\)\@=\)\|^\(|CONTENT_\||HEADCONTENT_\||FOOTCONTENT_\)\@=\)\@="
+syn match	marktwoInlineChar	contained containedin=marktwoContentText																		"\(\\\)\@<!\(%>\|<%\|\$>\|<\$\||\|_\|\*\|-\|\^\|\~\)"
+syn match	marktwoContentId	contained containedin=marktwoContent,marktwoHeadContent,marktwoFootContent	nextgroup=marktwoContentText		"\(^[\s\t]*\)\@<=#[a-zA-Z0-9]\+\([\s\t]\+\)\@="
 
+" Layout Variable
 syn region marktwoLayoutVar contained containedin=marktwoLayoutVarSec contains=marktwoOpenTag,marktwoCloseTag start="@\(CONTENT\|LAYOUT\)\@![a-zA-Z0-9]\+|" end="|\(CONTENT\|LAYOUT\)\@![a-zA-Z0-9]\+@"
 
 " Imports
@@ -52,6 +54,7 @@ syn include @js  syntax/javascript.vim
 syn region marktwoScriptInner contained containedin=marktwoScript start="\(_SCRIPT|\)\@<=$" end="^\(|SCRIPT_\)\@=" contains=@js
 
 " Content regions
+syn region marktwoComment	   start=+!#+ end=+$+ oneline
 syn region marktwoHeadLayout   start=+_HEADLAYOUT|$+  end=+|HEADLAYOUT_$+  contains=marktwoOpenTag,marktwoCloseTag
 syn region marktwoHeadContent  start=+_HEADCONTENT|$+ end=+|HEADCONTENT_$+ contains=marktwoContentId,marktwoContentText
 syn region marktwoFootLayout   start=+_FOOTLAYOUT|$+  end=+|FOOTLAYOUT_$+  contains=marktwoOpenTag,marktwoCloseTag
@@ -62,6 +65,7 @@ syn region marktwoContent      start=+_CONTENT|$+ end=+|CONTENT_$+ contains=mark
 syn region marktwoStyle        start=+^_STYLE|$+   end=+^|STYLE_$+   contains=@css
 syn region marktwoScript       start="\(^\)\@<=_SCRIPT|\($\)\@="  end="\(^\)\@<=|SCRIPT_\($\)\@="  contains=marktwoScriptInner
 
+hi def link marktwoComment		Comment
 hi def link marktwoScript       Comment
 hi def link marktwoStyle        Comment
 hi def link marktwoContent      Comment
