@@ -66,5 +66,5 @@ class LayoutTest:
 
         tests.append(LayoutTest("Full Attribute",
                                 "_a[height=20,width=30,href=/this/is/a/path.css,hidden]||_",
-                                "<a height=\"20\" width=\"30\" href=\"/this/is/a/path.css\" hidden></a>"))
+                                "<a hidden height=\"20\" width=\"30\" href=\"/this/is/a/path.css\"></a>"))
         return tests
