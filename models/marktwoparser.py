@@ -47,33 +47,45 @@ class MarkTwoParser:
 
         if startpass:
             arr = self.qinput.split('\n')
+
+            # remove comments from array
+            for i in range(len(arr)):
+                line = arr[i]
+                try:
+                    indexofcomment = line.index("!#")
+                    line = line[0:indexofcomment]
+                    line = re.sub(r"\s*$","",line)
+                except:
+                    pass
+
             arr = self.pullHeader(arr)
             arr = self.pullFooter(arr)
-            self.getContent(arr)
-            self.getLayoutVars(arr)
-            self.getLayout(arr)
-            self.getStyle(arr)
-            self.getScript(arr)
+            self._parse(arr)
             if self.headarr != None:
-                self.getContent(self.headarr,loc="header")
-                self.getLayoutVars(self.headarr)
-                self.getLayout(self.headarr,loc="header")
-                self.getStyle(self.headarr)
-                self.getScript(self.headarr)
+                self._parse(self.headarr,loc="header")
             if self.footarr != None:
-                self.getContent(self.footarr,loc="footer")
-                self.getLayoutVars(self.footarr)
-                self.getLayout(self.footarr,loc="footer")
-                self.getStyle(self.footarr)
-                self.getScript(self.footarr)
+                self._parse(self.footarr,loc="footer")
             if self.css != None:
-                self.html     += f"\n<style>\n{self.css}\n</style>"
-                self.headhtml += f"\n<style>\n{self.css}\n</style>"
-                self.foothtml += f"\n<style>\n{self.css}\n</style>"
+                self._appendStyle()
             if self.script != None:
-                self.html     += f"\n<script>\n{self.script}\n</script>"
-                self.headhtml += f"\n<script>\n{self.script}\n</script>"
-                self.foothtml += f"\n<script>\n{self.script}\n</script>"
+                self._appendScripts()
+
+    def _parse(self, arr, loc=None):
+        self.getContent(arr,loc=loc)
+        self.getLayoutVars(arr)
+        self.getLayout(arr,loc=loc)
+        self.getStyle(arr)
+        self.getScript(arr)
+
+    def _appendStyle(self):
+        self.html     += f"\n<style>\n{self.css}\n</style>"
+        self.headhtml += f"\n<style>\n{self.css}\n</style>"
+        self.foothtml += f"\n<style>\n{self.css}\n</style>"
+
+    def _appendScripts(self):
+        self.html     += f"\n<script>\n{self.script}\n</script>"
+        self.headhtml += f"\n<script>\n{self.script}\n</script>"
+        self.foothtml += f"\n<script>\n{self.script}\n</script>"
 
     @staticmethod
     def _getDefaultLayoutVars():
@@ -154,9 +166,9 @@ class MarkTwoParser:
             previousId    = None
             contentconcat = ''
             for i in range(contentstart+1,contentend):
-                line = arr[i].lstrip().rstrip()
+                line = re.sub(r"^[\s\t]+","",arr[i],1)
                 if line[0:1] == '#':
-                    kv            =  line.split(' ',1)
+                    kv            =  re.sub(r"[\s\t]+"," ",line,1).split(" ", 1)
                     cid           =  kv[0][1:len(kv[0])]
                     contentconcat += kv[1].lstrip()
                     previousId    =  cid
