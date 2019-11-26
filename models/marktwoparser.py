@@ -55,6 +55,7 @@ class MarkTwoParser:
                     indexofcomment = line.index("!#")
                     line = line[0:indexofcomment]
                     line = re.sub(r"\s*$","",line)
+                    arr[i] = line
                 except:
                     pass
 
@@ -178,13 +179,16 @@ class MarkTwoParser:
                     if contentconcat != None and contentconcat != '':
                         if loc == None:
                             contentconcat = MarkTwoParser.checkContentForInline(contentconcat)
-                            self.content[previousId] = MarkTwoParser.checkContentForVars(contentconcat)
+                            contentconcat = MarkTwoParser.checkContentForVars(contentconcat)
+                            self.content[previousId] = contentconcat
                         elif loc == "header":
                             contentconcat = MarkTwoParser.checkContentForInline(contentconcat)
-                            self.headcontent[previousId] = MarkTwoParser.checkContentForVars(contentconcat)
+                            contentconcat = MarkTwoParser.checkContentForVars(contentconcat)
+                            self.headcontent[previousId] = contentconcat
                         elif loc == "footer":
                             contentconcat = MarkTwoParser.checkContentForInline(contentconcat)
-                            self.footcontent[previousId] = MarkTwoParser.checkContentForVars(contentconcat)
+                            contentconcat = MarkTwoParser.checkContentForVars(contentconcat)
+                            self.footcontent[previousId] = contentconcat
                         contentconcat =  ''
 
             # HOTFIX FOR UNECESSARY SPACES BETWEEN EMPTY TAGS
@@ -245,6 +249,34 @@ class MarkTwoParser:
             if not self.options["quiet"] and\
                not self.options["test"]:
                 print("No content block")
+
+    @staticmethod
+    def _getLiteralDict():
+        return {
+                "start": r"[\s\t]*{{[\s\t]*",
+                "end"  : r"[\s\t]*}}[\s\t]*",
+                "all"  : r"[\s\t]*{{[\s\t\S]+}}[\s\t]*"
+                "inner": r"(?<={{[\s\t]*)[]+()"
+               }
+
+    @staticmethod
+    def getLiteralIndices(text):
+        
+        newtext = ""
+        smatches    = [(m.start(0),m.end(0)) for m in re.finditer(literal["start"],text)]
+        ematches    = [(m.start(0),m.end(0)) for m in re.finditer(literal["end"],text)]
+        if len(smatches) > 0:
+            if len(smatches) == len(ematches):
+                for i in range(len(smatches)):
+                    innerstartindex = smatches[i][1]
+                    innerendindex   = ematches[i][0]
+                    print(text[innerstartindex:innerendindex])
+            else:
+                print('There is an unclosed literal')
+                sys.exit(2)
+            return text,True,text
+        else:
+            return text,False,None
 
     @staticmethod
     def checkContentForInline(text):

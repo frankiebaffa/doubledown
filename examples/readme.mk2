@@ -80,59 +80,62 @@ _FOOTCONTENT|
 
 _LAYOUT|
 _body|
-    _h1#MainHead.header||_
-    _h6#SubHead.subheader||_
-    _br||_
-    @lcr#Left1#Center1#Right1@
-    _hr||_
-    _p#P1||_
-    _h4#S1.sectionHeader||_
-    _ul#L1||_
-    _h4#S2.sectionHeader||_
-    _p#P2||_
-    _p#C1.tab.code||_
-    _p#C2.tab2.code||_
-    _p#C3.tab.code||_
-    _p#P3||_
-    _p#C4.tab.code||_
-    _p#C5.tab2.code||_
-    _p#C6.tab3.code||_
-    _p#C7.tab2.code||_
-    _p#C8.tab.code||_
-    _p#Test.test[hidden]||_
+	_h1#MainHead.header||_
+	_h6#SubHead.subheader||_
+	_br||_
+	@lcr#Left1#Center1#Right1@
+	_hr||_
+	_p#P1||_
+	_h4#S1.sectionHeader||_
+	_ul#L1||_
+	_h4#S2.sectionHeader||_
+	_p#P2||_
+	_p#C1.tab.code||_
+	_p#C2.tab2.code||_
+	_p#C3.tab.code||_
+	_p#P3||_
+	_p#C4.tab.code||_
+	_p#C5.tab2.code||_
+	_p#C6.tab3.code||_
+	_p#C7.tab2.code||_
+	_p#C8.tab.code||_
+	_p#Test.test[hidden]||_
+	_div[style=page-break-inside:avoid;]|
+		_p#nobreak||_
+	|div_
 |body_
 |LAYOUT_
 _FOOTLAYOUT|
-@lr#FootL#FootR@
+    @lr#FootL#FootR@
 |FOOTLAYOUT_
 
 _STYLE|
 @font-face{
-    font-family:Fira;
-    src:url(/mnt/c/Users/Frankie.Baffa/Documents/Fonts/Fira/FiraCode-Regular.ttf) format('truetype');
-    font-style:normal;
-    font-weight:normal;
+	font-family:Fira;
+	src:url(/mnt/c/Users/Frankie.Baffa/Documents/Fonts/Fira/FiraCode-Regular.ttf) format('truetype');
+	font-style:normal;
+	font-weight:normal;
 }
 @font-face{
-    font-family:Fira;
-    src:url(/mnt/c/Users/Frankie.Baffa/Documents/Fonts/Fira/FiraCode-Bold.ttf) format('truetype');
-    font-style:normal;
-    font-weight:bold;
+	font-family:Fira;
+	src:url(/mnt/c/Users/Frankie.Baffa/Documents/Fonts/Fira/FiraCode-Bold.ttf) format('truetype');
+	font-style:normal;
+	font-weight:bold;
 }
 @font-face{
-    font-family:Fira;
-    src:url(/mnt/c/Users/Frankie.Baffa/Documents/Fonts/Fira/FiraCode-Light.ttf) format('truetype');
-    font-style:normal;
-    font-weight:lighter;
+	font-family:Fira;
+	src:url(/mnt/c/Users/Frankie.Baffa/Documents/Fonts/Fira/FiraCode-Light.ttf) format('truetype');
+	font-style:normal;
+	font-weight:lighter;
 }
 sup,sub{
-    line-height:0;
-    margin:0px;
-    padding:0px;
+	line-height:0;
+	margin:0px;
+	padding:0px;
 }
 body{
-    font-family:Arial;
-    line-height:1.6;
+	font-family:Arial;
+	line-height:1.6;
 }
 .code{font-family:Fira;}
 h1{font-size:22px;}
@@ -151,31 +154,31 @@ h6{font-weight:normal;}
 .tab2{margin-left:80px;}
 .tab3{margin-left:120px;}
 .header,.subheader{
-    text-align:center;
+	text-align:center;
 }
 .header,.subheader,.sectionHeader,.lcrContainer>tbody>tr>td{
-    color:grey;
+	color:grey;
 }
 hr{
-    margin-top:0px;
+	margin-top:0px;
 }
 #FootL,
 #FootR{
-    color:grey;
+	color:grey;
 }
 #FootL{
-    text-align:left;
+	text-align:left;
 }
 #FootR{
-    text-align:right;
+	text-align:right;
 }
 #Left1{
-    text-align:left;
+	text-align:left;
 }
 #Center1{
-    text-align:center;
+	text-align:center;
 }
 #Right1{
-    text-align:right;
+	text-align:right;
 }
 |STYLE_
