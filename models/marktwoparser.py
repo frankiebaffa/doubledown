@@ -251,32 +251,20 @@ class MarkTwoParser:
                 print("No content block")
 
     @staticmethod
-    def _getLiteralDict():
-        return {
-                "start": r"[\s\t]*{{[\s\t]*",
-                "end"  : r"[\s\t]*}}[\s\t]*",
-                "all"  : r"[\s\t]*{{[\s\t\S]+}}[\s\t]*"
-                "inner": r"(?<={{[\s\t]*)[]+()"
-               }
-
-    @staticmethod
-    def getLiteralIndices(text):
-        
-        newtext = ""
-        smatches    = [(m.start(0),m.end(0)) for m in re.finditer(literal["start"],text)]
-        ematches    = [(m.start(0),m.end(0)) for m in re.finditer(literal["end"],text)]
-        if len(smatches) > 0:
-            if len(smatches) == len(ematches):
-                for i in range(len(smatches)):
-                    innerstartindex = smatches[i][1]
-                    innerendindex   = ematches[i][0]
-                    print(text[innerstartindex:innerendindex])
-            else:
-                print('There is an unclosed literal')
-                sys.exit(2)
-            return text,True,text
-        else:
-            return text,False,None
+    def checkContentForLiteral(text):
+        getliteralsections   = r"{{[\n\S\s\t]*}}"
+        literalsections      = re.findall(getliteralsections,text)
+        getcharstoliteralize = r"[^a-zA-Z0-9\s\t\n\.,]"
+        for literalsection in literalsections:
+            if literalsection.find("{{") == 0 and literalsection.rfind("}}") == len(literalsection)-2:
+                newliteralsection = f"{literalsection[2:len(literalsection)-2]}"
+                charstoliteralize = re.findall(getcharstoliteralize,newliteralsection)
+                charstoliteralize = list(set(charstoliteralize))
+                for char in charstoliteralize:
+                    newliteralsection = newliteralsection.replace(char, f"\\{char}")
+                newliteralsection = newliteralsection.rstrip().lstrip()
+                text = text.replace(literalsection, newliteralsection)
+        return text
 
     @staticmethod
     def checkContentForInline(text):
@@ -304,6 +292,8 @@ class MarkTwoParser:
             standalone    = {r"(?<!\\)[\s]*\-\-[\s]*" : "br"} # space due to how content processes
             linktext      = r"(?<=\[).+(?=\])"
             link          = r"(?<=\().+(?=\))"
+
+            text = MarkTwoParser.checkContentForLiteral(text)
 
             for tagname in opendiffclose.keys():
                 openpat = opendiffclose[tagname]["open"]
