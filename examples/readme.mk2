@@ -1,81 +1,81 @@
 _CONTENT|
-#MainHead   *Mark^two^*
-#SubHead    _Documentation and code example for Mark^two^
-            documentation language._
-#Left1      Frankie Baffa
-#Center1    https://github.com/frankiebaffa
-#Right1     20191108
-#P1         This project began with the goal of creating a more
-            versitile documentation language capable of being parsed
-            into html and converted into a pdf. Markdown is very quick
-            to type and is very readable, but lacks support for classes
-            for styling more intricate documents. Markup is very
-            extensive, but quickly becomes difficult to read as a
-            document.--
-            Mark^two^ is compatible with nearly all HTML tags and
-            attributes which are compacted into a new CSS-inspired
-            syntax that is a bit faster on the fingers.
-#S1         --
-            Mark^two^ Blocks
-#L1         |\_LAYOUT\||
-             %>|Defines the HTML structure of the document.|
-               |Content is written using Mark^two^ shorthand
-                html syntax|<%
-            |\_HEADLAYOUT\||
-             %>|Defines the HTML structure for the header of the
-                document|<%
-            |\_FOOTLAYOUT\||
-             %>|Defines the HTML structure for the footer of the
-                document|<%
-            |@LAYOUT\||
-             %>|Defines the variables which can be used in the
-                layout block to remove the need for repetetive
-                html structures|
-               |This block is universal and will be applied
-                headers and footers|<%
-            |\_CONTENT\||
-             %>|A key/value pairing between the Ids within the
-                layout block and the text/inline\-content which
-                will be contained inside of the block|<%
-            |\_HEADCONTENT\||
-             %>|A key/value pairing between the Ids within the
-                headlayout block and the text/inline\-content
-                which will be contained inside of the block|<%
-            |\_FOOTCONTENT\||
-             %>|A key/value pairing between the Ids within the
-                footlayout block and the text/inline\-content
-                which will be contained inside of the block|<%
-            |\_STYLE\||
-             %>|Contains CSS code which will be passed into a
-                style\-tag after the html is parsed|<%
-            |\_SCRIPT\||
-             %>|Contains JS code which will be passed into a
-                script\-tag after the html is parsed|<%
-#S2         --
-            Layout Block
-#P2         The structure of the document is contained within
-            the layout block. This defines the format of the
-            document's contents. The tags within the layout
-            blocks are written using a CSS-derived html syntax:--
-            --
-#C1             \_LAYOUT\|
-#C2                 \_tagname#Id.class.secondclass[attribute=value,attrnovalue,etc]\|\|\_
-#C3             \|LAYOUT\_--
-            --
-#P3         The previous structure is an example of an element with
-            none nested within. For nested elements, it would look
-            like the following:--
-            --
-#C4             \_LAYOUT\|
-#C5                 \_tagname#Id.class.secondclass[attribute=value,attrnovalue,etc]\|
-#C6                     \_nestedtag#AnotherId.class\|\|\_
-#C7                 \|tagname\_
-#C8             \|LAYOUT\_--
-            --
+#MainHead	*Mark^two^*
+#SubHead	_Documentation and code example for Mark^two^
+			documentation language._
+#Left1		Frankie Baffa
+#Center1	https://github.com/frankiebaffa
+#Right1		20191108
+#P1			This project began with the goal of creating a more
+			versitile documentation language capable of being parsed
+			into html and converted into a pdf. Markdown is very quick
+			to type and is very readable, but lacks support for classes
+			for styling more intricate documents. Markup is very
+			extensive, but quickly becomes difficult to read as a
+			document.--
+			Mark^two^ is compatible with nearly all HTML tags and
+			attributes which are compacted into a new CSS-inspired
+			syntax that is a bit faster on the fingers.
+#S1			--
+			Mark^two^ Blocks
+#L1			{{_LAYOUT|}}
+			 %>|Defines the HTML structure of the document.|
+			   |Content is written using Mark^two^ shorthand
+				html syntax|<%
+			|{{_HEADLAYOUT|}}|
+			 %>|Defines the HTML structure for the header of the
+				document|<%
+			|{{_FOOTLAYOUT|}}|
+			 %>|Defines the HTML structure for the footer of the
+				document|<%
+			|{{@LAYOUT|}}|
+			 %>|Defines the variables which can be used in the
+				layout block to remove the need for repetetive
+				html structures|
+			   |This block is universal and will be applied
+				headers and footers|<%
+			|{{_CONTENT|}}|
+			 %>|A key/value pairing between the Ids within the
+				layout block and the text/inline\-content which
+				will be contained inside of the block|<%
+			|{{_HEADCONTENT|}}|
+			 %>|A key/value pairing between the Ids within the
+				headlayout block and the text/inline\-content
+				which will be contained inside of the block|<%
+			|{{_FOOTCONTENT|}}|
+			 %>|A key/value pairing between the Ids within the
+				footlayout block and the text/inline\-content
+				which will be contained inside of the block|<%
+			|{{_STYLE|}}|
+			 %>|Contains CSS code which will be passed into a
+				style\-tag after the html is parsed|<%
+			|{{_SCRIPT|}}|
+			 %>|Contains JS code which will be passed into a
+				script\-tag after the html is parsed|<%
+#S2			--
+			Layout Block
+#P2			The structure of the document is contained within
+			the layout block. This defines the format of the
+			document's contents. The tags within the layout
+			blocks are written using a CSS-derived html syntax:--
+			--
+#C1				{{_LAYOUT|}}
+#C2					{{_tagname#Id.class.secondclass[attribute=value,attrnovalue,etc]||_}}
+#C3				{{|LAYOUT_}}--
+			--
+#P3			The previous structure is an example of an element with
+			none nested within. For nested elements, it would look
+			like the following:--
+			--
+#C4				{{_LAYOUT|}}
+#C5					{{_tagname#Id.class.secondclass[attribute=value,attrnovalue,etc]|}}
+#C6						{{_nestedtag#AnotherId.class||_}}
+#C7					{{|tagname_}}
+#C8				{{|LAYOUT_}}--
+			--
 |CONTENT_
 _FOOTCONTENT|
-#FootL      Written and formatted using Mark^two^
-#FootR      github.com/frankiebaffa/marktwo
+#FootL		Written and formatted using Mark^two^
+#FootR		github.com/frankiebaffa/marktwo
 |FOOTCONTENT_
 
 _LAYOUT|
@@ -106,7 +106,7 @@ _body|
 |body_
 |LAYOUT_
 _FOOTLAYOUT|
-    @lr#FootL#FootR@
+	@lr#FootL#FootR@
 |FOOTLAYOUT_
 
 _STYLE|
