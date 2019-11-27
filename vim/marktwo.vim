@@ -38,11 +38,15 @@ syn region marktwoOpenTag  contained containedin=marktwoLayoutVar,marktwoLayout,
 syn region marktwoCloseTag contained containedin=marktwoLayoutVar,marktwoLayout,marktwoHeadLayout,marktwoFootLayout oneline contains=marktwoTagName                                  start="|\(CONTENT\|LAYOUT\)\@!" end="\(CONTENT\|LAYOUT\)\@<!_"
 
 " Content Id
-syn region	marktwoContentVar	contained containedin=marktwoContentText																oneline	start="\(^\s*\)\@<=@" end="\(\S*\)\@<=@$"
-syn region	marktwoContentText	contained containedin=marktwoContent,marktwoHeadContent,marktwoFootContent	contains=marktwoContentVar			start="\(\(^[\t\s]*\)\@<=#[a-zA-Z0-9]\+[\t\s]*\)\@<=[\t\s]\([a-zA-Z0-9%><|\*_\-]\)\@="	end="^\(\([\t\s]*\(#[a-zA-Z0-9]\)\@=\)\@=\|\(|CONTENT_\||HEADCONTENT_\||FOOTCONTENT_\)\@=\)"
+syn region	marktwoContentVar	contained containedin=marktwoContentText																oneline	start="\(^ *\)\@<=@" end="\(\S*\)\@<=@$"
+syn region	marktwoContentText	contained containedin=marktwoContent,marktwoHeadContent,marktwoFootContent	contains=marktwoContentVar			start="\(\(^[\t ]*\)\@<=#[a-zA-Z0-9]\+[\t ]*\)\@<=[\t ]\([a-zA-Z0-9%><|\*_\-{]\)\@="	end="^\(\([\t ]*\(#[a-zA-Z0-9]\)\@=\)\@=\|\(|CONTENT_\||HEADCONTENT_\||FOOTCONTENT_\)\@=\)"
 "																																																										end="^\(\(\(^[\t\s]*\)\@<=#[a-zA-Z0-9]\+\([\t\s]\+\)\@=\)\|^\(|CONTENT_\||HEADCONTENT_\||FOOTCONTENT_\)\@=\)\@="
 syn match	marktwoInlineChar	contained containedin=marktwoContentText																		"\(\\\)\@<!\(%>\|<%\|\$>\|<\$\||\|_\|\*\|-\|\^\|\~\)"
-syn match	marktwoContentId	contained containedin=marktwoContent,marktwoHeadContent,marktwoFootContent	nextgroup=marktwoContentText		"\(^[\s\t]*\)\@<=#[a-zA-Z0-9]\+\([\s\t]\+\)\@="
+syn match	marktwoContentId	contained containedin=marktwoContent,marktwoHeadContent,marktwoFootContent	nextgroup=marktwoContentText		"\(^[ \t]*\)\@<=#[a-zA-Z0-9]\+\([ \t]\+\)\@="
+
+" Literal Block
+syn match   marktwoLiteralContent   contained containedin=marktwoLiteralBlock   "\(\(\\\)\@<!{{\)\@<=.*\(\(\\\)\@<!}}\)\@="
+syn region  marktwoLiteralBlock     contained containedin=marktwoContentText    start="\(\\\)\@<!{{" end="\(\\\)\@<!}}"
 
 " Layout Variable
 syn region marktwoLayoutVar contained containedin=marktwoLayoutVarSec contains=marktwoOpenTag,marktwoCloseTag start="@\(CONTENT\|LAYOUT\)\@![a-zA-Z0-9]\+|" end="|\(CONTENT\|LAYOUT\)\@![a-zA-Z0-9]\+@"
@@ -65,38 +69,40 @@ syn region marktwoContent      start=+_CONTENT|$+ end=+|CONTENT_$+ contains=mark
 syn region marktwoStyle        start=+^_STYLE|$+   end=+^|STYLE_$+   contains=@css
 syn region marktwoScript       start="\(^\)\@<=_SCRIPT|\($\)\@="  end="\(^\)\@<=|SCRIPT_\($\)\@="  contains=marktwoScriptInner
 
-hi def link marktwoComment		Comment
-hi def link marktwoScript       Comment
-hi def link marktwoStyle        Comment
-hi def link marktwoContent      Comment
-hi def link marktwoHeadLayout   Comment
-hi def link marktwoHeadContent  Comment
-hi def link marktwoFootLayout   Comment
-hi def link marktwoFootContent  Comment
-hi def link marktwoLayoutVarSec Comment
-hi def link marktwoHtml         Comment
-hi def link marktwoLayout       Comment
-hi def link marktwoScriptInner  Normal
-hi def link marktwoStyleIdent   Special
-hi def link marktwoStyleRegion  Exception
-hi def link marktwoStyleKey     Title
-hi def link marktwoStyleValue   Type
-hi def link marktwoContentId    Type
-hi def link marktwoContentText  Title
-hi def link marktwoContentVar   Special
-hi def link marktwoInlineChar   Comment
-hi def link marktwoInnerText    Special
-hi def link marktwoLayoutVar    Special
-hi def link marktwoOpenTag      Exception
-hi def link marktwoVarTag       Exception
-hi def link marktwoCloseTag     Exception
-hi def link marktwoAttrList     Exception
-hi def link marktwoAttrDelim    Comment
-hi def link marktwoAttrKey      Title
-hi def link marktwoAttrValDelim Special
-hi def link marktwoAttrVal      Type
-hi def link marktwoAttr         Title
-hi def link marktwoClass        Type
-hi def link marktwoId           Type
-hi def link marktwoTagName      Title
-hi def link marktwoVarName      Special
+hi def link marktwoComment		  Comment
+hi def link marktwoScript         Comment
+hi def link marktwoStyle          Comment
+hi def link marktwoContent        Comment
+hi def link marktwoHeadLayout     Comment
+hi def link marktwoHeadContent    Comment
+hi def link marktwoFootLayout     Comment
+hi def link marktwoFootContent    Comment
+hi def link marktwoLayoutVarSec   Comment
+hi def link marktwoHtml           Comment
+hi def link marktwoLayout         Comment
+hi def link marktwoLiteralBlock   Exception
+hi def link marktwoLiteralContent Title
+hi def link marktwoScriptInner    Normal
+hi def link marktwoStyleIdent     Special
+hi def link marktwoStyleRegion    Exception
+hi def link marktwoStyleKey       Title
+hi def link marktwoStyleValue     Type
+hi def link marktwoContentId      Type
+hi def link marktwoContentText    Title
+hi def link marktwoContentVar     Special
+hi def link marktwoInlineChar     Comment
+hi def link marktwoInnerText      Special
+hi def link marktwoLayoutVar      Special
+hi def link marktwoOpenTag        Exception
+hi def link marktwoVarTag         Exception
+hi def link marktwoCloseTag       Exception
+hi def link marktwoAttrList       Exception
+hi def link marktwoAttrDelim      Comment
+hi def link marktwoAttrKey        Title
+hi def link marktwoAttrValDelim   Special
+hi def link marktwoAttrVal        Type
+hi def link marktwoAttr           Title
+hi def link marktwoClass          Type
+hi def link marktwoId             Type
+hi def link marktwoTagName        Title
+hi def link marktwoVarName        Special
