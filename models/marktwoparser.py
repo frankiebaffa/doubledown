@@ -169,9 +169,10 @@ class MarkTwoParser:
             for i in range(contentstart+1,contentend):
                 line = re.sub(r"^[\s\t]+","",arr[i],1)
                 if line[0:1] == '#':
-                    kv            =  re.sub(r"[\s\t]+"," ",line,1).split(" ", 1)
+                    kv            =  re.split(r":",line)
+                    kv[1]         =  kv[1].lstrip()
                     cid           =  kv[0][1:len(kv[0])]
-                    contentconcat += kv[1].lstrip()
+                    contentconcat += kv[1]
                     previousId    =  cid
                 else:
                     contentconcat += f" {line}"
@@ -252,7 +253,7 @@ class MarkTwoParser:
 
     @staticmethod
     def checkContentForLiteral(text):
-        getliteralsections   = r"{{[\n\S\s\t]*}}"
+        getliteralsections   = r"(?<!\\){{.*?(?<!\\)}}"
         literalsections      = re.findall(getliteralsections,text)
         getcharstoliteralize = r"[^a-zA-Z0-9\s\t\n\.,]"
         for literalsection in literalsections:
