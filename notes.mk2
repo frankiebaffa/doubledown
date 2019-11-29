@@ -1,0 +1,13 @@
+_CONTENT|
+#ToDo:	|{{add config block to add default
+			values for dynamic variables
+			like @indent-X@}}|
+		%>
+			|{{syntax example to use default: @indent@}}|
+		<%
+		|add dynamic variables to mimic features
+			of microsoft word|
+		|add dynamic variables for things like page size
+			and margins (maybe header footer file locations)
+			as well|
+|CONTENT_
