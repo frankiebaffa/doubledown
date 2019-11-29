@@ -335,12 +335,36 @@ class MarkTwoParser:
 
     @staticmethod
     def checkContentForVars(content):
-        contentvars = {
-                       "pagebreak":"<div style='page-break-before:always;display:block;width:0px;height:0px;'></div>"
-                      }
-        for var in contentvars.keys():
-            pat  = r"@"+var+"@"
-            content  = re.sub(pat,contentvars[var],content)
+        def wrapVar(p):
+            return r"(?<!\\)@"+p+r"(?<!\\)@"
+
+        contentvars = [
+                        {
+                            "name"       :"pagebreak",
+                            "pattern"    :wrapVar(r"pagebreak"),
+                            "replacement":"<div style='page-break-before:always;display:block;width:0px;height:0px;'></div>"
+                        }
+                      ]
+        dynamicvars = [
+                        {
+                            "name"       :r"indent",
+                            "modpattern" :r"(?<=indent)[0-9]+",
+                            "pattern"    :wrapVar(r"indent[0-9]+"),
+                            "modifier"   :"width",
+                            "replacement":"<span style='display:inline-block;margin:0px;padding:0px;width:{width}px;'></span>"
+                        }
+                      ]
+        for var in contentvars:
+            content = re.sub(var["pattern"],var["replacement"],content)
+
+        for var in dynamicvars:
+            pat       = var["pattern"]
+            foundvars = re.findall(pat,content)
+            for dynvar in foundvars:
+                mod = re.findall(var["modpattern"],dynvar)[0]
+                replacement = re.sub(r"{"+var["modifier"]+"}",mod,var["replacement"])
+                content = re.sub(dynvar,replacement,content)
+
         return content
 
     def getLayoutVars(self,arr):
