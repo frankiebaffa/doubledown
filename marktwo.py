@@ -10,7 +10,7 @@ def createMarkTwo(options):
     marktwo = MarkTwoParser(options=options)
     return marktwo
 
-def createPdf(htmlstr,headhtmlstr,foothtmlstr,output):
+def createPdf(htmlstr,headhtmlstr,foothtmlstr,output,overrides):
     options = {}
     tmpcss  = None
     exists  = True
@@ -39,7 +39,7 @@ def createPdf(htmlstr,headhtmlstr,foothtmlstr,output):
             file.write(foothtmlstr)
         options["footer-html"] = tmpfoot
 
-    Pdf.makePdfFromString(htmlstr,f"{output}.pdf",options=options)
+    Pdf.makePdfFromString(htmlstr,f"{output}.pdf",overrides,options=options)
     os.remove(tmphead)
     os.remove(tmpfoot)
 
@@ -72,7 +72,7 @@ if __name__ == '__main__':
         if options["html"]:
             createHtmlDoc(marktwo.html,f"{options['output']}.html")
 
-        createPdf(marktwo.html,marktwo.headhtml,marktwo.foothtml,options["output"])
+        createPdf(marktwo.html,marktwo.headhtml,marktwo.foothtml,options["output"],marktwo.overrides)
 
         if not options["quiet"]:
             print(f"Successfully created {options['output']}.pdf")

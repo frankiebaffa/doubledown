@@ -18,6 +18,16 @@ class MarkTwoParser:
     footarr     = None
     foothtml    = None
     footcontent = None
+    overrides   = {
+                    "page-size":None,
+                    "margin-top":None,
+                    "margin-right":None,
+                    "margin-bottom":None,
+                    "margin-left":None
+                  }
+    constants   = {
+                    "indent":None
+                  }
 
     def __init__(self,options=None,testinput=None):
         self.qdocument.qtag = "document"
@@ -72,6 +82,7 @@ class MarkTwoParser:
                 self._appendScripts()
 
     def _parse(self, arr, loc=None):
+        self.getConf(arr)
         self.getContent(arr,loc=loc)
         self.getLayoutVars(arr)
         self.getLayout(arr,loc=loc)
@@ -160,6 +171,27 @@ class MarkTwoParser:
             pass
         return arr
 
+    def getConf(self,arr,):
+        try:
+            confstart = arr.index('_CONF|')
+            confend   = arr.index('|CONF_')
+            for i in range(confstart+1,confend):
+                line = arr[i].lstrip().rstrip()
+                key  = re.findall(r"\S+(?==)",line)
+                val  = re.findall(r"(?<==)\S+",line)
+                if len(key) > 0 and len(val) > 0:
+                    try:
+                        self.overrides[key[0]]
+                        self.overrides[key[0]] = val[0]
+                    except:
+                        try:
+                            self.constants[key[0]]
+                            self.constants[key[0]] = val[0]
+                        except:
+                            print("Invalid configuration option found")
+        except:
+            print('No configuration block')
+
     def getContent(self,arr,loc=None):
         try:
             contentstart  = arr.index('_CONTENT|')
@@ -180,15 +212,15 @@ class MarkTwoParser:
                     if contentconcat != None and contentconcat != '':
                         if loc == None:
                             contentconcat = MarkTwoParser.checkContentForInline(contentconcat)
-                            contentconcat = MarkTwoParser.checkContentForVars(contentconcat)
+                            contentconcat = self.checkContentForVars(contentconcat)
                             self.content[previousId] = contentconcat
                         elif loc == "header":
                             contentconcat = MarkTwoParser.checkContentForInline(contentconcat)
-                            contentconcat = MarkTwoParser.checkContentForVars(contentconcat)
+                            contentconcat = self.checkContentForVars(contentconcat)
                             self.headcontent[previousId] = contentconcat
                         elif loc == "footer":
                             contentconcat = MarkTwoParser.checkContentForInline(contentconcat)
-                            contentconcat = MarkTwoParser.checkContentForVars(contentconcat)
+                            contentconcat = self.checkContentForVars(contentconcat)
                             self.footcontent[previousId] = contentconcat
                         contentconcat =  ''
 
@@ -333,8 +365,7 @@ class MarkTwoParser:
         text = text.replace("\\","")
         return text
 
-    @staticmethod
-    def checkContentForVars(content):
+    def checkContentForVars(self,content):
         def wrapVar(p):
             return r"(?<!\\)@"+p+r"(?<!\\)@"
 
@@ -365,6 +396,16 @@ class MarkTwoParser:
                 replacement = re.sub(r"{"+var["modifier"]+"}",mod,var["replacement"])
                 content = re.sub(dynvar,replacement,content)
 
+        for var in dynamicvars:
+            pat       = wrapVar(var["name"])
+            foundvars = re.findall(pat,content)
+            for convar in foundvars:
+                if self.constants[var["name"]] != None:
+                    mod = self.constants[var["name"]]
+                    replacement = re.sub(r"{"+var["modifier"]+"}",mod,var["replacement"])
+                    content = re.sub(convar,replacement,content)
+                else:
+                    print("Instance of constant variable without declaration of constant")
         return content
 
     def getLayoutVars(self,arr):
