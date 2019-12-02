@@ -1,9 +1,7 @@
 " Vim syntax file
-" Language:		   DoubleDown
+" Language:		   MarkTwo
 " Maintainer:	   Frankie Baffa
 " Latest Revision: 18 Oct 2019
-" TODO: fix highlighting of layout block tag
-"		following a variable
 
 if exists("b:current_syntax")
   finish
@@ -15,6 +13,10 @@ set cpo&vim
 syntax spell toplevel
 
 syn case ignore
+
+" Imports
+syn include @css	<sfile>:p:h/css.vim
+syn include @js		<sfile>:p:h/javascript.vim
 
 " Conf Overrides
 syn region	marktwoConf		contains=marktwoConfKey,marktwoConfVal,marktwoConfSep,marktwoConfCon	start=+^_CONF|$+ end=+^|CONF_$+
@@ -40,9 +42,15 @@ syn region marktwoAttrList contained containedin=marktwoOpenTag contains=marktwo
 syn match marktwoVarName contained containedin=marktwoVarName "\(@\)\@<=[a-zA-Z0-9]\+"
 
 " Tag Elements
-syn region marktwoVarTag   contained containedin=marktwoLayout,marktwoHeadLayout,marktwoFootLayout				  oneline contains=marktwoId,marktwoVarName							 start="@\([a-zA-Z0-9]\)\@="	 end="@"
-syn region marktwoOpenTag  contained containedin=marktwoLayoutVar,marktwoLayout,marktwoHeadLayout,marktwoFootLayout oneline contains=marktwoId,marktwoClass,marktwoTagName,marktwoAttrList start="_\(CONTENT\|LAYOUT\)\@!" end="\(CONTENT\|LAYOUT\)\@<!|"
-syn region marktwoCloseTag contained containedin=marktwoLayoutVar,marktwoLayout,marktwoHeadLayout,marktwoFootLayout oneline contains=marktwoTagName									 start="|\(CONTENT\|LAYOUT\)\@!" end="\(CONTENT\|LAYOUT\)\@<!_"
+"syn region marktwoVarTag   contained containedin=marktwoLayout,marktwoHeadLayout,marktwoFootLayout				  oneline contains=marktwoId,marktwoVarName							 start="@\([a-zA-Z0-9]\)\@="	 end="@"
+"syn region marktwoOpenTag  contained containedin=marktwoLayoutVar,marktwoLayout,marktwoHeadLayout,marktwoFootLayout oneline contains=marktwoId,marktwoClass,marktwoTagName,marktwoAttrList start="_\(CONTENT\|LAYOUT\)\@!" end="\(CONTENT\|LAYOUT\)\@<!|"
+"syn region marktwoCloseTag contained containedin=marktwoLayoutVar,marktwoLayout,marktwoHeadLayout,marktwoFootLayout oneline contains=marktwoTagName									 start="|\(CONTENT\|LAYOUT\)\@!" end="\(CONTENT\|LAYOUT\)\@<!_"
+syn region	marktwoLayoutOpenTag			start="<\(\/\)\@<!"	end=">"										contains=marktwoLayoutTagName,marktwoLayoutOpenTagPropName,marktwoLayoutOpenTagProp						containedin=marktwoLayout,marktwoLayoutVar	oneline
+syn region	marktwoLayoutCloseTag			start="<\(\/\)\@<=" end=">"										contains=marktwoLayoutTagName													containedin=marktwoLayout,marktwoLayoutVar 	oneline
+syn match	marktwoLayoutTagName			"\(<[\/]*\)\@<=[a-zA-Z0-9]\+"									containedin=marktwoLayoutOpenTag,marktwoLayoutCloseTag
+syn region	marktwoLayoutOpenTagPropName	start="\(\s\)\@<=\([a-zA-Z0-9]\+=\)\(\'\|\"\)" end="\(\"\|\'\)"	containedin=marktwoLayoutOpenTag												contains=marktwoLayoutOpenTagPropVal			oneline
+syn match	marktwoLayoutOpenTagPropVal		"\(id=\(\'\|\"\)\)\@<=[a-zA-Z0-9]\+"							containedin=marktwoLayoutOpenTagPropName
+syn match	marktwoLayoutOpenTagProp		"\(<\)\@<![\s]\+[a-zA-Z0-9]\+\(\s\|>\)\@="						containedin=marktwoLayoutOpenTag
 
 " Content Id
 syn region	marktwoContentVar	contained containedin=marktwoContentText																oneline	start="\(\\\)\@<!@\(\S\+\)\@=" end="\(\S\+\)\@<=\(\\\)\@<!@"
@@ -56,11 +64,7 @@ syn region	marktwoLiteralContent	contained containedin=marktwoLiteralBlock	start
 syn region	marktwoLiteralBlock		contained containedin=marktwoContentText	start="\(\\\)\@<!{{" end="\(\\\)\@<!}}"
 
 " Layout Variable
-syn region marktwoLayoutVar contained containedin=marktwoLayoutVarSec contains=marktwoOpenTag,marktwoCloseTag start="@\(CONTENT\|LAYOUT\)\@![a-zA-Z0-9]\+|" end="|\(CONTENT\|LAYOUT\)\@![a-zA-Z0-9]\+@"
-
-" Imports
-syn include @css syntax/css.vim
-syn include @js  syntax/javascript.vim
+syn region marktwoLayoutVar contained containedin=marktwoLayoutVarSec start="@\(CONTENT\|LAYOUT\)\@![a-zA-Z0-9]\+|" end="|\(CONTENT\|LAYOUT\)\@![a-zA-Z0-9]\+@" contains=@html extend
 
 syn region marktwoScriptInner contained containedin=marktwoScript start="\(_SCRIPT|\)\@<=$" end="^\(|SCRIPT_\)\@=" contains=@js
 
@@ -70,7 +74,7 @@ syn region marktwoHeadLayout   start=+_HEADLAYOUT|$+  end=+|HEADLAYOUT_$+  conta
 syn region marktwoHeadContent  start=+_HEADCONTENT|$+ end=+|HEADCONTENT_$+ contains=marktwoContentId,marktwoContentText
 syn region marktwoFootLayout   start=+_FOOTLAYOUT|$+  end=+|FOOTLAYOUT_$+  contains=marktwoOpenTag,marktwoCloseTag
 syn region marktwoFootContent  start=+_FOOTCONTENT|$+ end=+|FOOTCONTENT_$+ contains=marktwoContentId,marktwoContentText
-syn region marktwoLayout	   start=+_LAYOUT|$+  end=+|LAYOUT_$+  contains=marktwoOpenTag,marktwoCloseTag
+syn region marktwoLayout	   start=+_LAYOUT|$+  end=+|LAYOUT_$+  contains=@html extend
 syn region marktwoLayoutVarSec start=+^@LAYOUT|$+  end=+^|LAYOUT@$+  contains=marktwoLayoutVar
 syn region marktwoContent	   start=+_CONTENT|$+ end=+|CONTENT_$+ contains=marktwoContentId,marktwoContentText
 syn region marktwoStyle		   start=+^_STYLE|$+   end=+^|STYLE_$+	 contains=@css
@@ -119,3 +123,10 @@ hi def link marktwoClass		  Type
 hi def link marktwoId			  Type
 hi def link marktwoTagName		  Title
 hi def link marktwoVarName		  Special
+
+hi def link marktwoLayoutOpenTag			Exception
+hi def link marktwoLayoutCloseTag			Exception
+hi def link marktwoLayoutTagName			Title
+hi def link marktwoLayoutOpenTagPropName	Type
+hi def link marktwoLayoutOpenTagPropVal		Special
+hi def link marktwoLayoutOpenTagProp		Type
