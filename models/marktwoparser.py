@@ -1,3 +1,6 @@
+# TODO: Switch layout syntax to standard
+#       HTML syntax
+
 import re
 from   models.marktwoelement import MarkTwoElement
 
