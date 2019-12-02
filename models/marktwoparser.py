@@ -1,6 +1,31 @@
 import re
 from   models.marktwoelement import MarkTwoElement
 
+def arrFind(p,a):
+    try:
+        return a.index(p)
+    except:
+        return -1
+
+def blockStartEnd(s,e,b,quiet=False):
+    started         = s > -1
+    ended           = e > -1
+    placementproper = s < e
+    if started and ended and placementproper:
+        return True
+    elif started and not ended:
+        print(f"{b} is an unclosed block. Exiting.")
+        sys.exit(1)
+    elif not started and ended:
+        print(f"{b} is never started and attempted closing. Exiting.")
+        sys.exit(1)
+    elif started and ended and not placementproper:
+        print(f"{b} is improperly defined. Exiting.")
+        sys.exit(1)
+    elif not started and not ended:
+        if not quiet: print(f"{b} not defined.")
+        return False
+
 class MarkTwoParser:
     options     = None
     qinput      = None
@@ -71,7 +96,11 @@ class MarkTwoParser:
 
             arr = self.pullHeader(arr)
             arr = self.pullFooter(arr)
+            self.getConf(arr)
+            self.getLayoutVars(arr)
             self._parse(arr)
+            self.getStyle(arr)
+            self.getScript(arr)
             if self.headarr != None:
                 self._parse(self.headarr,loc="header")
             if self.footarr != None:
@@ -82,12 +111,8 @@ class MarkTwoParser:
                 self._appendScripts()
 
     def _parse(self, arr, loc=None):
-        self.getConf(arr)
         self.getContent(arr,loc=loc)
-        self.getLayoutVars(arr)
         self.getLayout(arr,loc=loc)
-        self.getStyle(arr)
-        self.getScript(arr)
 
     def _appendStyle(self):
         self.html     += f"\n<style>\n{self.css}\n</style>"
@@ -130,51 +155,58 @@ class MarkTwoParser:
         return lvars
 
     def pullHeader(self,arr):
-        try:
-            contentstart = arr.index('_HEADCONTENT|')
-            contentend   = arr.index('|HEADCONTENT_')
+        contentstart = arrFind('_HEADCONTENT|',arr)
+        contentend   = arrFind('|HEADCONTENT_',arr)
+        has = blockStartEnd(contentstart,contentend,"Content Block (header)",quiet=True)
+        if has:
             newarr = ['_CONTENT|']
             for i in range(contentstart+1,contentend):
                 newarr.append(arr[i])
             newarr.append('|CONTENT_')
             arr = arr[0:contentstart]+arr[contentend+1:len(arr)]
-            layoutstart = arr.index('_HEADLAYOUT|')
-            layoutend   = arr.index('|HEADLAYOUT_')
+
+        layoutstart = arrFind('_HEADLAYOUT|',arr)
+        layoutend   = arrFind('|HEADLAYOUT_',arr)
+        has = blockStartEnd(layoutstart,layoutend,"Layout Block (header)",quiet=True)
+        if has:
             newarr.append('_LAYOUT|')
             for i in range(layoutstart+1,layoutend):
                 newarr.append(arr[i])
             newarr.append('|LAYOUT_')
             arr = arr[0:layoutstart]+arr[layoutend+1:len(arr)]
             self.headarr = newarr
-        except:
-            pass
+
         return arr
 
     def pullFooter(self,arr):
-        try:
-            contentstart = arr.index('_FOOTCONTENT|')
-            contentend   = arr.index('|FOOTCONTENT_')
+        contentstart = arrFind('_FOOTCONTENT|',arr)
+        contentend   = arrFind('|FOOTCONTENT_',arr)
+        has = blockStartEnd(contentstart,contentend,"Content Block (footer)",quiet=True)
+        if has:
             newarr = ['_CONTENT|']
             for i in range(contentstart+1,contentend):
                 newarr.append(arr[i])
             newarr.append('|CONTENT_')
             arr = arr[0:contentstart]+arr[contentend+1:len(arr)]
-            layoutstart = arr.index('_FOOTLAYOUT|')
-            layoutend   = arr.index('|FOOTLAYOUT_')
+
+        layoutstart = arrFind('_FOOTLAYOUT|',arr)
+        layoutend   = arrFind('|FOOTLAYOUT_',arr)
+        has = blockStartEnd(layoutstart,layoutend,"Layout Block (footer)",quiet=True)
+        if has:
             newarr.append('_LAYOUT|')
             for i in range(layoutstart+1,layoutend):
                 newarr.append(arr[i])
             newarr.append('|LAYOUT_')
             arr = arr[0:layoutstart]+arr[layoutend+1:len(arr)]
             self.footarr = newarr
-        except:
-            pass
+
         return arr
 
     def getConf(self,arr,):
-        try:
-            confstart = arr.index('_CONF|')
-            confend   = arr.index('|CONF_')
+        confstart = arrFind('_CONF|',arr)
+        confend   = arrFind('|CONF_',arr)
+        has = blockStartEnd(confstart,confend,"Configuration Block")
+        if has:
             for i in range(confstart+1,confend):
                 line = arr[i].lstrip().rstrip()
                 key  = re.findall(r"\S+(?==)",line)
@@ -188,14 +220,16 @@ class MarkTwoParser:
                             self.constants[key[0]]
                             self.constants[key[0]] = val[0]
                         except:
-                            print("Invalid configuration option found")
-        except:
-            print('No configuration block')
+                            print(f"Invalid configuration option: '{key[0]}'.")
 
     def getContent(self,arr,loc=None):
-        try:
-            contentstart  = arr.index('_CONTENT|')
-            contentend    = arr.index('|CONTENT_')
+        locstr = None
+        if loc == None: locstr = "main"
+        else: locstr = loc
+        contentstart  = arrFind('_CONTENT|',arr)
+        contentend    = arrFind('|CONTENT_',arr)
+        has = blockStartEnd(contentstart,contentend,f"Content Block ({locstr})")
+        if has:
             previousId    = None
             contentconcat = ''
             for i in range(contentstart+1,contentend):
@@ -278,10 +312,6 @@ class MarkTwoParser:
                         match    = matchobj[0]
                         newblock = block[0:match[0]]
                         self.footcontent[key] = newblock
-        except:
-            if not self.options["quiet"] and\
-               not self.options["test"]:
-                print("No content block")
 
     @staticmethod
     def checkContentForLiteral(text):
@@ -409,9 +439,10 @@ class MarkTwoParser:
         return content
 
     def getLayoutVars(self,arr):
-        try:
-            lvarstart = arr.index('@LAYOUT|')
-            lvarend   = arr.index('|LAYOUT@')
+        lvarstart = arrFind('@LAYOUT|',arr)
+        lvarend   = arrFind('|LAYOUT@',arr)
+        has = blockStartEnd(lvarstart,lvarend,"Layout Variable Block")
+        if has:
             newarr    = []
             for i in arr[lvarstart+1:lvarend]:
                 newarr.append(i.rstrip().lstrip())
@@ -434,8 +465,6 @@ class MarkTwoParser:
                     self.lvars[lvarnames[i]] = vararr
             except:
                 pass
-        except:
-            pass
 
     def getLayout(self,arr,loc=None):
         def countIds(variable,pattern):
@@ -470,9 +499,13 @@ class MarkTwoParser:
             qelement.generateHtml()
             return qelement,elementstr
 
-        try:
-            layoutstart = arr.index('_LAYOUT|')
-            layoutend   = arr.index('|LAYOUT_')
+        locstr = None
+        if loc == None: locstr = "main"
+        else: locstr = loc
+        layoutstart = arrFind('_LAYOUT|',arr)
+        layoutend   = arrFind('|LAYOUT_',arr)
+        has = blockStartEnd(layoutstart,layoutend,f"Layout Block ({locstr})")
+        if has:
             newarr      = arr[layoutstart+1:layoutend]
             finalarr    = []
             nestpath    = []
@@ -570,10 +603,6 @@ class MarkTwoParser:
                             self.foothtml += f"{elem.closetag}"
                     nestpath    =  nestpath[0:nestcount]
                     nestcount   -= 1
-        except:
-            if not self.options["quiet"] and\
-               not self.options["test"]:
-                print("No layout block")
 
     @staticmethod
     def checkGetTag(elementstr,qelement):
@@ -615,24 +644,22 @@ class MarkTwoParser:
             qelement.qid = qid
         return qelement,elementstr
 
-    def getStyle(self,arr,loc=None):
-        try:
-            stylestart = arr.index('_STYLE|')
-            styleend   = arr.index('|STYLE_')
+    def getStyle(self,arr):
+        stylestart = arrFind('_STYLE|',arr)
+        styleend   = arrFind('|STYLE_',arr)
+        has = blockStartEnd(stylestart,styleend,f"Style Block")
+        if has:
             self.css    = ''
             for i in range(stylestart+1,styleend):
                 line = arr[i].rstrip()
                 self.css += f"{line}"
-        except:
-            pass
 
     def getScript(self,arr):
-        try:
-            scriptstart = arr.index('_SCRIPT|')
-            scriptend   = arr.index('|SCRIPT_')
+        scriptstart = arrFind('_SCRIPT|',arr)
+        scriptend   = arrFind('|SCRIPT_',arr)
+        has = blockStartEnd(scriptstart,scriptend,f"Script Block")
+        if has:
             self.script = ''
             for i in range(scriptstart+1,scriptend):
                 line = arr[i].rstrip()
                 self.script += f"{line}\n"
-        except:
-            pass
