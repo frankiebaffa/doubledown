@@ -18,112 +18,66 @@ syn case ignore
 syn include @css	<sfile>:p:h/css.vim
 syn include @js		<sfile>:p:h/javascript.vim
 
-" Conf Overrides
-syn region	marktwoConf		contains=marktwoConfKey,marktwoConfVal,marktwoConfSep,marktwoConfCon	start=+^_CONF|$+ end=+^|CONF_$+
-syn match	marktwoConfKey	contained	containedin=marktwoConf										"\(^[ \t]*\)\@<=\S\+\(=\)\@="
-syn match	marktwoConfVal	contained	containedin=marktwoConf										"\(=\)\@<=\S\+\($\)"
-syn match	marktwoConfSep	contained	containedin=marktwoConf										"\(^[ \t]*\S\+\)\@<==\(\S\+$\)\@="
-syn match	marktwoConfCon	contained	containedin=marktwoConf										"\(^[ \t]*\)\@<=[a-zA-Z0-9]\+\(=\)\@!$"
+" Configuration Block
+syn	region	confBlockRegion	contains=confBlockKey,confBlockVal,confBlockCon,confBlockSep	start="\(^[ \t]*\)\@<=<!CONF>\($\)\@=" end="\(^[ \t]*\)\@<=<!\/CONF>\($\)\@="
+syn	match	confBlockKey	contained	containedin=confBlockRegion							"\(^[ \t]*\)\@<=[a-zA-Z0-9\-]\+\(=\)\@="
+syn match	confBlockVal	contained	containedin=confBlockRegion							"\(=\)\@<=[a-zA-Z0-9\.]\+\($\)\@="
+syn match	confBlockCon	contained	containedin=confBlockRegion							"\(^[ \t]*\)\@<=[a-zA-Z0-9\-]\+\($\)\@="
+syn match	confBlockSep	contained	containedin=confBlockRegion							"\(^[ \t]*[a-zA-Z0-9\-]\+\)\@<==\([a-zA-Z0-9\.]\+$\)\@="
+hi def link confBlockRegion	Exception
+hi def link confBlockKey	Title
+hi def link	confBlockVal	Number
+hi def link confBlockCon	Title
+hi def link confBlockSep	Special
 
-syn match marktwoTagName contained containedin=marktwoCloseTag,marktwoOpenTag "\(_\)\@<=[a-zA-Z0-9]\+\(\.\||\|#\|\[\)\@="
-syn match marktwoTagName contained containedin=marktwoCloseTag,marktwoOpenTag "\(|\)\@<=[a-zA-Z0-9]\+\(_\)\@="
-syn match marktwoId		 contained containedin=marktwoOpenTag,marktwoVarTag   "\(#\)\@<=[a-zA-Z0-9]\+\(\.\||\|\[\|@\|#\)\@="
-syn match marktwoClass	 contained containedin=marktwoOpenTag			   "\(\.\)\@<=[a-zA-Z0-9]\+\(\.\||\|#\|\[\)\@="
+" Content Block
+syn	region	contentBlockRegion			contains=contentBlockId,contentBlockContent									start="\(^[ \t]*\)\@<=<!CONTENT>\($\)\@=" end="\(^[ \t]*\)\@<=<!\/CONTENT>\($\)\@="
+syn match	contentBlockId				contained	containedin=contentBlockRegion	nextgroup=contentBlockContent	"\(^[ \t]*\)\@<=#[a-zA-Z0-9\-\_]\+\(:\)\@="
+syn region	contentBlockContent			contained	containedin=contentBlockRegion									start="\(^[ \t]*#[a-zA-Z0-9\-\_]\+:\([ \t]\+\|$\n^[ \t]*\)\)\@<=\(^\|\s\|\t\)\(\S\)\@=" end="$\n\(^[ \t]*#[a-zA-Z0-9\-\_]\+:\|^[ \t]*<!\/CONTENT>$\)\@="
+syn match	contentBlockSpecial			contained	containedin=contentBlockContent									"\(\\\)\@<!\(-\|_\||\|\$>\|<\$\|%>\|<%\)"
+syn region	contentBlockLiteralRegion	contained	containedin=contentBlockContent									start="\(\\\)\@<!{{" end="\(\\\)\@<!}}"
+hi def link	contentBlockRegion			Exception
+hi def link contentBlockId				Number
+hi def link contentBlockContent			Title
+hi def link contentBlockSpecial			Special
+hi def link contentBlockLiteralRegion	String
 
-" Attributes
-syn match  marktwoAttr		   contained containedin=marktwoAtterList								 "[a-zA-Z]\+"
-syn match  marktwoAttrVal	   contained containedin=marktwoAtterList								 "[a-zA-Z0-9\.\-\/:]\+"
-syn match  marktwoAttrValDelim contained containedin=marktwoAtterList nextgroup=marktwoAttrVal			"="
-syn match  marktwoAttrKey	   contained containedin=marktwoAtterList nextgroup=marktwoAttrValDelim		"[a-zA-Z]\+"
-syn match  marktwoAttrDelim    contained containedin=marktwoAtterList nextgroup=marktwoAttrKey,marktwoAttr ","
+" Shared Between Layout and Layout Var Blocks
+syn region	openTag		contained	containedin=layoutVarBlockVarDef,layoutBlockRegion	contains=tagName,tagKey,tagValWrap,tagProp	start="<\(!\|\/\|@\|\/@\)\@!" end=">"
+syn region	closeTag	contained	containedin=layoutVarBlockVarDef,layoutBlockRegion	contains=tagName							start="<\/\(@\)\@!" end=">"
+syn	match	tagName		contained	containedin=openTag,closeTag																	"\(<[\/]*\)\@<=[a-zA-Z0-9]\+"
+syn match	tagKey		contained	containedin=openTag	nextgroup=tagValWrap														"\(\s\)\@<=[a-zA-Z0-9\-\_]\+\(=\)\@="
+syn region	tagValWrap	contained	containedin=openTag	contains=tagVal																start="=\(\"\|\'\)"	end="\(\"\|\'\)"
+syn match	tagVal		contained	containedin=tagValWrap																			"\(=\(\"\|\'\)\)\@<=[a-zA-Z0-9\;:\-\_]\+\(\"\|\'\)\@="
+syn match	tagProp		contained	containedin=openTag																				"\(\s\)\@<=[a-zA-Z0-9\-\_]\+\(\s\|>\|\/>\)\@="
+hi def link	opentag		None
+hi def link closeTag	None
+hi def link tagName		Title
+hi def link tagKey		Special
+hi def link tagValWrap	PreProc
+hi def link	tagVal		Number
+hi def link tagProp		Number
 
-syn region marktwoAttrList contained containedin=marktwoOpenTag contains=marktwoAttr,marktwoAttrVal,marktwoAttrValDelim,marktwoAttrKey,marktwoAttrDelim start="\[" end="\]"
+" Layout Block
+syn	region	layoutBlockRegion	contains=openTag,closeTag,layoutBlockVarInst											start="\(^[ \t]*\)\@<=<!LAYOUT>\($\)\@=" end="\(^[ \t]*\)\@<=<!\/LAYOUT>\($\)\@="
+syn region	layoutBlockVarInst	contained containedin=layoutBlockRegion contains=layoutBlockVarName,layoutBlockVarId	start="\(^[ \t]*\)\@<=<@" end="\/>"
+syn match	layoutBlockVarName	contained containedin=layoutBlockVarInst												"\(<@\)\@<=[a-zA-Z0-9\-\_]\+\(\#\|\/>\)\@="
+syn match	layoutBlockVarId	contained containedin=layoutBlockVarInst												"\(<@[a-zA-Z0-9\-\_]\+\)\@<=#[a-zA-Z0-9\-\_]\+\(\#\|\/>\)\@="
+hi def link	layoutBlockRegion	Exception
+hi def link layoutBlockVarInst	Special
+hi def link layoutBlockVarName	Title
+hi def link layoutBlockVarId	Number
 
-syn match marktwoVarName contained containedin=marktwoVarName "\(@\)\@<=[a-zA-Z0-9]\+"
+" Layout Var Block
+syn	region	layoutVarBlockRegion	contains=layoutVarBlockVarDef													start="\(^[ \t]*\)\@<=<!LAYOUTVARS>\($\)\@=" end="\(^[ \t]*\)\@<=<!\/LAYOUTVARS>\($\)\@="
+syn region	layoutVarBlockVarDef	contains=openTag,closeTag		contained	containedin=layoutVarBlockRegion	start="\(^[ \t]*\)\@<=<@[a-zA-Z0-9]\+>\($\)\@=" end="\(^[ \t]*\)\@<=<@\/[a-zA-Z0-9]\+>\($\)\@="
+hi def link	layoutVarBlockRegion	Exception
+hi def link layoutVarBlockVarDef	Special
 
-" Tag Elements
-syn region	marktwoLayoutOpenTag			start="<\(\/\)\@<!"	end=">"										contains=marktwoLayoutTagName,marktwoLayoutOpenTagPropName,marktwoLayoutOpenTagProp						containedin=marktwoLayout,marktwoLayoutVar	oneline
-syn region	marktwoLayoutCloseTag			start="<\(\/\)\@<=" end=">"										contains=marktwoLayoutTagName													containedin=marktwoLayout,marktwoLayoutVar	oneline
-syn match	marktwoLayoutTagName			"\(<[\/]*\)\@<=[a-zA-Z0-9]\+"									containedin=marktwoLayoutOpenTag,marktwoLayoutCloseTag
-syn region	marktwoLayoutOpenTagPropName	start="\(\s\)\@<=\([a-zA-Z0-9]\+=\)\(\'\|\"\)" end="\(\"\|\'\)"	containedin=marktwoLayoutOpenTag												contains=marktwoLayoutOpenTagPropVal			oneline
-syn match	marktwoLayoutOpenTagPropVal		"\(=\(\'\|\"\)\)\@<=[a-zA-Z0-9\:\; ]\+"								containedin=marktwoLayoutOpenTagPropName
-syn match	marktwoLayoutOpenTagProp		"\(\s\)\@<=[a-zA-Z0-9]\+\(\s\|>\)\@="							containedin=marktwoLayoutOpenTag
+" CSS Block
+syn	region	cssBlockRegion	contains=@css	start="\(^[ \t]*\)\@<=<!CSS>\($\)\@=" end="\(^[ \t]*\)\@<=<!\/CSS>\($\)\@="
+hi def link	cssBlockRegion	Exception
 
-" Content Id
-syn region	marktwoContentVar	contained containedin=marktwoContentText																oneline	start="\(\\\)\@<!@\(\S\+\)\@=" end="\(\S\+\)\@<=\(\\\)\@<!@"
-syn region	marktwoContentText	contained containedin=marktwoContent,marktwoHeadContent,marktwoFootContent	contains=marktwoContentVar			start="\(\([ \t]*\)\@<=#[a-zA-Z0-9]\+\:\($\n^\)*[ \t]*\)\@<=\S"	end="$\n\(^[ \t]*#[a-zA-Z0-9]\+\:\|^|\(CONTENT\|HEADCONTENT\|FOOTCONTENT\)_$\)\@="
-"																																																										end="^\(\(\(^[\t\s]*\)\@<=#[a-zA-Z0-9]\+\([\t\s]\+\)\@=\)\|^\(|CONTENT_\||HEADCONTENT_\||FOOTCONTENT_\)\@=\)\@="
-syn match	marktwoInlineChar	contained containedin=marktwoContentText																		"\(\\\)\@<!\(%>\|<%\|\$>\|<\$\||\|_\|\*\|-\|\^\|\~\)"
-syn match	marktwoContentId	contained containedin=marktwoContent,marktwoHeadContent,marktwoFootContent	nextgroup=marktwoContentText		"\(^[ \t]*\)\@<=#[a-zA-Z0-9]\+\:"
-
-" Literal Block
-syn region	marktwoLiteralContent	contained containedin=marktwoLiteralBlock	start=+\(\(\\\)\@<!{{[ \t]*\($\n^\)*[ \t]*\)\@<=\S+ end=+\S\([ \t]*\([$\n^\)*[ \t]*\(\\\)\@<!}}\)\)\@=+
-syn region	marktwoLiteralBlock		contained containedin=marktwoContentText	start="\(\\\)\@<!{{" end="\(\\\)\@<!}}"
-
-" Layout Variable
-syn region marktwoLayoutVar contained containedin=marktwoLayoutVarSec start="@\(CONTENT\|LAYOUT\)\@![a-zA-Z0-9]\+|" end="|\(CONTENT\|LAYOUT\)\@![a-zA-Z0-9]\+@" contains=marktwoLayoutOpenTag,marktwoLayoutClosedTag extend
-
-syn region marktwoScriptInner contained containedin=marktwoScript start="\(_SCRIPT|\)\@<=$" end="^\(|SCRIPT_\)\@=" contains=@js
-
-" Content regions
-syn region marktwoComment	   start=+!#+ end=+$+ oneline containedin=ALL
-syn region marktwoHeadLayout   start=+_HEADLAYOUT|$+  end=+|HEADLAYOUT_$+  contains=marktwoOpenTag,marktwoCloseTag
-syn region marktwoHeadContent  start=+_HEADCONTENT|$+ end=+|HEADCONTENT_$+ contains=marktwoContentId,marktwoContentText
-syn region marktwoFootLayout   start=+_FOOTLAYOUT|$+  end=+|FOOTLAYOUT_$+  contains=marktwoOpenTag,marktwoCloseTag
-syn region marktwoFootContent  start=+_FOOTCONTENT|$+ end=+|FOOTCONTENT_$+ contains=marktwoContentId,marktwoContentText
-syn region marktwoLayout	   start=+_LAYOUT|$+  end=+|LAYOUT_$+  contains=marktwoLayoutOpenTag,marktwoLayoutCloseTag
-syn region marktwoLayoutVarSec start=+^@LAYOUT|$+  end=+^|LAYOUT@$+  contains=marktwoLayoutVar
-syn region marktwoContent	   start=+_CONTENT|$+ end=+|CONTENT_$+ contains=marktwoContentId,marktwoContentText
-syn region marktwoStyle		   start=+^_STYLE|$+   end=+^|STYLE_$+	 contains=@css
-syn region marktwoScript	   start="\(^\)\@<=_SCRIPT|\($\)\@="  end="\(^\)\@<=|SCRIPT_\($\)\@="  contains=marktwoScriptInner
-
-hi def link marktwoConf			  Comment
-hi def link marktwoConfKey		  Title
-hi def link marktwoConfVal		  Number
-hi def link marktwoConfSep		  Exception
-hi def link marktwoConfCon		  Title
-
-hi def link marktwoComment		  Comment
-hi def link marktwoScript		  Comment
-hi def link marktwoStyle		  Comment
-hi def link marktwoContent		  Comment
-hi def link marktwoHeadLayout	  Comment
-hi def link marktwoHeadContent	  Comment
-hi def link marktwoFootLayout	  Comment
-hi def link marktwoFootContent	  Comment
-hi def link marktwoLayoutVarSec   Comment
-hi def link marktwoHtml			  Comment
-hi def link marktwoLayout		  Comment
-hi def link marktwoLiteralBlock   Exception
-hi def link marktwoLiteralContent Title
-hi def link marktwoScriptInner	  Normal
-hi def link marktwoStyleIdent	  Special
-hi def link marktwoStyleRegion	  Exception
-hi def link marktwoStyleKey		  Title
-hi def link marktwoStyleValue	  Type
-hi def link marktwoContentId	  Type
-hi def link marktwoContentText	  Title
-hi def link marktwoContentVar	  Special
-hi def link marktwoInlineChar	  Comment
-hi def link marktwoInnerText	  Special
-hi def link marktwoLayoutVar	  Special
-hi def link marktwoOpenTag		  Exception
-hi def link marktwoVarTag		  Exception
-hi def link marktwoCloseTag		  Exception
-hi def link marktwoAttrList		  Exception
-hi def link marktwoAttrDelim	  Comment
-hi def link marktwoAttrKey		  Title
-hi def link marktwoAttrValDelim   Special
-hi def link marktwoAttrVal		  Type
-hi def link marktwoAttr			  Title
-hi def link marktwoClass		  Type
-hi def link marktwoId			  Type
-hi def link marktwoTagName		  Title
-hi def link marktwoVarName		  Special
-
-hi def link marktwoLayoutOpenTag			Exception
-hi def link marktwoLayoutCloseTag			Exception
-hi def link marktwoLayoutTagName			Title
-hi def link marktwoLayoutOpenTagPropName	Type
-hi def link marktwoLayoutOpenTagPropVal		Special
-hi def link marktwoLayoutOpenTagProp		Type
+" JS Block
+syn region	jsBlockRegion	contains=@js	start="\(^[ \t]*\)\@<=<!JS>\($\)\@=" end="\(^[ \t]*\)\@<=<!\/JS>\($\)\@="
+hi def link	jsBlockRegion	Exception
