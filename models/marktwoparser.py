@@ -2,6 +2,7 @@
 #       HTML syntax
 
 import re
+import sys
 from   models.marktwoelement import MarkTwoElement
 
 def arrFind(p,a):
@@ -132,34 +133,34 @@ class MarkTwoParser:
         lvars = {
                  # THREE INLINE TEXT ELEMENTS ALIGNED LEFT, CENTER, RIGHT; RESPECTIVELY
                  "lcr":[
-                        "_table.lcrContainer[style=width:100%;table-layout:fixed;]|",
-                        "_tbody|",
-                        "_tr|",
-                        "_td#[style=width:50%;text-align:left;]||_",
-                        "_td#[style=width:50%;text-align:center;]||_",
-                        "_td#[style=width:50%;text-align:right;]||_",
-                        "|tr_",
-                        "|tbody_",
-                        "|table_"
+                        "<table style='width:100%;table-layout:fixed;' class='lcrContainer'>",
+			"<tbody>",
+                        "<tr>",
+                        "<tr id style='width:50%;text-align:left;'></td>",
+                        "<tr id style='width:50%;text-align:center;'></td>",
+                        "<tr id style='width:50%;text-align:right;'></td>",
+                        "</tr>",
+                        "</tbody>",
+                        "</table>"
                        ],
                  # TWO INLINE TEXT ELEMENTS ALIGNED LEFT, RIGHT; RESPECTIVELY
                  "lr": [
-                        "_table.lrContainer[style=width:100%;table-layout:fixed;]|",
-                        "_tbody|",
-                        "_tr|",
-                        "_td#[style=width:50%;text-align:left]||_",
-                        "_td#[style=width:50%;text-align:right;]||_",
-                        "|tr_",
-                        "|tbody_",
-                        "|table_"
+                        "<table style='width:100%;table-layout:fixed;' class='lrContainer'>",
+                        "<tbody>",
+                        "<tr>",
+                        "<td id style='width:50%;text-align:left;'></td>",
+                        "<td id style='width:50%;text-align:right;'></td>",
+                        "</tr>",
+                        "</tbody>",
+                        "</table>"
                        ]
                 }
         
         return lvars
 
     def pullHeader(self,arr):
-        contentstart = arrFind('_HEADCONTENT|',arr)
-        contentend   = arrFind('|HEADCONTENT_',arr)
+        contentstart = arrFind('<!HEADCONTENT>',arr)
+        contentend   = arrFind('<!/HEADCONTENT>',arr)
         has = blockStartEnd(contentstart,contentend,"Content Block (header)",quiet=True)
         if has:
             newarr = ['_CONTENT|']
@@ -182,8 +183,8 @@ class MarkTwoParser:
         return arr
 
     def pullFooter(self,arr):
-        contentstart = arrFind('_FOOTCONTENT|',arr)
-        contentend   = arrFind('|FOOTCONTENT_',arr)
+        contentstart = arrFind('<!FOOTCONTENT>',arr)
+        contentend   = arrFind('<!/FOOTCONTENT>',arr)
         has = blockStartEnd(contentstart,contentend,"Content Block (footer)",quiet=True)
         if has:
             newarr = ['_CONTENT|']
@@ -206,8 +207,8 @@ class MarkTwoParser:
         return arr
 
     def getConf(self,arr,):
-        confstart = arrFind('_CONF|',arr)
-        confend   = arrFind('|CONF_',arr)
+        confstart = arrFind('<!CONF>',arr)
+        confend   = arrFind('<!/CONF>',arr)
         has = blockStartEnd(confstart,confend,"Configuration Block")
         if has:
             for i in range(confstart+1,confend):
@@ -229,14 +230,15 @@ class MarkTwoParser:
         locstr = None
         if loc == None: locstr = "main"
         else: locstr = loc
-        contentstart  = arrFind('_CONTENT|',arr)
-        contentend    = arrFind('|CONTENT_',arr)
+        contentstart  = arrFind('<!CONTENT>',arr)
+        contentend    = arrFind('<!/CONTENT>',arr)
         has = blockStartEnd(contentstart,contentend,f"Content Block ({locstr})")
         if has:
             previousId    = None
             contentconcat = ''
             for i in range(contentstart+1,contentend):
-                line = re.sub(r"^[\s\t]+","",arr[i],1)
+                #line = re.sub(r"^[\s\t]+","",arr[i],1)
+                line = arr[i].lstrip().rstrip()
                 if line[0:1] == '#':
                     kv            =  re.split(r":",line)
                     kv[1]         =  kv[1].lstrip()
@@ -442,30 +444,26 @@ class MarkTwoParser:
         return content
 
     def getLayoutVars(self,arr):
-        lvarstart = arrFind('@LAYOUT|',arr)
-        lvarend   = arrFind('|LAYOUT@',arr)
+        lvarstart = arrFind('<!LAYOUTVARS>',arr)
+        lvarend   = arrFind('<!/LAYOUTVARS>',arr)
         has = blockStartEnd(lvarstart,lvarend,"Layout Variable Block")
         if has:
             newarr    = []
             for i in arr[lvarstart+1:lvarend]:
                 newarr.append(i.rstrip().lstrip())
+            lvarnames  = []
             lvarstarts = []
             lvarends   = []
-            lvarnames  = []
             try:
                 for i in range(len(newarr)):
-                    line = newarr[i].rstrip().lstrip()
-                    lvarstarti = [(m.start(0),m.end(0)) for m in re.finditer(r"(?<=@)[a-zA-Z0-9]+(?=\|)",line)]
-                    lvarendi   = [(m.start(0),m.end(0)) for m in re.finditer(r"\|[a-zA-Z0-9]*@",line)]
-                    if len(lvarstarti) > 0:
-                        lvarstarts.append(i)
-                        lvarnames.append(line[lvarstarti[0][0]:lvarstarti[0][1]])
-                    if len(lvarendi) > 0:
-                        lvarends.append(i)
-
-                for i in range(len(lvarstarts)):
-                    vararr = newarr[lvarstarts[i]+1:lvarends[i]]
-                    self.lvars[lvarnames[i]] = vararr
+                    line = newarr[i]
+                    lvarname = re.findall(r"(?<=<@)[a-zA-Z0-9\_\-]+",line)
+                    if len(lvarname) > 0 and not len(lvarname) > 1:
+                        lvarnames.append(lvarname[0])
+                    elif len(lvarname) > 1:
+                        print("Multiple variables declared on same line. Invalid statement")
+                        sys.exit(2)
+                print(lvarnames)
             except:
                 pass
 
@@ -505,8 +503,8 @@ class MarkTwoParser:
         locstr = None
         if loc == None: locstr = "main"
         else: locstr = loc
-        layoutstart = arrFind('_LAYOUT|',arr)
-        layoutend   = arrFind('|LAYOUT_',arr)
+        layoutstart = arrFind('<!LAYOUT>',arr)
+        layoutend   = arrFind('<!/LAYOUT>',arr)
         has = blockStartEnd(layoutstart,layoutend,f"Layout Block ({locstr})")
         if has:
             newarr      = arr[layoutstart+1:layoutend]
@@ -521,9 +519,9 @@ class MarkTwoParser:
             nestcount   = 0
             for i in range(len(newarr)):
                 line = newarr[i].lstrip().rstrip()
-                lvarstarti = [(m.start(0),m.end(0)) for m in re.finditer(r"(?<=@)[a-zA-Z0-9]+(?=[#@])",line)]
-                if len(lvarstarti) > 0:
-                    varname = line[lvarstarti[0][0]:lvarstarti[0][1]]
+                lvar = re.findall(r"(?<=<@)[a-zA-Z0-9\-\_]+",line)
+                if len(lvar) > 0:
+                    varname = lvar[0]
                     var = None
                     layoutvars = None
                     try:
