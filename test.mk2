@@ -1,0 +1,79 @@
+<!CONF>
+	margin-top=1.00in
+	margin-left=1.00in
+	margin-bottom=1.00in
+	margin-right=1.00in
+	indent=50
+<!/CONF>
+
+<!CONTENT>
+	#pid:	This is a paragraph,
+			and this is it's continuation
+			!# Inline comment test
+	#ul:	|this|
+			|{{this is literal content. Symbols like
+				@, |, %>|, |<% should all show up literally.}}
+			|
+			|that|
+			%>
+				|This is an embedded list|
+				|This is the second element|
+			<%
+<!/CONTENT>
+
+<!FOOTCONTENT>
+	#FLeft:		Written and formatted in Mark^two^
+	#FRight:	github.com/frankiebaffa/marktwo
+<!/FOOTCONTENT>
+
+<!LAYOUT>
+	<body>
+		<p id='pid'></p>
+		<ul id='ul' hidden></ul>
+		<@this#whatever/>
+	</body>
+<!/LAYOUT>
+
+<!FOOTLAYOUT>
+	<@lr#FLeft#FRight/>
+<!/FOOTLAYOUT>
+
+<!LAYOUTVARS>
+	<@this>
+		<div class='test'></div>
+		<p id></p>
+	<@/this>
+	<@lcrContainer>
+		<table style='width:100%;table-layout:fixed;' class='lcrContainer'>
+			<tbody>
+				<tr>
+					<tr id style='width:50%;text-align:left;'></td>
+					<tr id style='width:50%;text-align:center;'></td>
+					<tr id style='width:50%;text-align:right;'></td>
+				</tr>
+			</tbody>
+		</table>
+	<@/lcrContainer>
+	<@lrContainer>
+		<table style='width:100%;table-layout:fixed;' class='lrContainer'>
+			<tbody>
+				<tr>
+					<td id style='width:50%;text-align:left;'></td>
+					<td id style='width:50%;text-align:right;'></td>
+				</tr>
+			</tbody>
+		</table>
+	<@/lrContainer>
+<!/LAYOUTVARS>
+
+<!CSS>
+	.test{
+		font-size:0px;
+	}
+<!/CSS>
+
+<!JS>
+	function testFunc() {
+		var test = 0;
+	}
+<!/JS>
