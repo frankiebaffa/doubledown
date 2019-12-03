@@ -33,7 +33,7 @@ hi def link confBlockSep	Special
 " Content Block
 syn	region	contentBlockRegion			contains=contentBlockId,contentBlockContent									start="\(^[ \t]*\)\@<=<!CONTENT>\($\)\@=" end="\(^[ \t]*\)\@<=<!\/CONTENT>\($\)\@="
 syn match	contentBlockId				contained	containedin=contentBlockRegion	nextgroup=contentBlockContent	"\(^[ \t]*\)\@<=#[a-zA-Z0-9\-\_]\+\(:\)\@="
-syn region	contentBlockContent			contained	containedin=contentBlockRegion									start="\(^[ \t]*#[a-zA-Z0-9\-\_]\+:\([ \t]\+\|$\n^[ \t]*\)\)\@<=\(^\|\s\|\t\)\(\S\)\@=" end="$\n\(^[ \t]*#[a-zA-Z0-9\-\_]\+:\|^[ \t]*<!\/CONTENT>$\)\@="
+syn region	contentBlockContent			contained	containedin=contentBlockRegion									start="\(\(^[ \t]*\)\@<=#[a-zA-Z0-9\-\_]\+:\)\@<=\(\s\|\t\|$\)" end="$\n\(^[ \t]*#[a-zA-Z0-9\-\_]\+:\|^[ \t]*<!\/\(CONTENT\|FOOTCONTENT\|HEADCONTENT\)>$\)\@="
 syn match	contentBlockSpecial			contained	containedin=contentBlockContent									"\(\\\)\@<!\(-\|_\||\|\$>\|<\$\|%>\|<%\)"
 syn region	contentBlockLiteralRegion	contained	containedin=contentBlockContent									start="\(\\\)\@<!{{" end="\(\\\)\@<!}}"
 hi def link	contentBlockRegion			Exception
@@ -41,6 +41,14 @@ hi def link contentBlockId				Number
 hi def link contentBlockContent			Title
 hi def link contentBlockSpecial			Special
 hi def link contentBlockLiteralRegion	String
+
+" FootContent Block
+syn	region	footContentBlockRegion	contains=contentBlockId,contentBlockContent	start="\(^[ \t]*\)\@<=<!FOOTCONTENT>\($\)\@=" end="\(^[ \t]*\)\@<=<!\/FOOTCONTENT>\($\)\@="
+hi def link	footContentBlockRegion	Exception
+
+" HeadContent Block
+syn	region	headContentBlockRegion	contains=contentBlockId,contentBlockContent	start="\(^[ \t]*\)\@<=<!HEADCONTENT>\($\)\@=" end="\(^[ \t]*\)\@<=<!\/HEADCONTENT>\($\)\@="
+hi def link	headContentBlockRegion	Exception
 
 " Shared Between Layout and Layout Var Blocks
 syn region	openTag		contained	containedin=layoutVarBlockVarDef,layoutBlockRegion	contains=tagName,tagKey,tagValWrap,tagProp	start="<\(!\|\/\|@\|\/@\)\@!" end=">"
@@ -58,21 +66,29 @@ hi def link tagValWrap	PreProc
 hi def link	tagVal		Number
 hi def link tagProp		Number
 
-" Layout Block
-syn	region	layoutBlockRegion	contains=openTag,closeTag,layoutBlockVarInst											start="\(^[ \t]*\)\@<=<!LAYOUT>\($\)\@=" end="\(^[ \t]*\)\@<=<!\/LAYOUT>\($\)\@="
-syn region	layoutBlockVarInst	contained containedin=layoutBlockRegion contains=layoutBlockVarName,layoutBlockVarId	start="\(^[ \t]*\)\@<=<@" end="\/>"
-syn match	layoutBlockVarName	contained containedin=layoutBlockVarInst												"\(<@\)\@<=[a-zA-Z0-9\-\_]\+\(\#\|\/>\)\@="
-syn match	layoutBlockVarId	contained containedin=layoutBlockVarInst												"\(<@[a-zA-Z0-9\-\_]\+\)\@<=#[a-zA-Z0-9\-\_]\+\(\#\|\/>\)\@="
-hi def link	layoutBlockRegion	Exception
-hi def link layoutBlockVarInst	Special
-hi def link layoutBlockVarName	Title
-hi def link layoutBlockVarId	Number
-
 " Layout Var Block
 syn	region	layoutVarBlockRegion	contains=layoutVarBlockVarDef													start="\(^[ \t]*\)\@<=<!LAYOUTVARS>\($\)\@=" end="\(^[ \t]*\)\@<=<!\/LAYOUTVARS>\($\)\@="
 syn region	layoutVarBlockVarDef	contains=openTag,closeTag		contained	containedin=layoutVarBlockRegion	start="\(^[ \t]*\)\@<=<@[a-zA-Z0-9]\+>\($\)\@=" end="\(^[ \t]*\)\@<=<@\/[a-zA-Z0-9]\+>\($\)\@="
 hi def link	layoutVarBlockRegion	Exception
 hi def link layoutVarBlockVarDef	Special
+
+" Layout Block
+syn	region	layoutBlockRegion	contains=openTag,closeTag,layoutBlockVarInst											start="\(^[ \t]*\)\@<=<!LAYOUT>\($\)\@=" end="\(^[ \t]*\)\@<=<!\/LAYOUT>\($\)\@="
+syn region	layoutBlockVarInst	contained containedin=layoutBlockRegion contains=layoutBlockVarName,layoutBlockVarId	start="\(^[ \t]*\)\@<=<@" end="\/>"
+syn match	layoutBlockVarName	contained containedin=layoutBlockVarInst												"\(<@\)\@<=[a-zA-Z0-9\-\_]\+\(\#\|\/>\)\@="
+syn match	layoutBlockVarId	contained containedin=layoutBlockVarInst												"\(<@[a-zA-Z0-9\-\_]\+\|[a-zA-Z0-9\-\_]\)\@<=#[a-zA-Z0-9\-\_]\+\(#\|\/>\)\@="
+hi def link	layoutBlockRegion	Exception
+hi def link layoutBlockVarInst	Special
+hi def link layoutBlockVarName	Title
+hi def link layoutBlockVarId	Number
+
+" FootLayout Block
+syn	region	footLayoutBlockRegion	contains=openTag,closeTag,layoutBlockVarInst	start="\(^[ \t]*\)\@<=<!FOOTLAYOUT>\($\)\@=" end="\(^[ \t]*\)\@<=<!\/FOOTLAYOUT>\($\)\@="
+hi def link	footLayoutBlockRegion	Exception
+
+" HeadLayout Block
+syn	region	headLayoutBlockRegion	contains=openTag,closeTag,layoutBlockVarInst	start="\(^[ \t]*\)\@<=<!HEADLAYOUT>\($\)\@=" end="\(^[ \t]*\)\@<=<!\/HEADLAYOUT>\($\)\@="
+hi def link	headLayoutBlockRegion	Exception
 
 " CSS Block
 syn	region	cssBlockRegion	contains=@css	start="\(^[ \t]*\)\@<=<!CSS>\($\)\@=" end="\(^[ \t]*\)\@<=<!\/CSS>\($\)\@="
