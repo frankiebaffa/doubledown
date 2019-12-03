@@ -42,15 +42,12 @@ syn region marktwoAttrList contained containedin=marktwoOpenTag contains=marktwo
 syn match marktwoVarName contained containedin=marktwoVarName "\(@\)\@<=[a-zA-Z0-9]\+"
 
 " Tag Elements
-"syn region marktwoVarTag   contained containedin=marktwoLayout,marktwoHeadLayout,marktwoFootLayout				  oneline contains=marktwoId,marktwoVarName							 start="@\([a-zA-Z0-9]\)\@="	 end="@"
-"syn region marktwoOpenTag  contained containedin=marktwoLayoutVar,marktwoLayout,marktwoHeadLayout,marktwoFootLayout oneline contains=marktwoId,marktwoClass,marktwoTagName,marktwoAttrList start="_\(CONTENT\|LAYOUT\)\@!" end="\(CONTENT\|LAYOUT\)\@<!|"
-"syn region marktwoCloseTag contained containedin=marktwoLayoutVar,marktwoLayout,marktwoHeadLayout,marktwoFootLayout oneline contains=marktwoTagName									 start="|\(CONTENT\|LAYOUT\)\@!" end="\(CONTENT\|LAYOUT\)\@<!_"
 syn region	marktwoLayoutOpenTag			start="<\(\/\)\@<!"	end=">"										contains=marktwoLayoutTagName,marktwoLayoutOpenTagPropName,marktwoLayoutOpenTagProp						containedin=marktwoLayout,marktwoLayoutVar	oneline
-syn region	marktwoLayoutCloseTag			start="<\(\/\)\@<=" end=">"										contains=marktwoLayoutTagName													containedin=marktwoLayout,marktwoLayoutVar 	oneline
+syn region	marktwoLayoutCloseTag			start="<\(\/\)\@<=" end=">"										contains=marktwoLayoutTagName													containedin=marktwoLayout,marktwoLayoutVar	oneline
 syn match	marktwoLayoutTagName			"\(<[\/]*\)\@<=[a-zA-Z0-9]\+"									containedin=marktwoLayoutOpenTag,marktwoLayoutCloseTag
 syn region	marktwoLayoutOpenTagPropName	start="\(\s\)\@<=\([a-zA-Z0-9]\+=\)\(\'\|\"\)" end="\(\"\|\'\)"	containedin=marktwoLayoutOpenTag												contains=marktwoLayoutOpenTagPropVal			oneline
-syn match	marktwoLayoutOpenTagPropVal		"\(id=\(\'\|\"\)\)\@<=[a-zA-Z0-9]\+"							containedin=marktwoLayoutOpenTagPropName
-syn match	marktwoLayoutOpenTagProp		"\(<\)\@<![\s]\+[a-zA-Z0-9]\+\(\s\|>\)\@="						containedin=marktwoLayoutOpenTag
+syn match	marktwoLayoutOpenTagPropVal		"\(=\(\'\|\"\)\)\@<=[a-zA-Z0-9\:\; ]\+"								containedin=marktwoLayoutOpenTagPropName
+syn match	marktwoLayoutOpenTagProp		"\(\s\)\@<=[a-zA-Z0-9]\+\(\s\|>\)\@="							containedin=marktwoLayoutOpenTag
 
 " Content Id
 syn region	marktwoContentVar	contained containedin=marktwoContentText																oneline	start="\(\\\)\@<!@\(\S\+\)\@=" end="\(\S\+\)\@<=\(\\\)\@<!@"
@@ -64,7 +61,7 @@ syn region	marktwoLiteralContent	contained containedin=marktwoLiteralBlock	start
 syn region	marktwoLiteralBlock		contained containedin=marktwoContentText	start="\(\\\)\@<!{{" end="\(\\\)\@<!}}"
 
 " Layout Variable
-syn region marktwoLayoutVar contained containedin=marktwoLayoutVarSec start="@\(CONTENT\|LAYOUT\)\@![a-zA-Z0-9]\+|" end="|\(CONTENT\|LAYOUT\)\@![a-zA-Z0-9]\+@" contains=@html extend
+syn region marktwoLayoutVar contained containedin=marktwoLayoutVarSec start="@\(CONTENT\|LAYOUT\)\@![a-zA-Z0-9]\+|" end="|\(CONTENT\|LAYOUT\)\@![a-zA-Z0-9]\+@" contains=marktwoLayoutOpenTag,marktwoLayoutClosedTag extend
 
 syn region marktwoScriptInner contained containedin=marktwoScript start="\(_SCRIPT|\)\@<=$" end="^\(|SCRIPT_\)\@=" contains=@js
 
@@ -74,17 +71,17 @@ syn region marktwoHeadLayout   start=+_HEADLAYOUT|$+  end=+|HEADLAYOUT_$+  conta
 syn region marktwoHeadContent  start=+_HEADCONTENT|$+ end=+|HEADCONTENT_$+ contains=marktwoContentId,marktwoContentText
 syn region marktwoFootLayout   start=+_FOOTLAYOUT|$+  end=+|FOOTLAYOUT_$+  contains=marktwoOpenTag,marktwoCloseTag
 syn region marktwoFootContent  start=+_FOOTCONTENT|$+ end=+|FOOTCONTENT_$+ contains=marktwoContentId,marktwoContentText
-syn region marktwoLayout	   start=+_LAYOUT|$+  end=+|LAYOUT_$+  contains=@html extend
+syn region marktwoLayout	   start=+_LAYOUT|$+  end=+|LAYOUT_$+  contains=marktwoLayoutOpenTag,marktwoLayoutCloseTag
 syn region marktwoLayoutVarSec start=+^@LAYOUT|$+  end=+^|LAYOUT@$+  contains=marktwoLayoutVar
 syn region marktwoContent	   start=+_CONTENT|$+ end=+|CONTENT_$+ contains=marktwoContentId,marktwoContentText
 syn region marktwoStyle		   start=+^_STYLE|$+   end=+^|STYLE_$+	 contains=@css
 syn region marktwoScript	   start="\(^\)\@<=_SCRIPT|\($\)\@="  end="\(^\)\@<=|SCRIPT_\($\)\@="  contains=marktwoScriptInner
 
-hi def link marktwoConf           Comment
-hi def link marktwoConfKey        Title
-hi def link marktwoConfVal        Number
-hi def link marktwoConfSep        Exception
-hi def link marktwoConfCon        Title
+hi def link marktwoConf			  Comment
+hi def link marktwoConfKey		  Title
+hi def link marktwoConfVal		  Number
+hi def link marktwoConfSep		  Exception
+hi def link marktwoConfCon		  Title
 
 hi def link marktwoComment		  Comment
 hi def link marktwoScript		  Comment
