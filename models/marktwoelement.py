@@ -52,4 +52,4 @@ class MarkTwoElement:
             printid = "No ID"
         else:
             printid = self.qid
-        return f"<{self.qtag} | {printid} | classes:{len(self.qclass)} | inner:{len(self.qinner)}>"
+        return f"<tag: {self.qtag} | id: {printid} | classes: {len(self.qclass)} | attrs: {self.qattributes} | inner: {len(self.qinner)}>"
