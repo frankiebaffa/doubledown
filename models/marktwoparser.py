@@ -1,34 +1,12 @@
 # TODO: Switch layout syntax to standard
 #       HTML syntax
+# TODO: Element nesting is not longer functional
+#       FIX!
 
 import re
 import sys
 from   models.marktwoelement import MarkTwoElement
-
-def arrFind(p,a):
-    try:
-        return a.index(p)
-    except:
-        return -1
-
-def blockStartEnd(s,e,b,quiet=False):
-    started         = s > -1
-    ended           = e > -1
-    placementproper = s < e
-    if started and ended and placementproper:
-        return True
-    elif started and not ended:
-        print(f"{b} is an unclosed block. Exiting.")
-        sys.exit(1)
-    elif not started and ended:
-        print(f"{b} is never started and attempted closing. Exiting.")
-        sys.exit(1)
-    elif started and ended and not placementproper:
-        print(f"{b} is improperly defined. Exiting.")
-        sys.exit(1)
-    elif not started and not ended:
-        if not quiet: print(f"{b} not defined.")
-        return False
+from   utils.utils import arrFind
 
 class MarkTwoParser:
     options     = None
@@ -114,6 +92,26 @@ class MarkTwoParser:
             if self.script != None:
                 self._appendScripts()
 
+    @staticmethod
+    def _blockStartEnd(s,e,b,quiet=False):
+        started         = s > -1
+        ended           = e > -1
+        placementproper = s < e
+        if started and ended and placementproper:
+            return True
+        elif started and not ended:
+            print(f"{b} is an unclosed block. Exiting.")
+            sys.exit(1)
+        elif not started and ended:
+            print(f"{b} is never started and attempted closing. Exiting.")
+            sys.exit(1)
+        elif started and ended and not placementproper:
+            print(f"{b} is improperly defined. Exiting.")
+            sys.exit(1)
+        elif not started and not ended:
+            if not quiet: print(f"{b} not defined.")
+            return False
+
     def _parse(self, arr, loc=None):
         self.getContent(arr,loc=loc)
         self.getLayout(arr,loc=loc)
@@ -161,7 +159,7 @@ class MarkTwoParser:
     def pullHeader(self,arr):
         contentstart = arrFind('<!HEADCONTENT>',arr)
         contentend   = arrFind('<!/HEADCONTENT>',arr)
-        has = blockStartEnd(contentstart,contentend,"Content Block (header)",quiet=True)
+        has = MarkTwoParser._blockStartEnd(contentstart,contentend,"Content Block (header)",quiet=True)
         if has:
             newarr = ['_CONTENT|']
             for i in range(contentstart+1,contentend):
@@ -171,7 +169,7 @@ class MarkTwoParser:
 
         layoutstart = arrFind('_HEADLAYOUT|',arr)
         layoutend   = arrFind('|HEADLAYOUT_',arr)
-        has = blockStartEnd(layoutstart,layoutend,"Layout Block (header)",quiet=True)
+        has = MarkTwoParser._blockStartEnd(layoutstart,layoutend,"Layout Block (header)",quiet=True)
         if has:
             newarr.append('_LAYOUT|')
             for i in range(layoutstart+1,layoutend):
@@ -185,7 +183,7 @@ class MarkTwoParser:
     def pullFooter(self,arr):
         contentstart = arrFind('<!FOOTCONTENT>',arr)
         contentend   = arrFind('<!/FOOTCONTENT>',arr)
-        has = blockStartEnd(contentstart,contentend,"Content Block (footer)",quiet=True)
+        has = MarkTwoParser._blockStartEnd(contentstart,contentend,"Content Block (footer)",quiet=True)
         if has:
             newarr = ['_CONTENT|']
             for i in range(contentstart+1,contentend):
@@ -195,7 +193,7 @@ class MarkTwoParser:
 
         layoutstart = arrFind('_FOOTLAYOUT|',arr)
         layoutend   = arrFind('|FOOTLAYOUT_',arr)
-        has = blockStartEnd(layoutstart,layoutend,"Layout Block (footer)",quiet=True)
+        has = MarkTwoParser._blockStartEnd(layoutstart,layoutend,"Layout Block (footer)",quiet=True)
         if has:
             newarr.append('_LAYOUT|')
             for i in range(layoutstart+1,layoutend):
@@ -209,7 +207,7 @@ class MarkTwoParser:
     def getConf(self,arr,):
         confstart = arrFind('<!CONF>',arr)
         confend   = arrFind('<!/CONF>',arr)
-        has = blockStartEnd(confstart,confend,"Configuration Block")
+        has = MarkTwoParser._blockStartEnd(confstart,confend,"Configuration Block")
         if has:
             for i in range(confstart+1,confend):
                 line = arr[i].lstrip().rstrip()
@@ -232,7 +230,7 @@ class MarkTwoParser:
         else: locstr = loc
         contentstart  = arrFind('<!CONTENT>',arr)
         contentend    = arrFind('<!/CONTENT>',arr)
-        has = blockStartEnd(contentstart,contentend,f"Content Block ({locstr})")
+        has = MarkTwoParser._blockStartEnd(contentstart,contentend,f"Content Block ({locstr})")
         if has:
             previousId    = None
             contentconcat = ''
@@ -446,7 +444,7 @@ class MarkTwoParser:
     def getLayoutVars(self,arr):
         lvarstart = arrFind('<!LAYOUTVARS>',arr)
         lvarend   = arrFind('<!/LAYOUTVARS>',arr)
-        has = blockStartEnd(lvarstart,lvarend,"Layout Variable Block")
+        has = MarkTwoParser._blockStartEnd(lvarstart,lvarend,"Layout Variable Block")
         if has:
             newarr    = []
             for i in arr[lvarstart+1:lvarend]:
@@ -522,7 +520,7 @@ class MarkTwoParser:
         else: locstr = loc
         layoutstart = arrFind('<!LAYOUT>',arr)
         layoutend   = arrFind('<!/LAYOUT>',arr)
-        has = blockStartEnd(layoutstart,layoutend,f"Layout Block ({locstr})")
+        has = MarkTwoParser._blockStartEnd(layoutstart,layoutend,f"Layout Block ({locstr})")
         if has:
             newarr      = arr[layoutstart+1:layoutend]
             finalarr    = []
@@ -689,7 +687,7 @@ class MarkTwoParser:
     def getStyle(self,arr):
         stylestart = arrFind('_STYLE|',arr)
         styleend   = arrFind('|STYLE_',arr)
-        has = blockStartEnd(stylestart,styleend,f"Style Block")
+        has = MarkTwoParser._blockStartEnd(stylestart,styleend,f"Style Block")
         if has:
             self.css    = ''
             for i in range(stylestart+1,styleend):
@@ -699,7 +697,7 @@ class MarkTwoParser:
     def getScript(self,arr):
         scriptstart = arrFind('_SCRIPT|',arr)
         scriptend   = arrFind('|SCRIPT_',arr)
-        has = blockStartEnd(scriptstart,scriptend,f"Script Block")
+        has = MarkTwoParser._blockStartEnd(scriptstart,scriptend,f"Script Block")
         if has:
             self.script = ''
             for i in range(scriptstart+1,scriptend):
