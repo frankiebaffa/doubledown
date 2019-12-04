@@ -454,18 +454,19 @@ class MarkTwoParser:
             lvarnames  = []
             lvarstarts = []
             lvarends   = []
-            try:
-                for i in range(len(newarr)):
-                    line = newarr[i]
-                    lvarname = re.findall(r"(?<=<@)[a-zA-Z0-9\_\-]+",line)
-                    if len(lvarname) > 0 and not len(lvarname) > 1:
-                        lvarnames.append(lvarname[0])
-                    elif len(lvarname) > 1:
-                        print("Multiple variables declared on same line. Invalid statement")
-                        sys.exit(2)
-                print(lvarnames)
-            except:
-                pass
+            for i in range(len(newarr)):
+                line = newarr[i]
+                lvarname = re.findall(r"(?<=<@)[a-zA-Z0-9\_\-]+",line)
+                if len(lvarname) > 0 and not len(lvarname) > 1:
+                    lvarnames.append(lvarname[0])
+                elif len(lvarname) > 1:
+                    print("Multiple variables declared on same line. Invalid statement")
+                    sys.exit(2)
+            for lvarname in lvarnames:
+                start   = arrFind(f"<@{lvarname}>", newarr)
+                end     = arrFind(f"<@/{lvarname}>", newarr)
+                lvararr = newarr[start+1:end]
+                self.lvars[lvarname] = lvararr
 
     def getLayout(self,arr,loc=None):
         def countIds(variable,pattern):
@@ -487,18 +488,34 @@ class MarkTwoParser:
             return variable
 
         def constructElement(line):
-            elementstr  = line
-            qelement    = MarkTwoElement()
-            qelement,\
-            elementstr  = MarkTwoParser.checkGetTag(elementstr,qelement)
-            qelement,\
-            elementstr  = MarkTwoParser.checkGetAttr(elementstr,qelement)
-            qelement,\
-            elementstr  = MarkTwoParser.checkGetClass(elementstr,qelement)
-            qelement,\
-            elementstr  = MarkTwoParser.checkGetId(elementstr,qelement)
+            elementstr    = line
+            qelement      = MarkTwoElement()
+            ename         = re.findall(r"[a-zA-Z0-9]+",elementstr)[0]
+            qelement.qtag = ename
+            elementstr    = elementstr.replace(ename,'',1).rstrip().lstrip()
+            eattrs        = re.findall(r"[a-zA-Z0-9]+(?=\=[\'\"][a-zA-Z0-9\-\_\:\%\; ]+[\'\"])",elementstr)
+            if len(eattrs) > 0:
+                for attr in eattrs:
+                    val = re.findall(f"(?<={attr}=[\'\"])[a-zA-Z0-9\-\_\:\%\; ]+(?=[\'\"])",elementstr)[0]
+                    if attr == 'id':
+                        qelement.qid = val
+                    if attr == 'class':
+                        classes = val.split(' ')
+                        for clas in classes:
+                            if clas.rstrip().lstrip() != '':
+                                qelement.qclass.append(clas)
+                    if attr != 'class' and attr != 'id':
+                        qelement.qattributes.append({attr:val})
+                    substr     = f"{attr}=[\'\"]{val}[\"\']"
+                    elementstr = re.sub(substr,'',elementstr).rstrip().lstrip()
+            eprops        = re.findall(r"[a-zA-Z0-9]+(?!\=)",elementstr)
+            eid           = re.findall(r"(?<=id=[\'\"])[a-zA-Z0-9]+(?=[\'\"])",elementstr)
+            if len(eid) > 0:
+                qelement.qid = eid[0]
+                elementstr   = elementstr.replace(eid[0],'',1)
+                elementstr   = re.sub(r"id=[\'\"][\'\"]",'',elementstr).lstrip().rstrip()
             qelement.generateHtml()
-            return qelement,elementstr
+            return qelement
 
         locstr = None
         if loc == None: locstr = "main"
@@ -550,60 +567,84 @@ class MarkTwoParser:
             for i in range(len(finalarr)):
                 inlineclose = False
                 line = finalarr[i].lstrip().rstrip()
-                elementstart = None
-                elementend   = None
 
-                try:
-                    elementstart = line.index('_')
-                    elementend   = line.index('|')
-                except:
-                    if not self.options["quiet"] and\
-                       not self.options["test"]:
-                        print(f'Malformed QTML on line {i}')
-                    sys.exit(2)
+                openp  = r"<[a-zA-Z0-9][a-zA-Z0-9\'\"\=\;\:\% ]+>"
+                eopen  = re.findall(openp,line)
+                openi  = [(m.start(0),m.end(0)) for m in re.finditer(openp,line)]
+                hasopen = False
+                if len(eopen) == 1:
+                    eopen = eopen[0]
+                    hasopen = True
 
-                line = line.replace('|','',1)
-                line = line.replace('_','',1)
-                if line[len(line)-2:len(line)] == '|_':
-                    inlineclose = True
-                    line = line.replace('|_','',1)
+                closep = r"</[a-zA-Z0-9]+>"
+                eclose = re.findall(closep,line)
+                closei = [(m.start(0),m.end(0)) for m in re.finditer(closep,line)]
+                hasclose = False
+                if len(eclose) == 1:
+                    eclose = eclose[0]
+                    hasclose = True
 
-                if elementstart < elementend:
-                    qelement,\
-                    elementstr = constructElement(line)
+                estart = -1
+                if len(openi) > 0:
+                    estart = openi[0][0]
 
-                    if loc == None:
-                        self.html += f"{qelement.opentag}"
-                    elif loc == "header":
-                        self.headhtml += f"{qelement.opentag}"
-                    elif loc == "footer":
-                        self.foothtml += f"{qelement.opentag}"
+                eend = -1
+                if len(closei) > 0:
+                    eend = closei[0][0]
 
-                    if loc == None:
-                        if qelement.qid in self.content.keys():
-                            self.html += f"{self.content[qelement.qid]}"
-                    elif loc == "header":
-                        if qelement.qid in self.headcontent.keys():
-                            self.headhtml += f"{self.headcontent[qelement.qid]}"
-                    elif loc == "footer":
-                        if qelement.qid in self.footcontent.keys():
-                            self.foothtml += f"{self.footcontent[qelement.qid]}"
+                if hasopen or hasclose:
+                    autoclose   = line.count('/>') == 1
+                    line        = line.replace('<','',1)
+                    if not autoclose:
+                        line = line.replace('>','',1)
+                    else:
+                        line = line.replace('/>','',1)
+                        hasclose = True
+                    ename       = re.findall(r"[a-zA-Z0-9]+",line)[0]
+                    closepat    = f"</{ename}>"
+                    inlineclose = line.count(closepat) == 1
+                    if inlineclose:
+                        line = line.replace(closepat,'')
+                        hasclose = True
 
-                    nestpath[nestcount].qinner.append(qelement)
-                    nestpath.append(nestpath[nestcount].qinner[len(nestpath[nestcount].qinner)-1])
-                    nestcount += 1
-                if elementstart > elementend or inlineclose:
-                    removedpath =  nestpath[nestcount:len(nestpath)]
-                    removedpath =  removedpath[::-1]
-                    for elem in removedpath:
+                    if hasopen:
+                        qelement = constructElement(line)
                         if loc == None:
-                            self.html += f"{elem.closetag}"
+                            self.html += f"{qelement.opentag}"
                         elif loc == "header":
-                            self.headhtml += f"{elem.closetag}"
+                            self.headhtml += f"{qelement.opentag}"
                         elif loc == "footer":
-                            self.foothtml += f"{elem.closetag}"
-                    nestpath    =  nestpath[0:nestcount]
-                    nestcount   -= 1
+                            self.foothtml += f"{qelement.opentag}"
+
+                        if loc == None:
+                            if qelement.qid in self.content.keys():
+                                self.html += f"{self.content[qelement.qid]}"
+                        elif loc == "header":
+                            if qelement.qid in self.headcontent.keys():
+                                self.headhtml += f"{self.headcontent[qelement.qid]}"
+                        elif loc == "footer":
+                            if qelement.qid in self.footcontent.keys():
+                                self.foothtml += f"{self.footcontent[qelement.qid]}"
+
+                        nestpath[nestcount].qinner.append(qelement)
+                        nestpath.append(nestpath[nestcount].qinner[len(nestpath[nestcount].qinner)-1])
+                        nestcount += 1
+                    if hasclose:
+                        removedpath =  nestpath[nestcount:len(nestpath)]
+                        removedpath =  removedpath[::-1]
+                        for elem in removedpath:
+                            if loc == None:
+                                self.html += f"{elem.closetag}"
+                            elif loc == "header":
+                                self.headhtml += f"{elem.closetag}"
+                            elif loc == "footer":
+                                self.foothtml += f"{elem.closetag}"
+                        nestpath    =  nestpath[0:nestcount]
+                        nestcount   -= 1
+                print(nestpath)
+                print(nestcount)
+                print('')
+        print(self.html)
 
     @staticmethod
     def checkGetTag(elementstr,qelement):
