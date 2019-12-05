@@ -134,9 +134,9 @@ class MarkTwoParser:
                         "<table style='width:100%;table-layout:fixed;' class='lcrContainer'>",
                         "<tbody>",
                         "<tr>",
-                        "<tr id style='width:50%;text-align:left;'></td>",
-                        "<tr id style='width:50%;text-align:center;'></td>",
-                        "<tr id style='width:50%;text-align:right;'></td>",
+                        "<td id style='width:50%;text-align:left;'></td>",
+                        "<td id style='width:50%;text-align:center;'></td>",
+                        "<td id style='width:50%;text-align:right;'></td>",
                         "</tr>",
                         "</tbody>",
                         "</table>"
