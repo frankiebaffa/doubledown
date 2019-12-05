@@ -6,7 +6,7 @@
 import re
 import sys
 from   models.marktwoelement import MarkTwoElement
-from   utils.utils import arrFind
+from   utils.utils import arrFind, regexHas, regexHasOne
 
 class MarkTwoParser:
     options     = None
@@ -161,20 +161,20 @@ class MarkTwoParser:
         contentend   = arrFind('<!/HEADCONTENT>',arr)
         has = MarkTwoParser._blockStartEnd(contentstart,contentend,"Content Block (header)",quiet=True)
         if has:
-            newarr = ['_CONTENT|']
+            newarr = ['<!CONTENT>']
             for i in range(contentstart+1,contentend):
                 newarr.append(arr[i])
-            newarr.append('|CONTENT_')
+            newarr.append('<!/CONTENT>')
             arr = arr[0:contentstart]+arr[contentend+1:len(arr)]
 
-        layoutstart = arrFind('_HEADLAYOUT|',arr)
-        layoutend   = arrFind('|HEADLAYOUT_',arr)
+        layoutstart = arrFind('<!HEADLAYOUT>',arr)
+        layoutend   = arrFind('<!/HEADLAYOUT>',arr)
         has = MarkTwoParser._blockStartEnd(layoutstart,layoutend,"Layout Block (header)",quiet=True)
         if has:
-            newarr.append('_LAYOUT|')
+            newarr.append('<!LAYOUT>')
             for i in range(layoutstart+1,layoutend):
                 newarr.append(arr[i])
-            newarr.append('|LAYOUT_')
+            newarr.append('<!/LAYOUT>')
             arr = arr[0:layoutstart]+arr[layoutend+1:len(arr)]
             self.headarr = newarr
 
@@ -185,20 +185,20 @@ class MarkTwoParser:
         contentend   = arrFind('<!/FOOTCONTENT>',arr)
         has = MarkTwoParser._blockStartEnd(contentstart,contentend,"Content Block (footer)",quiet=True)
         if has:
-            newarr = ['_CONTENT|']
+            newarr = ['<!CONTENT>']
             for i in range(contentstart+1,contentend):
                 newarr.append(arr[i])
-            newarr.append('|CONTENT_')
+            newarr.append('<!/CONTENT>')
             arr = arr[0:contentstart]+arr[contentend+1:len(arr)]
 
-        layoutstart = arrFind('_FOOTLAYOUT|',arr)
-        layoutend   = arrFind('|FOOTLAYOUT_',arr)
+        layoutstart = arrFind('<!FOOTLAYOUT>',arr)
+        layoutend   = arrFind('<!/FOOTLAYOUT>',arr)
         has = MarkTwoParser._blockStartEnd(layoutstart,layoutend,"Layout Block (footer)",quiet=True)
         if has:
-            newarr.append('_LAYOUT|')
+            newarr.append('<!LAYOUT>')
             for i in range(layoutstart+1,layoutend):
                 newarr.append(arr[i])
-            newarr.append('|LAYOUT_')
+            newarr.append('<!/LAYOUT>')
             arr = arr[0:layoutstart]+arr[layoutend+1:len(arr)]
             self.footarr = newarr
 
@@ -514,6 +514,8 @@ class MarkTwoParser:
             elif loc == "footer":
                 nestpath = [self.fdocument]
             nestcount   = 0
+
+            # replacevariables
             for i in range(len(newarr)):
                 line = newarr[i].lstrip().rstrip()
                 lvar = re.findall(r"(?<=<@)[a-zA-Z0-9\-\_]+",line)
@@ -531,17 +533,17 @@ class MarkTwoParser:
                         sys.exit(2)
                     ids = re.findall(r"(?<=#)[a-zA-Z0-9]+(?=[\/#])",line)
                     idcount = 0
+                    blankidp = r"(?<=\s)id(?=(\s|>))"
                     for eline in var:
-                        idcount += len(re.findall(r"(?<=\s)id(?=(\s|>))",eline))
+                        idcount += len(re.findall(blankidp,eline))
                     if len(ids) == idcount:
-                        for i in range(len(ids)):
-                            eid = ids[i]
-                            vline = var[i]
-                            idpat = r"(?<=\s)id(?!\=)"
-                            idexists = len(re.findall(idpat,vline)) > 0
-                            if idexists:
-                                vline = re.sub(idpat,f"id='{eid}'",vline,count=1)
-                            print(vline)
+                        idtopull = 0
+                        for vline in var:
+                            vlinehasid = regexHasOne(blankidp,vline)
+                            if vlinehasid:
+                                eid = ids[idtopull]
+                                var[var.index(vline)] = re.sub(blankidp,f"id='{eid}'",vline,count=1)
+                                idtopull += 1
                     else:
                         if not self.options["quiet"] and\
                            not self.options["test"]:
@@ -551,12 +553,14 @@ class MarkTwoParser:
                         finalarr.append(j)
                 else:
                     finalarr.append(line)
+            # end replacevariables
 
             for i in range(len(finalarr)):
                 inlineclose = False
                 line = finalarr[i].lstrip().rstrip()
 
-                openp  = r"<[a-zA-Z0-9][a-zA-Z0-9\'\"\=\;\:\% ]+>"
+                #openp  = r"<[a-zA-Z0-9][a-zA-Z0-9\'\"\=\;\:\% ]+>"
+                openp  = r"<(?!\/)[\S\s]+>"
                 eopen  = re.findall(openp,line)
                 openi  = [(m.start(0),m.end(0)) for m in re.finditer(openp,line)]
                 hasopen = False
@@ -564,13 +568,15 @@ class MarkTwoParser:
                     eopen = eopen[0]
                     hasopen = True
 
-                closep = r"</[a-zA-Z0-9]+>"
-                eclose = re.findall(closep,line)
-                closei = [(m.start(0),m.end(0)) for m in re.finditer(closep,line)]
+                closep   = r"</[a-zA-Z0-9]+>"
+                eclose   = re.findall(closep,line)
+                closei   = [(m.start(0),m.end(0)) for m in re.finditer(closep,line)]
+                closetag = None
                 hasclose = False
                 if len(eclose) == 1:
                     eclose = eclose[0]
                     hasclose = True
+                    closetag = re.findall(r"(?<=<\/)[a-zA-Z0-9]+(?=>)",line)[0]
 
                 estart = -1
                 if len(openi) > 0:
@@ -617,9 +623,6 @@ class MarkTwoParser:
                         nestpath[nestcount].qinner.append(qelement)
                         nestpath.append(nestpath[nestcount].qinner[len(nestpath[nestcount].qinner)-1])
                         nestcount += 1
-                        #print(qelement.opentag)
-                        #print(nestcount)
-                        #print('')
                     if hasclose:
                         removedpath =  nestpath[nestcount:len(nestpath)]
                         removedpath =  removedpath[::-1]
@@ -632,9 +635,6 @@ class MarkTwoParser:
                                 self.foothtml += f"{elem.closetag}"
                         nestpath    =  nestpath[0:nestcount]
                         nestcount   -= 1
-                        #print(qelement.closetag)
-                        #print(nestcount)
-                        #print('')
 
     @staticmethod
     def checkGetTag(elementstr,qelement):
@@ -677,8 +677,8 @@ class MarkTwoParser:
         return qelement,elementstr
 
     def getStyle(self,arr):
-        stylestart = arrFind('_STYLE|',arr)
-        styleend   = arrFind('|STYLE_',arr)
+        stylestart = arrFind('<!CSS>',arr)
+        styleend   = arrFind('<!/CSS>',arr)
         has = MarkTwoParser._blockStartEnd(stylestart,styleend,f"Style Block")
         if has:
             self.css    = ''
@@ -687,8 +687,8 @@ class MarkTwoParser:
                 self.css += f"{line}"
 
     def getScript(self,arr):
-        scriptstart = arrFind('_SCRIPT|',arr)
-        scriptend   = arrFind('|SCRIPT_',arr)
+        scriptstart = arrFind('<!JS>',arr)
+        scriptend   = arrFind('<!/JS>',arr)
         has = MarkTwoParser._blockStartEnd(scriptstart,scriptend,f"Script Block")
         if has:
             self.script = ''
