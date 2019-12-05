@@ -57,15 +57,18 @@ hi def link confBlockSep	Special
 " Content Block
 syn	region	contentBlockRegion
 			\	contains=contentBlockId,contentBlockContent
-			\	start="\(^[ \t]*\)\@<=<!CONTENT>\($\)\@="
-			\	end="\(^[ \t]*\)\@<=<!\/CONTENT>\($\)\@="
+			\	start="\(^[ \t]*\)\@<=<!\(HEAD\|FOOT\)*CONTENT>\($\)\@="
+			\	end="\(^[ \t]*\)\@<=<!\/\(HEAD\|FOOT\)*CONTENT>\($\)\@="
 syn match	contentBlockId
-			\	contained	containedin=contentBlockRegion	nextgroup=contentBlockContent	"\(^[ \t]*\)\@<=#[a-zA-Z0-9\-\_]\+\(:\)\@="
+			\	contained
+			\	containedin=contentBlockRegion
+			\	nextgroup=contentBlockContent
+			\	"\(^\s*\)\@<=\(\\\)\@<!#[a-zA-Z0-9\-_]\+:"
 syn region	contentBlockContent
 			\	contained
 			\	containedin=contentBlockRegion
-			\	start="\(\(^[ \t]*\)\@<=#[a-zA-Z0-9\-\_]\+:\)\@<=\(\s\|\t\|$\)"
-			\	end="$\n\(^[ \t]*#[a-zA-Z0-9\-\_]\+:\|^[ \t]*<!\/\(CONTENT\|FOOTCONTENT\|HEADCONTENT\)>$\)\@="
+			\	start="^\(\s*#[a-zA-Z0-9\-_]\+:\|<!\(FOOT\|HEAD\)*CONTENT>\)\@!"
+			\	end="^\(\s*#[a-zA-Z0-9\-_]\+:\|<!\/\(FOOT\|HEAD\)*CONTENT>\)\@="
 syn match	contentBlockSpecial
 			\	contained
 			\	containedin=contentBlockContent
@@ -80,20 +83,6 @@ hi def link contentBlockId				Number
 hi def link contentBlockContent			Title
 hi def link contentBlockSpecial			Special
 hi def link contentBlockLiteralRegion	String
-
-" FootContent Block
-syn	region footContentBlockRegion
-			\	contains=contentBlockId,contentBlockContent
-			\	start="\(^[ \t]*\)\@<=<!FOOTCONTENT>\($\)\@="
-			\	end="\(^[ \t]*\)\@<=<!\/FOOTCONTENT>\($\)\@="
-hi def link	footContentBlockRegion	Exception
-
-" HeadContent Block
-syn	region	headContentBlockRegion
-			\	contains=contentBlockId,contentBlockContent
-			\	start="\(^[ \t]*\)\@<=<!HEADCONTENT>\($\)\@="
-			\	end="\(^[ \t]*\)\@<=<!\/HEADCONTENT>\($\)\@="
-hi def link	headContentBlockRegion	Exception
 
 " Shared Between Layout and Layout Var Blocks
 syn region	openTag
