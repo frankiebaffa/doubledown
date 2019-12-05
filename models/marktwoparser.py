@@ -132,7 +132,7 @@ class MarkTwoParser:
                  # THREE INLINE TEXT ELEMENTS ALIGNED LEFT, CENTER, RIGHT; RESPECTIVELY
                  "lcr":[
                         "<table style='width:100%;table-layout:fixed;' class='lcrContainer'>",
-			"<tbody>",
+                        "<tbody>",
                         "<tr>",
                         "<tr id style='width:50%;text-align:left;'></td>",
                         "<tr id style='width:50%;text-align:center;'></td>",
@@ -467,24 +467,6 @@ class MarkTwoParser:
                 self.lvars[lvarname] = lvararr
 
     def getLayout(self,arr,loc=None):
-        def countIds(variable,pattern):
-            idcount = 0
-            for l in variable:
-                matches = [(m.start(0),m.end(0)) for m in re.finditer(p,l)]
-                if len(matches) > 0:
-                    idcount += 1
-            return idcount
-
-        def subIds(variable):
-            idcount = 0
-            for j in range(len(variable)):
-                l = variable[j]
-                matches = [(m.start(0),m.end(0)) for m in re.finditer(p,l)]
-                if len(matches) > 0:
-                    variable[j] = re.sub(p,f"#{ids[idcount]}",l,1)
-                    idcount += 1
-            return variable
-
         def constructElement(line):
             elementstr    = line
             qelement      = MarkTwoElement()
@@ -547,11 +529,19 @@ class MarkTwoParser:
                            not self.options["test"]:
                             print(f"Found undefined variable [{varname}] in layout")
                         sys.exit(2)
-                    ids = re.findall(r"(?<=#)[a-zA-Z0-9]+(?=[@#])",line)
-                    p = r"#(?![a-zA-Z0-9]+)"
-                    idcount = countIds(var,p)
+                    ids = re.findall(r"(?<=#)[a-zA-Z0-9]+(?=[\/#])",line)
+                    idcount = 0
+                    for eline in var:
+                        idcount += len(re.findall(r"(?<=\s)id(?=(\s|>))",eline))
                     if len(ids) == idcount:
-                        var = subIds(var)
+                        for i in range(len(ids)):
+                            eid = ids[i]
+                            vline = var[i]
+                            idpat = r"(?<=\s)id(?!\=)"
+                            idexists = len(re.findall(idpat,vline)) > 0
+                            if idexists:
+                                vline = re.sub(idpat,f"id='{eid}'",vline,count=1)
+                            print(vline)
                     else:
                         if not self.options["quiet"] and\
                            not self.options["test"]:
@@ -627,6 +617,9 @@ class MarkTwoParser:
                         nestpath[nestcount].qinner.append(qelement)
                         nestpath.append(nestpath[nestcount].qinner[len(nestpath[nestcount].qinner)-1])
                         nestcount += 1
+                        #print(qelement.opentag)
+                        #print(nestcount)
+                        #print('')
                     if hasclose:
                         removedpath =  nestpath[nestcount:len(nestpath)]
                         removedpath =  removedpath[::-1]
@@ -639,10 +632,9 @@ class MarkTwoParser:
                                 self.foothtml += f"{elem.closetag}"
                         nestpath    =  nestpath[0:nestcount]
                         nestcount   -= 1
-                print(nestpath)
-                print(nestcount)
-                print('')
-        print(self.html)
+                        #print(qelement.closetag)
+                        #print(nestcount)
+                        #print('')
 
     @staticmethod
     def checkGetTag(elementstr,qelement):

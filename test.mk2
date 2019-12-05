@@ -37,7 +37,7 @@
 				<div id='3'></div>
 			</div>
 		</div>
-		<@this#whatever/>
+		<@this#whatever#another/>
 	</body>
 <!/LAYOUT>
 
@@ -48,6 +48,7 @@
 <!LAYOUTVARS>
 	<@this>
 		<div class='test'></div>
+		<p id></p>
 		<p id></p>
 	<@/this>
 	<@lcrContainer>
