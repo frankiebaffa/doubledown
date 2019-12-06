@@ -24,8 +24,10 @@
 <!/CONTENT>
 
 <!FOOTCONTENT>
-	#FLeft:		Written and formatted in Mark^two^
-	#FRight:	github.com/frankiebaffa/marktwo
+	#FLeft:
+		Written and formatted in Mark^two^
+	#FRight:
+		github.com/frankiebaffa/marktwo
 <!/FOOTCONTENT>
 
 <!LAYOUT>
@@ -74,14 +76,14 @@
 	<@/lrContainer>
 <!/LAYOUTVARS>
 
-<!CSS>
-	.test{
-		font-size:0px;
-	}
-<!/CSS>
-
 <!JS>
 	function testFunc() {
 		var test = 0;
 	}
 <!/JS>
+
+<!CSS>
+	.test{
+		font-size:0px;
+	}
+<!/CSS>
