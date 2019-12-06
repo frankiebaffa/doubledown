@@ -17,8 +17,8 @@ syntax spell toplevel
 syn case ignore
 
 " Imports
-syn include @css	<sfile>:p:h/css.vim
-syn include @js		<sfile>:p:h/javascript.vim
+syn include @Css	syntax/css.vim
+syn include @Js		syntax/javascript.vim
 
 " Comment
 syn match	comment
@@ -182,12 +182,28 @@ hi def link	headLayoutBlockRegion	Exception
 syn	region	cssBlockRegion
 			\	start="<!CSS>"
 			\	end="<!\/CSS>"
-"			\	contains=@css
+			\	contains=cssSyntaxRegion
+			\	keepend
+syn region	cssSyntaxRegion
+			\	start="\(<!CSS>$\n^\s*\)\@<=\S"
+			\	end="\S\($\n^<!\/CSS>$\)\@="
+			\	contained
+			\	containedin=cssSyntaxRegion
+			\	contains=@Css
+			\	keepend
 hi def link	cssBlockRegion	Exception
 
 " JS Block
-syn region	jsBlockRegion
+syn	region	jsBlockRegion
 			\	start="<!JS>"
 			\	end="<!\/JS>"
-"			\	contains=@js
+			\	contains=jsSyntaxRegion
+			\	keepend
+syn region	jsSyntaxRegion
+			\	start="\(<!JS>$\n^\s*\)\@<=\S"
+			\	end="\S\($\n^<!\/JS>$\)\@="
+			\	contained
+			\	containedin=jsSyntaxRegion
+			\	contains=@Js
+			\	keepend
 hi def link	jsBlockRegion	Exception
