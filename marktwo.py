@@ -12,16 +12,16 @@ def createMarkTwo(options):
 
 def createPdf(htmlstr,headhtmlstr,foothtmlstr,output,overrides):
     options = {}
-    tmpcss  = None
-    exists  = True
-    existi  = 0
+    tmpcss = None
+    exists = True
+    existi = 0
     tmphead = None
     if headhtmlstr != None:
         exists = True
         existi = 0
         while exists:
             tmphead = f"{output}.head{existi}.html"
-            exists  = os.path.exists(tmphead)
+            exists = os.path.exists(tmphead)
             existi += 1
         with open(tmphead,"w") as file:
             file.write(headhtmlstr)
@@ -33,7 +33,7 @@ def createPdf(htmlstr,headhtmlstr,foothtmlstr,output,overrides):
         existi = 0
         while exists:
             tmpfoot = f"{output}.foot{existi}.html"
-            exists  = os.path.exists(tmpfoot)
+            exists = os.path.exists(tmpfoot)
             existi += 1
         with open(tmpfoot,"w") as file:
             file.write(foothtmlstr)
