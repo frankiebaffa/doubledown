@@ -1,219 +1,36 @@
-_CONTENT|
-#MainHead:
-			*Mark^two^*
-#SubHead:
-			_Documentation and code example for Mark^two^
-			documentation language._
-#Left1:
-			Frankie Baffa
-#Center1:
-			https://github.com/frankiebaffa
-#Right1:
-			20191108
-#P1:
-			This project began with the goal of creating a more
-			versitile documentation language capable of being parsed
-			into html and converted into a pdf. Markdown is very quick
-			to type and is very readable, but lacks support for classes
-			for styling more intricate documents. Markup is very
-			extensive, but quickly becomes difficult to read as a
-			document.--
-			Mark^two^ is compatible with nearly all HTML tags and
-			attributes which are compacted into a new CSS-inspired
-			syntax that is a bit faster on the fingers.
-#S1:
-			--
-			Mark^two^ Blocks
-#L1:
-			|{{_LAYOUT|}}|
-			%>
-				|Defines the HTML structure of the document.|
-				|Content is written using Mark^two^ shorthand html syntax|
-			<%
-			|{{_HEADLAYOUT|}}|
-			%>
-				|Defines the HTML structure for the header of the document|
-			<%
-			|{{_FOOTLAYOUT|}}|
-			%>
-				|Defines the HTML structure for the footer of the document|
-			<%
-			|{{@LAYOUT|}}|
-			%>
-				|Defines the variables which can be used in the
-					layout block to remove the need for repetetive
-					html structures|
-				|This block is universal and will be applied
-					headers and footers|
-			<%
-			|{{_CONTENT|}}|
-			%>
-				|A key/value pairing between the Ids within the
-					layout block and the text/inline\-content which
-					will be contained inside of the block|
-			<%
-			|{{_HEADCONTENT|}}|
-			%>
-				|A key/value pairing between the Ids within the
-					headlayout block and the text/inline\-content
-					which will be contained inside of the block|
-			<%
-			|{{_FOOTCONTENT|}}|
-			%>
-				|A key/value pairing between the Ids within the
-					footlayout block and the text/inline\-content
-					which will be contained inside of the block|
-			<%
-			|{{_STYLE|}}|
-			%>
-				|Contains CSS code which will be passed into a
-					style\-tag after the html is parsed|
-			<%
-			|{{_SCRIPT|}}|
-			%>
-				|Contains JS code which will be passed into a
-					script\-tag after the html is parsed|
-			<%
-#S2:
-			--
-			Layout Block
-#P2:
-			The structure of the document is contained within
-			the layout block. This defines the format of the
-			document's contents. The tags within the layout
-			blocks are written using a CSS-derived html syntax:--
-			--
-#C1:
-			{{_LAYOUT|}}
-#C2:
-				{{_tagname#Id.class.secondclass[attribute=value,attrnovalue,etc]||_}}
-#C3:
-			{{|LAYOUT_}}--
-			--
-#P3:
-			The previous structure is an example of an element with
-			none nested within. For nested elements, it would look
-			like the following:--
-			--
-#C4:
-			{{_LAYOUT|}}
-#C5:
-				{{_tagname#Id.class.secondclass[attribute=value,attrnovalue,etc]|}}
-#C6:
-					{{_nestedtag#AnotherId.class||_}}
-#C7:
-				{{|tagname_}}
-#C8:
-			{{|LAYOUT_}}--
-			--
-|CONTENT_
+<!CONTENT>
+	#Phead:
+		Mark^two^
+	#Lsub:
+		Legible
+	#Csub:
+		Verbose
+	#Rsub:
+		Contained
+<!/CONTENT>
 
-_FOOTCONTENT|
-#FootL: Written and formatted using Mark^two^
-#FootR: github.com/frankiebaffa/marktwo
-|FOOTCONTENT_
+<!CONF>
+	margin-top=1.00in
+	margin-right=1.00in
+	margin-bottom=1.00in
+	margin-left=1.00in
+	indent=50px
+<!/CONF>
 
-_LAYOUT|
-_body|
-	_h1#MainHead.header||_
-	_h6#SubHead.subheader||_
-	_br||_
-	@lcr#Left1#Center1#Right1@
-	_hr||_
-	_p#P1||_
-	_h4#S1.sectionHeader||_
-	_ul#L1||_
-	_h4#S2.sectionHeader||_
-	_p#P2||_
-	_p#C1.tab.code||_
-	_p#C2.tab2.code||_
-	_p#C3.tab.code||_
-	_p#P3||_
-	_p#C4.tab.code||_
-	_p#C5.tab2.code||_
-	_p#C6.tab3.code||_
-	_p#C7.tab2.code||_
-	_p#C8.tab.code||_
-	_p#Test.test[hidden]||_
-	_div[style=page-break-inside:avoid;]|
-		_p#nobreak||_
-	|div_
-|body_
-|LAYOUT_
-_FOOTLAYOUT|
-	@lr#FootL#FootR@
-|FOOTLAYOUT_
+<!LAYOUT>
+	<h1 id='Phead'></h1>
+	<@lcr#Lsub#Csub#Rsub/>
+	<hr/>
+<!/LAYOUT>
 
-_STYLE|
-@font-face{
-	font-family:Fira;
-	src:url(/mnt/c/Users/Frankie.Baffa/Documents/Fonts/Fira/FiraCode-Regular.ttf) format('truetype');
-	font-style:normal;
-	font-weight:normal;
-}
-@font-face{
-	font-family:Fira;
-	src:url(/mnt/c/Users/Frankie.Baffa/Documents/Fonts/Fira/FiraCode-Bold.ttf) format('truetype');
-	font-style:normal;
-	font-weight:bold;
-}
-@font-face{
-	font-family:Fira;
-	src:url(/mnt/c/Users/Frankie.Baffa/Documents/Fonts/Fira/FiraCode-Light.ttf) format('truetype');
-	font-style:normal;
-	font-weight:lighter;
-}
-sup,sub{
-	line-height:0;
-	margin:0px;
-	padding:0px;
-}
-body{
-	font-family:Arial;
-	line-height:1.6;
-}
-.code{font-family:Fira;}
-h1{font-size:22px;}
-h2{font-size:20px;}
-h3{font-size:18px;}
-h4{font-size:16px;}
-h5{font-size:14px;}
-h6{font-size:13px;}
-span,p,li,td{font-size:12px}
-h1,h2,h3,h4,h5,h6,
-span,p,li,
-ul,ol,code,pre,
-div,table{margin:0px 0px 0px 0px;}
-h6{font-weight:normal;}
-.tab{margin-left:40px;}
-.tab2{margin-left:80px;}
-.tab3{margin-left:120px;}
-.header,.subheader{
-	text-align:center;
-}
-.header,.subheader,.sectionHeader,.lcrContainer>tbody>tr>td{
-	color:grey;
-}
-hr{
-	margin-top:0px;
-}
-#FootL,
-#FootR{
-	color:grey;
-}
-#FootL{
-	text-align:left;
-}
-#FootR{
-	text-align:right;
-}
-#Left1{
-	text-align:left;
-}
-#Center1{
-	text-align:center;
-}
-#Right1{
-	text-align:right;
-}
-|STYLE_
+<!CSS>
+	@font-face{
+		font-family:SourceCodePro;
+		src:url("/Users/frankiebaffa/Git/SourceCodePro/TTF/SourceCodePro-Regular.ttf");
+		font-weight:normal;
+		font-style:normal;
+	}
+	*{font-family:SourceCodePro;}
+	table>tbody>tr,
+	table>tbody>tr>td{margin-top:0px;margin-bottom:0px;}
+<!/CSS>
