@@ -1,21 +1,27 @@
 class MarkTwoElement:
     qtag        = None
     qid         = None
-    qclass      = None
-    qattributes = None
-    qinner      = None
-    opentag     = None
-    closetag    = None
-    qtext       = None
+    qclass      = []
+    qattributes = []
+    qinner      = []
+    opentag     = ''
+    closetag    = ''
+    qtext       = ''
 
-    def __init__(self):
-        self.qtag        = None
-        self.qid         = None
-        self.qclass      = []
-        self.qattributes = []
-        self.qinner      = []
-        self.opentag     = ''
-        self.closetag    = ''
+    def getFullHtml(self):
+        #def intoInner(elem,string):
+        #    print(elem)
+        #    string += f"{elem.opentag}"
+        #    string += f"{elem.qtext}"
+        #    for inner in elem.qinner:
+        #        intoInner(inner,string)
+        #    string += f"{elem.closetag}"
+        #    return string
+        htmlstr = ''
+        #htmlstr = intoInner(self,htmlstr)
+        print(self.qinner)
+        return htmlstr
+
 
     def generateHtml(self):
         self.opentag += f"<{self.qtag}"
@@ -52,4 +58,4 @@ class MarkTwoElement:
             printid = "No ID"
         else:
             printid = self.qid
-        return f"<tag: {self.qtag} | id: {printid} | classes: {len(self.qclass)} | attrs: {self.qattributes} | inner: {len(self.qinner)}>"
+        return f"<tag: {self.qtag} | id: {printid} | inner: {len(self.qinner)}>"
