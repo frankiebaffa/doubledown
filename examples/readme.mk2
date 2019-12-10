@@ -8,6 +8,12 @@
 	#Rsub:
 		Contained
 <!/CONTENT>
+<!FOOTCONTENT>
+    #Fleft:
+        Created and formatted using Mark^two^
+    #Fright:
+        github.com/frankiebaffa/marktwo
+<!/FOOTCONTENT>
 
 <!CONF>
 	margin-top=1.00in
@@ -22,6 +28,9 @@
 	<@lcr#Lsub#Csub#Rsub/>
 	<hr/>
 <!/LAYOUT>
+<!FOOTLAYOUT>
+    <@lr#Fleft#Fright/>
+<!/FOOTLAYOUT>
 
 <!CSS>
 	@font-face{
