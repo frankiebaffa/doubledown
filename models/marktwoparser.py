@@ -1,71 +1,58 @@
-# TODO: Switch layout syntax to standard
-#       HTML syntax
-# TODO: Element nesting is not longer functional
-#       FIX!
-
 import re
 import sys
 from   models.marktwoelement import MarkTwoElement
 from   utils.utils import arrFind, regexHas, regexHasOne
 
 class MarkTwoParser:
-    options     = None
-    qinput      = None
-    qdocument   = MarkTwoElement()
-    html        = None
-    css         = None
-    lvars       = None
-    content     = None
-    script      = None
-    hdocument   = MarkTwoElement()
-    headarr     = None
-    headcontent = None
-    headhtml    = None
-    fdocument   = MarkTwoElement()
-    footarr     = None
-    foothtml    = None
-    footcontent = None
-    overrides   = {
+    options = None
+    qinput = None
+    document = MarkTwoElement()
+    html = ''
+    css = None
+    lvars = {
+        "lcr": [
+                "<table style='width:100%;table-layout:fixed;' class='lcrContainer'>",
+                "<tbody>",
+                "<tr>",
+                "<td id style='width:50%;text-align:left;'></td>",
+                "<td id style='width:50%;text-align:center;'></td>",
+                "<td id style='width:50%;text-align:right;'></td>",
+                "</tr>",
+                "</tbody>",
+                "</table>"
+        ],
+            "lr": [
+                    "<table style='width:100%;table-layout:fixed;' class='lrContainer'>",
+                    "<tbody>",
+                    "<tr>",
+                    "<td id style='width:50%;text-align:left;'></td>",
+                    "<td id style='width:50%;text-align:right;'></td>",
+                    "</tr>",
+                    "</tbody>",
+                    "</table>"
+        ]
+    }
+    content = {}
+    script = None
+    overrides = {
                     "page-size":None,
                     "margin-top":None,
                     "margin-right":None,
                     "margin-bottom":None,
                     "margin-left":None
                   }
-    constants   = {
+    constants = {
                     "indent":None
                   }
 
-    def __init__(self,options=None,testinput=None):
-        self.qdocument.qtag = "document"
-        self.qdocument.qid  = "Document"
-        self.hdocument.qtag = "document"
-        self.hdocument.qid  = "Document"
-        self.fdocument.qtag = "document"
-        self.fdocument.qid  = "Document"
-        self.html = ''
-        self.headhtml = ''
-        self.foothtml = ''
-        self.lvars = MarkTwoParser._getDefaultLayoutVars()
-        self.content = {}
-        self.headcontent = {}
-        self.footcontent = {}
+    def __init__(self,options=None):
+        self.document.qtag = "document"
+        self.document.qid  = "Document"
         self.options = options
 
-        startpass = False
-        if options['singlefile'] != None:
-            with open(options['singlefile'],'r') as file:
-                doctxt = file.read()
-                self.qinput = doctxt
-                startpass = True
-        if options['test'] and testinput != None:
-            self.qinput = testinput
-            startpass = True
-
-        if startpass:
+    def createArrayRemoveComments(self):
+        if self.qinput != None:
             arr = self.qinput.split('\n')
-
-            # remove comments from array
             for i in range(len(arr)):
                 line = arr[i]
                 try:
@@ -75,22 +62,59 @@ class MarkTwoParser:
                     arr[i] = line
                 except:
                     pass
+            return arr
+        else:
+            return None
 
-            arr = self.pullHeader(arr)
-            arr = self.pullFooter(arr)
-            self.getConf(arr)
-            self.getLayoutVars(arr)
-            self._parse(arr)
-            self.getStyle(arr)
-            self.getScript(arr)
-            if self.headarr != None:
-                self._parse(self.headarr,loc="header")
-            if self.footarr != None:
-                self._parse(self.footarr,loc="footer")
-            if self.css != None:
-                self._appendStyle()
-            if self.script != None:
-                self._appendScripts()
+    @staticmethod
+    def getConfFromMkTwo(options=None):
+        mktp = MarkTwoParser(options=options)
+        arr = mktp.createArrayRemoveComments()
+        confstart = arrFind('<!CONF>',arr)
+        confend   = arrFind('<!/CONF>',arr)
+        has = MarkTwoParser._blockStartEnd(confstart,confend,"Configuration Block")
+        if has:
+            for i in range(confstart+1,confend):
+                line = arr[i].lstrip().rstrip()
+                key  = re.findall(r"\S+(?==)",line)
+                val  = re.findall(r"(?<==)\S+",line)
+                if len(key) > 0 and len(val) > 0:
+                    try:
+                        self.overrides[key[0]]
+                        self.overrides[key[0]] = val[0]
+                    except:
+                        try:
+                            self.constants[key[0]]
+                            self.constants[key[0]] = val[0]
+                        except:
+                            print(f"Invalid configuration option: '{key[0]}'.")
+        return mktp.overrides
+
+    @staticmethod
+    def parseHtmlFromMkTwo(options=None,loc=None):
+        mktp = MarkTwoParser(options=options)
+        startpass = False
+        if options['singlefile'] != None:
+            with open(options['singlefile'],'r') as file:
+                doctxt = file.read()
+                mktp.qinput = doctxt
+                startpass = True
+        if options['test'] and testinput != None:
+            mktp.qinput = testinput
+            startpass = True
+
+        if startpass:
+            arr = mktp.createArrayRemoveComments()
+            mktp.getLayoutVars(arr)
+            mktp._parse(arr,loc)
+            mktp.getStyle(arr)
+            mktp.getScript(arr)
+            if mktp.css != None:
+                mktp._appendStyle()
+            if mktp.script != None:
+                mktp._appendScripts()
+        mktp.document.getFullHtml()
+        return mktp.html
 
     @staticmethod
     def _blockStartEnd(s,e,b,quiet=False):
@@ -118,118 +142,29 @@ class MarkTwoParser:
 
     def _appendStyle(self):
         self.html     += f"\n<style>\n{self.css}\n</style>"
-        self.headhtml += f"\n<style>\n{self.css}\n</style>"
-        self.foothtml += f"\n<style>\n{self.css}\n</style>"
 
     def _appendScripts(self):
         self.html     += f"\n<script>\n{self.script}\n</script>"
-        self.headhtml += f"\n<script>\n{self.script}\n</script>"
-        self.foothtml += f"\n<script>\n{self.script}\n</script>"
-
-    @staticmethod
-    def _getDefaultLayoutVars():
-        lvars = {
-                 # THREE INLINE TEXT ELEMENTS ALIGNED LEFT, CENTER, RIGHT; RESPECTIVELY
-                 "lcr":[
-                        "<table style='width:100%;table-layout:fixed;' class='lcrContainer'>",
-                        "<tbody>",
-                        "<tr>",
-                        "<td id style='width:50%;text-align:left;'></td>",
-                        "<td id style='width:50%;text-align:center;'></td>",
-                        "<td id style='width:50%;text-align:right;'></td>",
-                        "</tr>",
-                        "</tbody>",
-                        "</table>"
-                       ],
-                 # TWO INLINE TEXT ELEMENTS ALIGNED LEFT, RIGHT; RESPECTIVELY
-                 "lr": [
-                        "<table style='width:100%;table-layout:fixed;' class='lrContainer'>",
-                        "<tbody>",
-                        "<tr>",
-                        "<td id style='width:50%;text-align:left;'></td>",
-                        "<td id style='width:50%;text-align:right;'></td>",
-                        "</tr>",
-                        "</tbody>",
-                        "</table>"
-                       ]
-                }
-        
-        return lvars
-
-    def pullHeader(self,arr):
-        contentstart = arrFind('<!HEADCONTENT>',arr)
-        contentend   = arrFind('<!/HEADCONTENT>',arr)
-        has = MarkTwoParser._blockStartEnd(contentstart,contentend,"Content Block (header)",quiet=True)
-        if has:
-            newarr = ['<!CONTENT>']
-            for i in range(contentstart+1,contentend):
-                newarr.append(arr[i])
-            newarr.append('<!/CONTENT>')
-            arr = arr[0:contentstart]+arr[contentend+1:len(arr)]
-
-        layoutstart = arrFind('<!HEADLAYOUT>',arr)
-        layoutend   = arrFind('<!/HEADLAYOUT>',arr)
-        has = MarkTwoParser._blockStartEnd(layoutstart,layoutend,"Layout Block (header)",quiet=True)
-        if has:
-            newarr.append('<!LAYOUT>')
-            for i in range(layoutstart+1,layoutend):
-                newarr.append(arr[i])
-            newarr.append('<!/LAYOUT>')
-            arr = arr[0:layoutstart]+arr[layoutend+1:len(arr)]
-            self.headarr = newarr
-
-        return arr
-
-    def pullFooter(self,arr):
-        contentstart = arrFind('<!FOOTCONTENT>',arr)
-        contentend   = arrFind('<!/FOOTCONTENT>',arr)
-        has = MarkTwoParser._blockStartEnd(contentstart,contentend,"Content Block (footer)",quiet=True)
-        if has:
-            newarr = ['<!CONTENT>']
-            for i in range(contentstart+1,contentend):
-                newarr.append(arr[i])
-            newarr.append('<!/CONTENT>')
-            arr = arr[0:contentstart]+arr[contentend+1:len(arr)]
-
-        layoutstart = arrFind('<!FOOTLAYOUT>',arr)
-        layoutend   = arrFind('<!/FOOTLAYOUT>',arr)
-        has = MarkTwoParser._blockStartEnd(layoutstart,layoutend,"Layout Block (footer)",quiet=True)
-        if has:
-            newarr.append('<!LAYOUT>')
-            for i in range(layoutstart+1,layoutend):
-                newarr.append(arr[i])
-            newarr.append('<!/LAYOUT>')
-            arr = arr[0:layoutstart]+arr[layoutend+1:len(arr)]
-            self.footarr = newarr
-
-        return arr
-
-    def getConf(self,arr,):
-        confstart = arrFind('<!CONF>',arr)
-        confend   = arrFind('<!/CONF>',arr)
-        has = MarkTwoParser._blockStartEnd(confstart,confend,"Configuration Block")
-        if has:
-            for i in range(confstart+1,confend):
-                line = arr[i].lstrip().rstrip()
-                key  = re.findall(r"\S+(?==)",line)
-                val  = re.findall(r"(?<==)\S+",line)
-                if len(key) > 0 and len(val) > 0:
-                    try:
-                        self.overrides[key[0]]
-                        self.overrides[key[0]] = val[0]
-                    except:
-                        try:
-                            self.constants[key[0]]
-                            self.constants[key[0]] = val[0]
-                        except:
-                            print(f"Invalid configuration option: '{key[0]}'.")
 
     def getContent(self,arr,loc=None):
         locstr = None
         if loc == None: locstr = "main"
         else: locstr = loc
-        contentstart  = arrFind('<!CONTENT>',arr)
-        contentend    = arrFind('<!/CONTENT>',arr)
+        contentstart = None
+        contentend = None
+        if loc == None:
+            locstr = "main"
+            contentstart  = arrFind('<!CONTENT>',arr)
+            contentend    = arrFind('<!/CONTENT>',arr)
+        elif loc == "footer":
+            locstr = loc
+            contentstart  = arrFind('<!FOOTCONTENT>',arr)
+            contentend    = arrFind('<!/FOOTCONTENT>',arr)
+        elif loc == "header":
+            locstr = loc
+            contentstart  = arrFind('<!HEADCONTENT>',arr)
+            contentend    = arrFind('<!/HEADCONTENT>',arr)
+
         has = MarkTwoParser._blockStartEnd(contentstart,contentend,f"Content Block ({locstr})")
         if has:
             previousId    = None
@@ -247,74 +182,29 @@ class MarkTwoParser:
                     contentconcat += f" {line}"
                 if i == contentend-1 or arr[i+1].lstrip().rstrip()[0:1] == '#':
                     if contentconcat != None and contentconcat != '':
-                        if loc == None:
-                            contentconcat = MarkTwoParser.checkContentForInline(contentconcat)
-                            contentconcat = self.checkContentForVars(contentconcat)
-                            self.content[previousId] = contentconcat
-                        elif loc == "header":
-                            contentconcat = MarkTwoParser.checkContentForInline(contentconcat)
-                            contentconcat = self.checkContentForVars(contentconcat)
-                            self.headcontent[previousId] = contentconcat
-                        elif loc == "footer":
-                            contentconcat = MarkTwoParser.checkContentForInline(contentconcat)
-                            contentconcat = self.checkContentForVars(contentconcat)
-                            self.footcontent[previousId] = contentconcat
+                        contentconcat = MarkTwoParser.checkContentForInline(contentconcat)
+                        contentconcat = self.checkContentForVars(contentconcat)
+                        self.content[previousId] = contentconcat
                         contentconcat =  ''
 
             # HOTFIX FOR UNECESSARY SPACES BETWEEN EMPTY TAGS
-            if loc == None:
-                for key in self.content.keys():
-                    block    = self.content[key]
-                    patt     = r"(?<!\s)\>\s\<"
-                    block    = re.sub(patt,"><",block)
-                    self.content[key] = block
-            if loc == "header":
-                for key in self.headcontent.keys():
-                    block    = self.headcontent[key]
-                    patt     = r"(?<!\s)\>\s\<"
-                    block    = re.sub(patt,"><",block)
-                    self.headcontent[key] = block
-            if loc == "footer":
-                for key in self.footcontent.keys():
-                    block    = self.footcontent[key]
-                    patt     = r"(?<!\s)\>\s\<"
-                    block    = re.sub(patt,"><",block)
-                    self.footcontent[key] = block
+            for key in self.content.keys():
+                block    = self.content[key]
+                patt     = r"(?<!\s)\>\s\<"
+                block    = re.sub(patt,"><",block)
+                self.content[key] = block
 
             # HOTFIX FOR UNECESSARY SPACES AFTER TEXT IN TAG
-            if loc == None:
-                for key in self.content.keys():
-                    block = None
-                    block = self.content[key]
-                    patt  = r"(?<=\S)\s(?=$)"
-                    matchobj = [(m.start(0),m.end(0)) for m in re.finditer(patt,block)]
-                    newblock = None
-                    if len(matchobj) > 0:
-                        match    = matchobj[0]
-                        newblock = block[0:match[0]]
-                        self.content[key] = newblock
-            elif loc == "header":
-                for key in self.headcontent.keys():
-                    block = None
-                    block = self.headcontent[key]
-                    patt  = r"(?<=\S)\s(?=$)"
-                    matchobj = [(m.start(0),m.end(0)) for m in re.finditer(patt,block)]
-                    newblock = None
-                    if len(matchobj) > 0:
-                        match    = matchobj[0]
-                        newblock = block[0:match[0]]
-                        self.headcontent[key] = newblock
-            if loc == "footer":
-                for key in self.footcontent.keys():
-                    block = None
-                    block = self.footcontent[key]
-                    patt  = r"(?<=\S)\s(?=$)"
-                    matchobj = [(m.start(0),m.end(0)) for m in re.finditer(patt,block)]
-                    newblock = None
-                    if len(matchobj) > 0:
-                        match    = matchobj[0]
-                        newblock = block[0:match[0]]
-                        self.footcontent[key] = newblock
+            for key in self.content.keys():
+                block = None
+                block = self.content[key]
+                patt  = r"(?<=\S)\s(?=$)"
+                matchobj = [(m.start(0),m.end(0)) for m in re.finditer(patt,block)]
+                newblock = None
+                if len(matchobj) > 0:
+                    match    = matchobj[0]
+                    newblock = block[0:match[0]]
+                    self.content[key] = newblock
 
     @staticmethod
     def checkContentForLiteral(text):
@@ -497,67 +387,13 @@ class MarkTwoParser:
             qelement.generateHtml()
             return qelement
 
-        locstr = None
-        if loc == None: locstr = "main"
-        else: locstr = loc
-        layoutstart = arrFind('<!LAYOUT>',arr)
-        layoutend   = arrFind('<!/LAYOUT>',arr)
-        has = MarkTwoParser._blockStartEnd(layoutstart,layoutend,f"Layout Block ({locstr})")
-        if has:
-            newarr      = arr[layoutstart+1:layoutend]
-            finalarr    = []
+        def generateDocument(arr):
             nestpath    = []
-            if loc == None:
-                nestpath = [self.qdocument]
-            elif loc == "header":
-                nestpath = [self.hdocument]
-            elif loc == "footer":
-                nestpath = [self.fdocument]
+            nestpath = [self.document]
             nestcount   = 0
-
-            # replacevariables
-            for i in range(len(newarr)):
-                line = newarr[i].lstrip().rstrip()
-                lvar = re.findall(r"(?<=<@)[a-zA-Z0-9\-\_]+",line)
-                if len(lvar) > 0:
-                    varname = lvar[0]
-                    var = None
-                    layoutvars = None
-                    try:
-                        layoutvars = self.lvars.copy()
-                        var = layoutvars[varname].copy()
-                    except:
-                        if not self.options["quiet"] and\
-                           not self.options["test"]:
-                            print(f"Found undefined variable [{varname}] in layout")
-                        sys.exit(2)
-                    ids = re.findall(r"(?<=#)[a-zA-Z0-9]+(?=[\/#])",line)
-                    idcount = 0
-                    blankidp = r"(?<=\s)id(?=(\s|>))"
-                    for eline in var:
-                        idcount += len(re.findall(blankidp,eline))
-                    if len(ids) == idcount:
-                        idtopull = 0
-                        for vline in var:
-                            vlinehasid = regexHasOne(blankidp,vline)
-                            if vlinehasid:
-                                eid = ids[idtopull]
-                                var[var.index(vline)] = re.sub(blankidp,f"id='{eid}'",vline,count=1)
-                                idtopull += 1
-                    else:
-                        if not self.options["quiet"] and\
-                           not self.options["test"]:
-                            print(f"Defined variable [{varname}] not given correct # of ids")
-                        sys.exit(2)
-                    for j in var:
-                        finalarr.append(j)
-                else:
-                    finalarr.append(line)
-            # end replacevariables
-
-            for i in range(len(finalarr)):
+            for i in range(len(arr)):
                 inlineclose = False
-                line = finalarr[i].lstrip().rstrip()
+                line = arr[i].lstrip().rstrip()
 
                 #openp  = r"<[a-zA-Z0-9][a-zA-Z0-9\'\"\=\;\:\% ]+>"
                 openp  = r"<(?!\/)[\S\s]+>"
@@ -603,38 +439,94 @@ class MarkTwoParser:
 
                     if hasopen:
                         qelement = constructElement(line)
-                        if loc == None:
-                            self.html += f"{qelement.opentag}"
-                        elif loc == "header":
-                            self.headhtml += f"{qelement.opentag}"
-                        elif loc == "footer":
-                            self.foothtml += f"{qelement.opentag}"
+                        self.html += f"{qelement.opentag}"
 
-                        if loc == None:
-                            if qelement.qid in self.content.keys():
-                                self.html += f"{self.content[qelement.qid]}"
-                        elif loc == "header":
-                            if qelement.qid in self.headcontent.keys():
-                                self.headhtml += f"{self.headcontent[qelement.qid]}"
-                        elif loc == "footer":
-                            if qelement.qid in self.footcontent.keys():
-                                self.foothtml += f"{self.footcontent[qelement.qid]}"
+                        if qelement.qid in self.content.keys():
+                            qelement.qtext = f"{self.content[qelement.qid]}"
+                            self.html += f"{self.content[qelement.qid]}"
 
-                        nestpath[nestcount].qinner.append(qelement)
-                        nestpath.append(nestpath[nestcount].qinner[len(nestpath[nestcount].qinner)-1])
+                        #nestpath[nestcount]\
+                        #    .qinner.append(qelement)
+
+                        #nestpath.append(
+                        #    nestpath[nestcount]\
+                        #        .qinner[len(
+                        #            nestpath[nestcount]\
+                        #                .qinner
+                        #        )-1]
+                        #)
+                        nestpath.append(qelement)
                         nestcount += 1
                     if hasclose:
                         removedpath =  nestpath[nestcount:len(nestpath)]
                         removedpath =  removedpath[::-1]
                         for elem in removedpath:
-                            if loc == None:
-                                self.html += f"{elem.closetag}"
-                            elif loc == "header":
-                                self.headhtml += f"{elem.closetag}"
-                            elif loc == "footer":
-                                self.foothtml += f"{elem.closetag}"
+                            self.html += f"{elem.closetag}"
                         nestpath    =  nestpath[0:nestcount]
                         nestcount   -= 1
+
+        locstr = None
+        if loc == None: locstr = "main"
+        else: locstr = loc
+        layoutstart = None
+        layoutend = None
+        if loc == None:
+            locstr = "main"
+            layoutstart  = arrFind('<!LAYOUT>',arr)
+            layoutend    = arrFind('<!/LAYOUT>',arr)
+        elif loc == "footer":
+            locstr = loc
+            layoutstart  = arrFind('<!FOOTLAYOUT>',arr)
+            layoutend    = arrFind('<!/FOOTLAYOUT>',arr)
+        elif loc == "header":
+            locstr = loc
+            layoutstart  = arrFind('<!HEADLAYOUT>',arr)
+            layoutend    = arrFind('<!/HEADLAYOUT>',arr)
+        has = MarkTwoParser._blockStartEnd(layoutstart,layoutend,f"Layout Block ({locstr})")
+        if has:
+            newarr      = arr[layoutstart+1:layoutend]
+            finalarr    = []
+
+            # replacevariables
+            for i in range(len(newarr)):
+                line = newarr[i].lstrip().rstrip()
+                lvar = re.findall(r"(?<=<@)[a-zA-Z0-9\-\_]+",line)
+                if len(lvar) > 0:
+                    varname = lvar[0]
+                    var = None
+                    layoutvars = None
+                    try:
+                        layoutvars = self.lvars.copy()
+                        var = layoutvars[varname].copy()
+                    except:
+                        if not self.options["quiet"] and\
+                           not self.options["test"]:
+                            print(f"Found undefined variable [{varname}] in layout")
+                        sys.exit(2)
+                    ids = re.findall(r"(?<=#)[a-zA-Z0-9]+(?=[\/#])",line)
+                    idcount = 0
+                    blankidp = r"(?<=\s)id(?=(\s|>))"
+                    for eline in var:
+                        idcount += len(re.findall(blankidp,eline))
+                    if len(ids) == idcount:
+                        idtopull = 0
+                        for vline in var:
+                            vlinehasid = regexHasOne(blankidp,vline)
+                            if vlinehasid:
+                                eid = ids[idtopull]
+                                var[var.index(vline)] = re.sub(blankidp,f"id='{eid}'",vline,count=1)
+                                idtopull += 1
+                    else:
+                        if not self.options["quiet"] and\
+                           not self.options["test"]:
+                            print(f"Defined variable [{varname}] not given correct # of ids")
+                        sys.exit(2)
+                    for j in var:
+                        finalarr.append(j)
+                else:
+                    finalarr.append(line)
+            # end replacevariables
+            generateDocument(finalarr)
 
     @staticmethod
     def checkGetTag(elementstr,qelement):
