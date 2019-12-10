@@ -10,13 +10,13 @@ def createMarkTwo(options):
     marktwo = MarkTwoParser(options=options)
     return marktwo
 
-def createPdf(htmlstr,headhtmlstr,foothtmlstr,output,overrides):
+def createPdf(body,header,footer,output,overrides):
     options = {}
     tmpcss = None
     exists = True
     existi = 0
     tmphead = None
-    if headhtmlstr != None:
+    if header != None:
         exists = True
         existi = 0
         while exists:
@@ -24,11 +24,11 @@ def createPdf(htmlstr,headhtmlstr,foothtmlstr,output,overrides):
             exists = os.path.exists(tmphead)
             existi += 1
         with open(tmphead,"w") as file:
-            file.write(headhtmlstr)
+            file.write(header)
         options["header-html"] = tmphead
 
     tmpfoot = None
-    if foothtmlstr != None:
+    if footer != None:
         exists = True
         existi = 0
         while exists:
@@ -36,10 +36,10 @@ def createPdf(htmlstr,headhtmlstr,foothtmlstr,output,overrides):
             exists = os.path.exists(tmpfoot)
             existi += 1
         with open(tmpfoot,"w") as file:
-            file.write(foothtmlstr)
+            file.write(footer)
         options["footer-html"] = tmpfoot
 
-    Pdf.makePdfFromString(htmlstr,f"{output}.pdf",overrides,options=options)
+    Pdf.makePdfFromString(body,f"{output}.pdf",overrides,options=options)
     os.remove(tmphead)
     os.remove(tmpfoot)
 
@@ -67,12 +67,15 @@ if __name__ == '__main__':
     if options["test"] == True:
         runTests(options)
     else:
-        marktwo = createMarkTwo(options)
+        body = MarkTwoParser.parseHtmlFromMkTwo(options=options,loc=None)
+        head = MarkTwoParser.parseHtmlFromMkTwo(options=options,loc='header')
+        foot = MarkTwoParser.parseHtmlFromMkTwo(options=options,loc='footer')
+        conf = MarkTwoParser.getConfFromMkTwo(options=options)
 
         if options["html"]:
-            createHtmlDoc(marktwo.html,f"{options['output']}.html")
+            createHtmlDoc(body,f"{options['output']}.html")
 
-        createPdf(marktwo.html,marktwo.headhtml,marktwo.foothtml,options["output"],marktwo.overrides)
+        createPdf(body,head,foot,options["output"],conf)
 
         if not options["quiet"]:
             print(f"Successfully created {options['output']}.pdf")
