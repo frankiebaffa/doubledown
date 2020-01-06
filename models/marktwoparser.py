@@ -388,7 +388,8 @@ class MarkTwoParser:
             matchobj    = [(m.start(0),m.end(0)) for m in re.finditer(link,text)]
             match       = matchobj[0]
             linkhyper   = text[match[0]:match[1]]
-            removehyper = r"\("+linkhyper+"\)"
+            text        = text.replace('=','\\=').replace('/','\\/').replace('?','\\?')
+            linkhyper   = linkhyper.replace('=','\\=').replace('/','\\/').replace('?','\\?')
             if linkstr not in (None,'') and linkhyper not in (None,''):
                 text = re.sub(removestr,f"<a href=\"{linkhyper}\">{linkstr}</a>",text)
                 text = re.sub(removehyper,"",text)
