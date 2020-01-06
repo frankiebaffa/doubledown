@@ -1,3 +1,12 @@
+_CONF|
+	margin-top=1.00in
+	margin-bottom=1.00in
+	margin-left=1.00in
+	margin-right=1.00in
+	page-size=letter
+	indent=50
+|CONF_
+
 _CONTENT|
 #ToDo:	|{{add config block to add default
 			values for dynamic variables
@@ -11,3 +20,20 @@ _CONTENT|
 			and margins (maybe header footer file locations)
 			as well|
 |CONTENT_
+
+_LAYOUT|
+	_body|
+		_ul#ToDo||_
+	|body_
+|LAYOUT_
+
+_STYLE|
+@font-face{
+	font-family:Fira;
+	src:url('/Users/frankiebaffa/Git/marktwo/FiraCode-Regular.ttf');
+	font-weight:normal;
+	font-style:normal;
+}
+*{font-family:Fira;}
+p,ul,li,span,code,pre{font-size:12px;}
+|STYLE_
