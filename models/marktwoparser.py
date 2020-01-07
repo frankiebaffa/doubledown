@@ -5,8 +5,9 @@
 
 import re
 import sys
-from   models.marktwoelement import MarkTwoElement
-from   utils.utils import arrFind, regexHas, regexHasOne
+from models.marktwoelement import MarkTwoElement
+from utils.utils import arrFind, regexHas, regexHasOne
+from marktwoerrors import MarkTwoParseError
 
 class MarkTwoParser:
     options     = None
@@ -100,14 +101,14 @@ class MarkTwoParser:
         if started and ended and placementproper:
             return True
         elif started and not ended:
-            print(f"{b} is an unclosed block. Exiting.")
-            sys.exit(1)
+            raise MarkTwoParseError(
+                    specific_message=f"{b} is an unclosed block.")
         elif not started and ended:
-            print(f"{b} is never started and attempted closing. Exiting.")
-            sys.exit(1)
+            raise MarkTwoParseError(
+                    specific_message=f"{b} is never started and attempted closing.")
         elif started and ended and not placementproper:
-            print(f"{b} is improperly defined. Exiting.")
-            sys.exit(1)
+            raise MarkTwoParseError(
+                    specific_message=f"{b} is improperly defined.")
         elif not started and not ended:
             if not quiet: print(f"{b} not defined.")
             return False
@@ -459,8 +460,8 @@ class MarkTwoParser:
                 if len(lvarname) > 0 and not len(lvarname) > 1:
                     lvarnames.append(lvarname[0])
                 elif len(lvarname) > 1:
-                    print("Multiple variables declared on same line. Invalid statement")
-                    sys.exit(2)
+                    raise MarkTwoParser(
+                            specific_message="Multiple variables declared on same line. Invalid statement")
             for lvarname in lvarnames:
                 start   = arrFind(f"<@{lvarname}>", newarr)
                 end     = arrFind(f"<@/{lvarname}>", newarr)
@@ -528,10 +529,8 @@ class MarkTwoParser:
                         layoutvars = self.lvars.copy()
                         var = layoutvars[varname].copy()
                     except:
-                        if not self.options["quiet"] and\
-                           not self.options["test"]:
-                            print(f"Found undefined variable [{varname}] in layout")
-                        sys.exit(2)
+                        raise MarkTwoParseError(
+                                specific_message=f"Found undefined variable [{varname}] in layout.")
                     ids = re.findall(r"(?<=#)[a-zA-Z0-9]+(?=[\/#])",line)
                     idcount = 0
                     blankidp = r"(?<=\s)id(?=(\s|>))"
@@ -546,10 +545,8 @@ class MarkTwoParser:
                                 var[var.index(vline)] = re.sub(blankidp,f"id='{eid}'",vline,count=1)
                                 idtopull += 1
                     else:
-                        if not self.options["quiet"] and\
-                           not self.options["test"]:
-                            print(f"Defined variable [{varname}] not given correct # of ids")
-                        sys.exit(2)
+                        raise MarkTwoParseError(
+                                specific_message=f"Defined variable [{varname}] not given correct # of ids.")
                     for j in var:
                         finalarr.append(j)
                 else:

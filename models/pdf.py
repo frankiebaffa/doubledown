@@ -3,7 +3,8 @@ import pdfkit
 
 class Pdf:
     @staticmethod
-    def makePdfFromString(html,name,overrides,options={}):
+    def makePdfFromString(html: str, name: str, overrides: dict,
+            options: dict) -> None:
         if overrides['page-size'] != None:
             options['page-size'] = overrides['page-size']
         else:

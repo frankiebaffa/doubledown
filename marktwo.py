@@ -1,16 +1,19 @@
 import sys
-from   models.marktwoparser import MarkTwoParser
-from   models.pdf         import Pdf
-from   optionparser       import parseOpts
-from   tests.testsuite    import TestSuite as Test
+from models.marktwoparser import MarkTwoParser
+from marktwoerrors import MarkTwoOptionError
+from models.pdf import Pdf
+from optionparser import parseOpts
+from tests.testsuite import TestSuite as Test
 import requests
 import os
+from typing import Dict
 
-def createMarkTwo(options):
+def createMarkTwo(options: Dict[str,str]) -> MarkTwoParser:
     marktwo = MarkTwoParser(options=options)
     return marktwo
 
-def createPdf(htmlstr,headhtmlstr,foothtmlstr,output,overrides):
+def createPdf(htmlstr: str, headhtmlstr: str, foothtmlstr: str,
+        output: str, overrides: Dict[str,str]) -> None:
     options = {}
     tmpcss = None
     exists = True
@@ -43,26 +46,28 @@ def createPdf(htmlstr,headhtmlstr,foothtmlstr,output,overrides):
     os.remove(tmphead)
     os.remove(tmpfoot)
 
-def createHtmlDoc(htmlstr,output):
+def createHtmlDoc(htmlstr: str, output: str) -> None:
     from bs4 import BeautifulSoup
     soup       = BeautifulSoup(htmlstr,features="html.parser")
     prettyhtml = soup.prettify()
     with open(output,"w") as file:
         file.write(prettyhtml)
 
-def runTests(options):
+def runTests(options: Dict[str,str]) -> None:
     print("*** Running Testing Suite ***\n")
     t = Test(options)
 
 if __name__ == '__main__':
     options = parseOpts(sys.argv[1:])
     if options == None:
-        print("Error getting opts.")
-        sys.exit(2)
-    elif options["output"] == None and\
-         options["test"] == False:
+        raise MarkTwoOptionError(
+                specific_message="Problem getting/setting options."
+                )
+    elif options["output"] == None and options["test"] == False:
+        raise MarkTwoOptionError(
+                specific_message="Include -o switch to define output file."
+                )
         print("Include -o switch to define output file.")
-        sys.exit(2)
 
     if options["test"] == True:
         runTests(options)

@@ -1,7 +1,9 @@
 import getopt
 import sys
+from marktwoerrors import MarkTwoOptionError
+from typing import Dict, List
 
-def parseOpts(argv):
+def parseOpts(argv: List[str]) -> Dict[str,str]:
     opts = None
     options = {
             "singlefile" : None,
@@ -32,7 +34,8 @@ def parseOpts(argv):
             elif opt == '-t':
                 options["test"] = True
 
-    except getopt.GetoptError:
-        options = None
+    except getopt.GetoptError as e:
+        raise MarkTwoOptionError(parent=e,
+                specific_message="Illegal option passed.")
 
     return options
