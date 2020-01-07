@@ -1,18 +1,14 @@
-from dataclasses import dataclass, field
-from typing import List
-
-@dataclass
 class MarkTwoElement:
-    qtag: str = field(repr=True, init=False, compare=True)
-    qid: str = field(repr=True, init=False, compare=True)
-    qclass: List[str] = field(default_factory=list, repr=True, init=False, compare=True)
-    qattributes: list = field(default_factory=list, repr=False, init=False, compare=True)
-    qinner: list = field(default_factory=list, repr=False, init=False, compare=True)
-    opentag: str = field(default='', repr=False, init=False, compare=True)
-    closetag: str = field(default='', repr=False, init=False, compare=True)
-    qtext: str = field(default='', repr=False, init=False, compare=True)
+    qtag = ""
+    qid = ""
+    qclass = []
+    qattributes = []
+    qinner = []
+    opentag = ""
+    closetag = ""
+    qtext = ""
 
-    def generateHtml(self):
+    def generateHtml(self) -> None:
         self.opentag += f"<{self.qtag}"
         if self.qid != None:
             self.opentag += f" id=\"{self.qid}\""
@@ -31,10 +27,10 @@ class MarkTwoElement:
             elif type(attr) == type(''):
                 self.opentag += f" {attr}"
         self.opentag += ">"
-        if not MarkTwoElement.isAutoClosing(self.qtag):
+        if not self.isAutoClosing():
             self.closetag = f"</{self.qtag}>"
 
-    def isAutoClosing(self):
+    def isAutoClosing(self) -> bool:
         a = ["area","base","br","col","embed",
              "hr","img","input","link","meta",
              "param","source","track","wbr"]
