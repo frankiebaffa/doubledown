@@ -1,13 +1,4 @@
 class MarkTwoElement:
-    qtag = None
-    qid = None
-    qclass = []
-    qattributes = []
-    qinner = []
-    opentag = ""
-    closetag = ""
-    qtext = ""
-
     def __init__(self):
         self.qtag = None
         self.qid = None

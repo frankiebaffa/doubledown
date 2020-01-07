@@ -10,38 +10,15 @@ from utils.utils import arrFind, regexHas, regexHasOne
 from marktwoerrors import MarkTwoParseError, MarkTwoFileNotFoundError
 
 class MarkTwoParser:
-    options     = None
-    qinput      = None
-    qdocument   = MarkTwoElement()
-    html        = None
-    css         = None
-    lvars       = None
-    content     = None
-    script      = None
-    hdocument   = MarkTwoElement()
-    headarr     = None
-    headcontent = None
-    headhtml    = None
-    fdocument   = MarkTwoElement()
-    footarr     = None
-    foothtml    = None
-    footcontent = None
-    overrides   = {
-                    "page-size":None,
-                    "margin-top":None,
-                    "margin-right":None,
-                    "margin-bottom":None,
-                    "margin-left":None
-                  }
-    constants   = {
-                    "indent":None
-                  }
-
     def __init__(self,options=None,testinput=None):
+        self.options = options
+        self.qdocument = MarkTwoElement()
         self.qdocument.qtag = "document"
         self.qdocument.qid  = "Document"
+        self.hdocument = MarkTwoElement()
         self.hdocument.qtag = "document"
         self.hdocument.qid  = "Document"
+        self.fdocument = MarkTwoElement()
         self.fdocument.qtag = "document"
         self.fdocument.qid  = "Document"
         self.html = ''
@@ -51,7 +28,16 @@ class MarkTwoParser:
         self.content = {}
         self.headcontent = {}
         self.footcontent = {}
-        self.options = options
+        self.overrides = {
+                "page-size":None,
+                "margin-top":None,
+                "margin-right":None,
+                "margin-bottom":None,
+                "margin-left":None
+                }
+        self.constants = {
+                "indent":None
+                }
 
         startpass = False
         if options['singlefile'] != None:
@@ -136,7 +122,7 @@ class MarkTwoParser:
         self.foothtml += f"\n<style>\n{self.css}\n</style>"
 
     def _getDefaultStyle(self) -> None:
-        self.css = ""+\
+        self.css += ""+\
             "h1,h2,h3,h4,h5,h6{color:grey;font-weight:bold;font-style:normal;}"+\
             "p,span,pre,code,td,ul,"+\
             "tr,li,ul,a,sub,sup{color:black;font-weight:normal;font-style:normal;}"+\
@@ -190,6 +176,7 @@ class MarkTwoParser:
                 }
 
     def pullHeader(self, arr:list) -> list:
+        self.headarr = None
         contentstart = arrFind('<!HEADCONTENT>',arr)
         contentend   = arrFind('<!/HEADCONTENT>',arr)
         has = MarkTwoParser._blockStartEnd(contentstart,contentend,"Content Block (header)",quiet=True)
@@ -214,6 +201,7 @@ class MarkTwoParser:
         return arr
 
     def pullFooter(self, arr:list) -> list:
+        self.footarr = None
         contentstart = arrFind('<!FOOTCONTENT>',arr)
         contentend   = arrFind('<!/FOOTCONTENT>',arr)
         has = MarkTwoParser._blockStartEnd(contentstart,contentend,"Content Block (footer)",quiet=True)
@@ -448,7 +436,7 @@ class MarkTwoParser:
         text = text.replace("\\","")
         return text
 
-    def checkContentForVars(self, content:str) -> content:
+    def checkContentForVars(self, content:str) -> str:
         def wrapVar(p):
             return r"(?<!\\)@"+p+r"(?<!\\)@"
 
@@ -684,7 +672,8 @@ class MarkTwoParser:
 
     def getStyle(self, arr:list) -> None:
         self.css = ''
-        self._getDefaultStyle()
+        if not self.options["nostyle"]:
+            self._getDefaultStyle()
         stylestart = arrFind('<!CSS>',arr)
         styleend   = arrFind('<!/CSS>',arr)
         has = MarkTwoParser._blockStartEnd(stylestart,styleend,f"Style Block")
