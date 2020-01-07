@@ -1,12 +1,22 @@
 class MarkTwoElement:
-    qtag = ""
-    qid = ""
+    qtag = None
+    qid = None
     qclass = []
     qattributes = []
     qinner = []
     opentag = ""
     closetag = ""
     qtext = ""
+
+    def __init__(self):
+        self.qtag = None
+        self.qid = None
+        self.qclass = []
+        self.qattributes = []
+        self.qinner = []
+        self.opentag = ""
+        self.closetag = ""
+        self.qtext = ""
 
     def generateHtml(self) -> None:
         self.opentag += f"<{self.qtag}"

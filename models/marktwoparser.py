@@ -367,9 +367,9 @@ class MarkTwoParser:
                                     }
                             }
 
-            standalone    = {r"(?<!\\)[\s]*\-\-[\s]*" : "br"} # space due to how content processes
-            linktext      = r"(?<=\[).+(?=\])"
-            link          = r"(?<=\().+(?=\))"
+            standalone = {r"(?<!\\)[\s]*\-\-[\s]*" : "br"} # space due to how content processes
+            linktextpat = r"(?<=\[).+(?=\])"
+            linkpat = r"(?<=\().+(?=\))"
 
             text = MarkTwoParser.checkContentForLiteral(text)
 
@@ -393,18 +393,18 @@ class MarkTwoParser:
                 matches = re.findall(key,text)
                 text = re.sub(key,f"<{standalone[key]}>",text)
 
-            matchobj    = [(m.start(0),m.end(0)) for m in re.finditer(linktext,text)]
+            matchobj    = [(m.start(0),m.end(0)) for m in re.finditer(linktextpat,text)]
             match       = matchobj[0]
             linkstr     = text[match[0]:match[1]]
             removestr   = r"\["+linkstr+"\]"
-            matchobj    = [(m.start(0),m.end(0)) for m in re.finditer(link,text)]
+            matchobj    = [(m.start(0),m.end(0)) for m in re.finditer(linkpat,text)]
             match       = matchobj[0]
             linkhyper   = text[match[0]:match[1]]
             text        = text.replace('=','\\=').replace('/','\\/').replace('?','\\?')
             linkhyper   = linkhyper.replace('=','\\=').replace('/','\\/').replace('?','\\?')
             if linkstr not in (None,'') and linkhyper not in (None,''):
                 text = re.sub(removestr,f"<a href=\"{linkhyper}\">{linkstr}</a>",text)
-                text = re.sub(removehyper,"",text)
+                text = re.sub(r"\([a-zA-Z0-9\.\\\/\:\&\?]+\)","",text)
         except:
             pass
 
