@@ -19,7 +19,8 @@ def parseOpts(argv: List[str]) -> Dict[str,str]:
             "output" : None,
             "quiet" : False,
             "html" : False,
-            "test" : False
+            "test" : False,
+            "nostyle" : False
             }
     try:
         opts,args = getopt.getopt(
@@ -42,6 +43,8 @@ def parseOpts(argv: List[str]) -> Dict[str,str]:
                 options["html"] = True
             elif opt == '-t':
                 options["test"] = True
+            elif opt == '-n':
+                options["nostyle"] = True
 
     except getopt.GetoptError as e:
         raise MarkTwoOptionError(parent=e,
