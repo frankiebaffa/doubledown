@@ -126,9 +126,7 @@ class MarkTwoParser:
             "h1,h2,h3,h4,h5,h6{color:grey;font-weight:bold;font-style:normal;}"+\
             "p,span,pre,code,td,ul,"+\
             "tr,li,ul,a,sub,sup{color:black;font-weight:normal;font-style:normal;}"+\
-            "div,table,tbody,thead,tr,td,ul,ol,li,"+\
-            "sup,sub,body,h1,h2,h3,h4,h5,h6,p,a,span,pre,"+\
-            "code,hr{margin:0px;padding:0px;}"+\
+            "*{margin-top:0px;margin-bottom:0px;padding-top:0px;padding-bottom:0px}"+\
             "hr,sup,sub{line-height:0;}"+\
             "table{table-layout:fixed;width:100%;}"+\
             "td{vertical-align:top;}"+\
