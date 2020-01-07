@@ -40,3 +40,10 @@ class MarkTwoParseError(MarkTwoError):
     situation is met while parsing.
     """
     default_message = "Error parsing input text."
+
+@dataclass
+class MarkTwoFileNotFoundError(MarkTwoError):
+    """
+    Raised when the specified input file is not found.
+    """
+    default_message = "Could not find file."

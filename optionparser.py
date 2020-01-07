@@ -3,6 +3,15 @@ import sys
 from marktwoerrors import MarkTwoOptionError
 from typing import Dict, List
 
+def analyzeOpts(options: Dict[str,str]) -> Dict[str,str]:
+    if options['singlefile'][-4:] != ".mk2":
+        options['singlefile'] += ".mk2"
+
+    if options['singlefile'] != None and options['output'] == None:
+        options['output'] = options['singlefile'][0:-4]
+
+    return options
+
 def parseOpts(argv: List[str]) -> Dict[str,str]:
     opts = None
     options = {
@@ -38,4 +47,4 @@ def parseOpts(argv: List[str]) -> Dict[str,str]:
         raise MarkTwoOptionError(parent=e,
                 specific_message="Illegal option passed.")
 
-    return options
+    return analyzeOpts(options)

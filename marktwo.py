@@ -20,7 +20,6 @@ def createPdf(htmlstr: str, headhtmlstr: str, foothtmlstr: str,
     existi = 0
     tmphead = None
     if headhtmlstr != None:
-        exists = True
         existi = 0
         while exists:
             tmphead = f"{output}.head{existi}.html"
@@ -58,8 +57,7 @@ def runTests(options: Dict[str,str]) -> None:
     t = Test(options)
 
 if __name__ == '__main__':
-    options = parseOpts(sys.argv[1:])
-    if options == None:
+    if (options := parseOpts(sys.argv[1:])) == None:
         raise MarkTwoOptionError(
                 specific_message="Problem getting/setting options."
                 )

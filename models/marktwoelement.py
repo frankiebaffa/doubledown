@@ -20,18 +20,17 @@ class MarkTwoElement:
                 delim = " "
             self.opentag += "\""
         for attr in self.qattributes:
-            if type(attr) == type({}):
+            if t := type(attr) == type({}):
                 for key in attr.keys():
                     self.opentag += f" {key}=\"{attr[key]}\""
                     break
-            elif type(attr) == type(''):
+            elif t == type(''):
                 self.opentag += f" {attr}"
         self.opentag += ">"
         if not self.isAutoClosing():
             self.closetag = f"</{self.qtag}>"
 
     def isAutoClosing(self) -> bool:
-        a = ["area","base","br","col","embed",
+        return self.qtag in ["area","base","br","col","embed",
              "hr","img","input","link","meta",
              "param","source","track","wbr"]
-        return self.qtag in a

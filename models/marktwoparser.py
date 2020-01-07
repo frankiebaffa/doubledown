@@ -7,7 +7,7 @@ import re
 import sys
 from models.marktwoelement import MarkTwoElement
 from utils.utils import arrFind, regexHas, regexHasOne
-from marktwoerrors import MarkTwoParseError
+from marktwoerrors import MarkTwoParseError, MarkTwoFileNotFoundError
 
 class MarkTwoParser:
     options     = None
@@ -55,10 +55,16 @@ class MarkTwoParser:
 
         startpass = False
         if options['singlefile'] != None:
-            with open(options['singlefile'],'r') as file:
-                doctxt = file.read()
-                self.qinput = doctxt
-                startpass = True
+            try:
+                with open(options['singlefile'],'r') as file:
+                    doctxt = file.read()
+                    self.qinput = doctxt
+                    startpass = True
+            except FileNotFoundError as e:
+                raise MarkTwoFileNotFoundError(
+                        parent=e,
+                        specific_message="Could not find specified input file."
+                        )
         if options['test'] and testinput != None:
             self.qinput = testinput
             startpass = True
@@ -94,7 +100,7 @@ class MarkTwoParser:
                 self._appendScripts()
 
     @staticmethod
-    def _blockStartEnd(s,e,b,quiet=False):
+    def _blockStartEnd(s:int, e:int, b:str, quiet=False) -> bool:
         started         = s > -1
         ended           = e > -1
         placementproper = s < e
@@ -102,34 +108,41 @@ class MarkTwoParser:
             return True
         elif started and not ended:
             raise MarkTwoParseError(
-                    specific_message=f"{b} is an unclosed block.")
+                    specific_message=f"{b} is an unclosed block."
+                    )
         elif not started and ended:
             raise MarkTwoParseError(
-                    specific_message=f"{b} is never started and attempted closing.")
+                    specific_message=f"{b} is never started and attempted closing."
+                    )
         elif started and ended and not placementproper:
             raise MarkTwoParseError(
-                    specific_message=f"{b} is improperly defined.")
+                    specific_message=f"{b} is improperly defined."
+                    )
         elif not started and not ended:
             if not quiet: print(f"{b} not defined.")
             return False
+        else:
+            raise MarkTwoParseError(
+                    specific_message=f"{b} contains a questionable section."
+                    )
 
-    def _parse(self, arr, loc=None):
+    def _parse(self, arr:list, loc=None) -> None:
         self.getContent(arr,loc=loc)
         self.getLayout(arr,loc=loc)
 
-    def _appendStyle(self):
+    def _appendStyle(self) -> None:
         self.html     += f"\n<style>\n{self.css}\n</style>"
         self.headhtml += f"\n<style>\n{self.css}\n</style>"
         self.foothtml += f"\n<style>\n{self.css}\n</style>"
 
-    def _appendScripts(self):
+    def _appendScripts(self) -> None:
         self.html     += f"\n<script>\n{self.script}\n</script>"
         self.headhtml += f"\n<script>\n{self.script}\n</script>"
         self.foothtml += f"\n<script>\n{self.script}\n</script>"
 
     @staticmethod
-    def _getDefaultLayoutVars():
-        lvars = {
+    def _getDefaultLayoutVars() -> dict:
+        return {
                  # THREE INLINE TEXT ELEMENTS ALIGNED LEFT, CENTER, RIGHT; RESPECTIVELY
                  "lcr":[
                         "<table style='width:100%;table-layout:fixed;' class='lcrContainer'>",
@@ -154,10 +167,8 @@ class MarkTwoParser:
                         "</table>"
                        ]
                 }
-        
-        return lvars
 
-    def pullHeader(self,arr):
+    def pullHeader(self, arr:list) -> list:
         contentstart = arrFind('<!HEADCONTENT>',arr)
         contentend   = arrFind('<!/HEADCONTENT>',arr)
         has = MarkTwoParser._blockStartEnd(contentstart,contentend,"Content Block (header)",quiet=True)
@@ -181,7 +192,7 @@ class MarkTwoParser:
 
         return arr
 
-    def pullFooter(self,arr):
+    def pullFooter(self, arr:list) -> list:
         contentstart = arrFind('<!FOOTCONTENT>',arr)
         contentend   = arrFind('<!/FOOTCONTENT>',arr)
         has = MarkTwoParser._blockStartEnd(contentstart,contentend,"Content Block (footer)",quiet=True)
@@ -205,7 +216,7 @@ class MarkTwoParser:
 
         return arr
 
-    def getConf(self,arr,):
+    def getConf(self, arr:list) -> None:
         confstart = arrFind('<!CONF>',arr)
         confend   = arrFind('<!/CONF>',arr)
         has = MarkTwoParser._blockStartEnd(confstart,confend,"Configuration Block")
@@ -225,7 +236,7 @@ class MarkTwoParser:
                         except:
                             print(f"Invalid configuration option: '{key[0]}'.")
 
-    def getContent(self,arr,loc=None):
+    def getContent(self, arr:list, loc=None) -> None:
         locstr = None
         if loc == None: locstr = "main"
         else: locstr = loc
@@ -318,7 +329,7 @@ class MarkTwoParser:
                         self.footcontent[key] = newblock
 
     @staticmethod
-    def checkContentForLiteral(text):
+    def checkContentForLiteral(text:str) -> str:
         getliteralsections   = r"(?<!\\){{.*?(?<!\\)}}"
         literalsections      = re.findall(getliteralsections,text)
         getcharstoliteralize = r"[^a-zA-Z0-9\s\t\n\.,]"
@@ -334,7 +345,7 @@ class MarkTwoParser:
         return text
 
     @staticmethod
-    def checkContentForInline(text):
+    def checkContentForInline(text:str) -> str:
         try:
             openclose = {
                          r"(?<!\\)_"          : "em",
@@ -400,7 +411,7 @@ class MarkTwoParser:
         text = text.replace("\\","")
         return text
 
-    def checkContentForVars(self,content):
+    def checkContentForVars(self, content:str) -> content:
         def wrapVar(p):
             return r"(?<!\\)@"+p+r"(?<!\\)@"
 
@@ -443,7 +454,7 @@ class MarkTwoParser:
                     print("Instance of constant variable without declaration of constant")
         return content
 
-    def getLayoutVars(self,arr):
+    def getLayoutVars(self, arr:list) -> None:
         lvarstart = arrFind('<!LAYOUTVARS>',arr)
         lvarend   = arrFind('<!/LAYOUTVARS>',arr)
         has = MarkTwoParser._blockStartEnd(lvarstart,lvarend,"Layout Variable Block")
@@ -468,7 +479,7 @@ class MarkTwoParser:
                 lvararr = newarr[start+1:end]
                 self.lvars[lvarname] = lvararr
 
-    def getLayout(self,arr,loc=None):
+    def getLayout(self, arr:list, loc=None) -> None:
         def constructElement(line):
             elementstr    = line
             qelement      = MarkTwoElement()
@@ -634,47 +645,7 @@ class MarkTwoParser:
                         nestpath    =  nestpath[0:nestcount]
                         nestcount   -= 1
 
-    @staticmethod
-    def checkGetTag(elementstr,qelement):
-        name = re.findall(r"^[a-zA-Z0-9]+",elementstr)
-        qelement.qtag = name[0]
-        elementstr = elementstr.replace(name[0],'',1)
-        return qelement,elementstr
-
-    @staticmethod
-    def checkGetAttr(elementstr,qelement):
-        attrsnoval = re.findall(r"(?<=[\[,])[a-zA-Z]+(?=[,\]])",elementstr)
-        for match in attrsnoval:
-            qelement.qattributes.append(match)
-
-        attrswval  = re.findall(r"(?<=[\[,])[a-zA-Z]+=[a-zA-Z0-9=\./:\-\;%]+(?=[,\]])",elementstr)
-        for match in attrswval:
-            kv = match.split("=")
-            qelement.qattributes.append({kv[0]:kv[1]})
-
-        allattrstorem = re.findall(r"\[[a-zA-Z0-9=\./:\-\;%,]+\]",elementstr)
-        for match in allattrstorem:
-            elementstr = elementstr.replace(match,"")
-
-        return qelement,elementstr
-
-    @staticmethod
-    def checkGetClass(elementstr,qelement):
-        classes = re.findall(r"(?<=\.)[a-zA-Z0-9\-]+",elementstr)
-        for qclass in classes:
-            elementstr = elementstr.replace("."+qclass,'',1)
-            qelement.qclass.append(qclass)
-        return qelement,elementstr
-
-    @staticmethod
-    def checkGetId(elementstr,qelement):
-        qids = re.findall(r"(?<=#)[a-zA-Z0-9]+",elementstr)
-        for qid in qids:
-            elementstr = elementstr.replace("#"+qid,'',1)
-            qelement.qid = qid
-        return qelement,elementstr
-
-    def getStyle(self,arr):
+    def getStyle(self, arr:list) -> None:
         stylestart = arrFind('<!CSS>',arr)
         styleend   = arrFind('<!/CSS>',arr)
         has = MarkTwoParser._blockStartEnd(stylestart,styleend,f"Style Block")
@@ -684,7 +655,7 @@ class MarkTwoParser:
                 line = arr[i].rstrip()
                 self.css += f"{line}"
 
-    def getScript(self,arr):
+    def getScript(self, arr:list) -> None:
         scriptstart = arrFind('<!JS>',arr)
         scriptend   = arrFind('<!/JS>',arr)
         has = MarkTwoParser._blockStartEnd(scriptstart,scriptend,f"Script Block")
@@ -693,3 +664,4 @@ class MarkTwoParser:
             for i in range(scriptstart+1,scriptend):
                 line = arr[i].rstrip()
                 self.script += f"{line}\n"
+
