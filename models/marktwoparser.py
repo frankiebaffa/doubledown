@@ -135,6 +135,27 @@ class MarkTwoParser:
         self.headhtml += f"\n<style>\n{self.css}\n</style>"
         self.foothtml += f"\n<style>\n{self.css}\n</style>"
 
+    def _getDefaultStyle(self) -> None:
+        self.css = ""+\
+            "h1,h2,h3,h4,h5,h6{color:grey;font-weight:bold;font-style:normal;}"+\
+            "p,span,pre,code,td,ul,"+\
+            "tr,li,ul,a,sub,sup{color:black;font-weight:normal;font-style:normal;}"+\
+            "div,table,tbody,thead,tr,td,ul,ol,li,"+\
+            "sup,sub,body,h1,h2,h3,h4,h5,h6,p,a,span,pre,"+\
+            "code,hr{margin:0px;padding:0px;}"+\
+            "hr,sup,sub{line-height:0;}"+\
+            "table{table-layout:fixed;width:100%;}"+\
+            "td{vertical-align:top;}"+\
+            "h1{font-size:22px;}"+\
+            "h2{font-size:20px;}"+\
+            "h3{font-size:18px;}"+\
+            "h4{font-size:16px;}"+\
+            "h5{font-size:14px;}"+\
+            "h6{font-size:12px;}"+\
+            "p,span,li,td{font-size:12px;}"+\
+            "pre,code,a{font-size:inherit;}"+\
+            "table>tbody>tr>td{width:100%;}"
+
     def _appendScripts(self) -> None:
         self.html     += f"\n<script>\n{self.script}\n</script>"
         self.headhtml += f"\n<script>\n{self.script}\n</script>"
@@ -348,23 +369,39 @@ class MarkTwoParser:
     def checkContentForInline(text:str) -> str:
         try:
             openclose = {
-                         r"(?<!\\)_"          : "em",
-                         r"(?<!\\)\*"         : "strong",
-                         r"(?<![\\\-])-(?!-)" : "s",
-                         r"(?<![\\])\|"       : "li",
-                         r"(?<![\\])\^"       : "sup",
-                         r"(?<![\\])\~"       : "sub"
-                        }
+                    r"(?<!\\)_"          : "em",
+                    r"(?<!\\)\*"         : "strong",
+                    r"(?<![\\\-])-(?!-)" : "s",
+                    r"(?<![\\])\|"       : "li",
+                    r"(?<![\\])\^"       : "sup",
+                    r"(?<![\\])\~"       : "sub"
+                    }
 
             opendiffclose = {
                              "ul" : {
-                                     "open"  : r"(?<![\\])\%\>",
-                                     "close" : r"(?<![\\])\<\%"
-                                    },
+                                    "open"  : r"(?<![\\])\%\>",
+                                    "close" : r"(?<![\\])\<\%"
+                                },
                              "ol" : {
-                                     "open"  : r"(?<![\\])\$\>",
-                                     "close" : r"(?<![\\])\<\$"
-                                    }
+                                    "open"  : r"(?<![\\])\$\>",
+                                    "close" : r"(?<![\\])\<\$"
+                                },
+                             "table" : {
+                                    "open"  : r"(?<![\\])\&\>",
+                                    "close" : r"(?<![\\])\<\&"
+                                },
+                             "tbody" : {
+                                    "open"  : r"(?<![\\])\/\>",
+                                    "close" : r"(?<![\\])\<\/"
+                                },
+                             "tr" : {
+                                    "open"  : r"(?<![\\])\*\>",
+                                    "close" : r"(?<![\\])\<\*"
+                                },
+                             "td" : {
+                                    "open"  : r"(?<![\\])\!\>",
+                                    "close" : r"(?<![\\])\<\!"
+                                },
                             }
 
             standalone = {r"(?<!\\)[\s]*\-\-[\s]*" : "br"} # space due to how content processes
@@ -646,11 +683,12 @@ class MarkTwoParser:
                         nestcount   -= 1
 
     def getStyle(self, arr:list) -> None:
+        self.css = ''
+        self._getDefaultStyle()
         stylestart = arrFind('<!CSS>',arr)
         styleend   = arrFind('<!/CSS>',arr)
         has = MarkTwoParser._blockStartEnd(stylestart,styleend,f"Style Block")
         if has:
-            self.css    = ''
             for i in range(stylestart+1,styleend):
                 line = arr[i].rstrip()
                 self.css += f"{line}"
