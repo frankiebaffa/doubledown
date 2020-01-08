@@ -1,7 +1,5 @@
-# TODO: Switch layout syntax to standard
-#       HTML syntax
-# TODO: Element nesting is not longer functional
-#       FIX!
+# TODO: Add ability to set classes in content block
+#       example: &> ((.tl-fixed)) /> *> !> this is a table cell <!<*</<&
 
 import re
 import sys
@@ -12,6 +10,7 @@ from marktwoerrors import MarkTwoParseError, MarkTwoFileNotFoundError
 class MarkTwoParser:
     def __init__(self,options=None,testinput=None):
         self.options = options
+        self.allClasses = []
         self.qdocument = MarkTwoElement()
         self.qdocument.qtag = "document"
         self.qdocument.qid  = "Document"
@@ -122,6 +121,93 @@ class MarkTwoParser:
         self.headhtml += f"\n<style>\n{self.css}\n</style>"
         self.foothtml += f"\n<style>\n{self.css}\n</style>"
 
+    def _getStyleClasses(self) -> str:
+        pxorauto = r"([0-9]+|auto)"
+        # (full pattern, value pattern, css string)
+        stylesbypixel = [
+                (r"m-"+pxorauto, pxorauto, "margin:$;"),
+                (r"p-"+pxorauto, pxorauto, "padding:$;"),
+                (r"mx-"+pxorauto, pxorauto, "margin-left:$;margin-right:$;"),
+                (r"my-"+pxorauto, pxorauto, "margin-top:$;margin-bottom:$;"),
+                (r"px-"+pxorauto, pxorauto, "padding-left:$;padding-right:$;"),
+                (r"py-"+pxorauto, pxorauto, "padding-top:$;padding-bottom:$;"),
+                (r"mb-"+pxorauto, pxorauto, "margin-bottom:$;"),
+                (r"mt-"+pxorauto, pxorauto, "margin-top:$;"),
+                (r"ml-"+pxorauto, pxorauto, "margin-left:$;"),
+                (r"mr-"+pxorauto, pxorauto, "margin-right:$;"),
+                (r"pb-"+pxorauto, pxorauto, "padding-bottom:$;"),
+                (r"pt-"+pxorauto, pxorauto, "padding-top:$;"),
+                (r"pl-"+pxorauto, pxorauto, "padding-left:$;"),
+                (r"pr-"+pxorauto, pxorauto, "padding-right:$;"),
+                ]
+        stylesbypercent = [
+                (r"w-"+pxorauto, pxorauto, "width:$;"),
+                (r"h-"+pxorauto, pxorauto, "height:$;"),
+                ]
+        textmods = r"(left|center|right)"
+        textaligns = [
+                (r"text-"+textmods, textmods, "text-align:$;")
+                ]
+        tablemods = r"(fixed|auto|initial|inherit)"
+        tablelayouts = [
+                (r"tl-"+tablemods, tablemods, "table-layout:$;")
+                ]
+
+        stylesbypixelvalues = r"-([0-9]+|auto)"
+        stylesbypercentvalues = r"-[0-9]+"
+        textvalues = r"-(left|center|right)"
+
+        allCss = []
+        for clas in self.allClasses:
+            for style in stylesbypixel:
+                if (search := re.search(style[0], clas)) != None:
+                    if (valsearch := re.search(style[1], search.group())) != None:
+                        val = valsearch.group()
+                        css = "."+search.group()+"{"+style[2]+"}"
+                        if val != "auto":
+                            css = re.sub(r"\$", val+"px", css)
+                        else:
+                            css = re.sub(r"\$", val, css)
+                        if not css in allCss:
+                            allCss.append(css)
+
+        for clas in self.allClasses:
+            for style in stylesbypercent:
+                if (search := re.search(style[0], clas)) != None:
+                    if (valsearch := re.search(style[1], search.group())) != None:
+                        val = valsearch.group()
+                        css = "."+search.group()+"{"+style[2]+"}"
+                        if val != "auto":
+                            css = re.sub(r"\$", val+"%", css)
+                        else:
+                            css = re.sub(r"\$", val, css)
+                        if not css in allCss:
+                            allCss.append(css)
+
+        for clas in self.allClasses:
+            for style in textaligns:
+                if (search := re.search(style[0], clas)) != None:
+                    if (valsearch := re.search(style[1], search.group())) != None:
+                        val = valsearch.group()
+                        css = "."+search.group()+"{"+style[2]+"}"
+                        css = re.sub(r"\$", val, css)
+                        if not css in allCss:
+                            allCss.append(css)
+
+        for clas in self.allClasses:
+            for style in tablelayouts:
+                if (search := re.search(style[0], clas)) != None:
+                    if (valsearch := re.search(style[1], search.group())) != None:
+                        val = valsearch.group()
+                        css = "."+search.group()+"{"+style[2]+"}"
+                        css = re.sub(r"\$", val, css)
+                        if not css in allCss:
+                            allCss.append(css)
+
+        css = "".join([str(x) for x in allCss])
+
+        return css
+
     def _getDefaultStyle(self) -> None:
         self.css += ""+\
             "h1,h2,h3,h4,h5,h6{color:grey;font-weight:bold;font-style:normal;}"+\
@@ -150,6 +236,14 @@ class MarkTwoParser:
                     "h5{font-size:14px;}"+\
                     "h6{font-size:12px;}"+\
                     "p,span,li,td{font-size:12px;}",
+                "lg": ""+\
+                    "h1{font-size:24px;}"+\
+                    "h2{font-size:22px;}"+\
+                    "h3{font-size:20px;}"+\
+                    "h4{font-size:18px;}"+\
+                    "h5{font-size:16px;}"+\
+                    "h6{font-size:14px;}"+\
+                    "p,span,li,td{font-size:14px;}",
                 }
         if (fontscale := self.overrides["font-scale"]) != None:
             self.css += fontoverrides[fontscale]
@@ -536,6 +630,7 @@ class MarkTwoParser:
                         for clas in classes:
                             if clas.rstrip().lstrip() != '':
                                 qelement.qclass.append(clas)
+                                self.allClasses.append(clas)
                     if attr != 'class' and attr != 'id':
                         qelement.qattributes.append({attr:val})
                     substr     = f"{attr}=[\'\"]{val}[\"\']"
@@ -686,6 +781,7 @@ class MarkTwoParser:
 
     def getStyle(self, arr:list) -> None:
         self.css = ''
+        self.css += self._getStyleClasses()
         if not self.options["nostyle"]:
             self._getDefaultStyle()
         stylestart = arrFind('<!CSS>',arr)
