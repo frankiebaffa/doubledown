@@ -1,5 +1,7 @@
 # TODO: Add ability to set classes in content block
 #       example: &> ((.tl-fixed)) /> *> !> this is a table cell <!<*</<&
+# TODO: Improve parser. Create a more fluid method of parsing from Marktwo
+#       content into MarkTwoElements
 
 import re
 import sys
@@ -12,18 +14,42 @@ class MarkTwoParser:
         self.options = options
         self.allClasses = []
         self.qdocument = MarkTwoElement()
-        self.qdocument.qtag = "document"
-        self.qdocument.qid  = "Document"
+        self.qdocument.tag = "document"
+        self.qdocument.id  = "Document"
         self.hdocument = MarkTwoElement()
-        self.hdocument.qtag = "document"
-        self.hdocument.qid  = "Document"
+        self.hdocument.tag = "document"
+        self.hdocument.id  = "Document"
         self.fdocument = MarkTwoElement()
-        self.fdocument.qtag = "document"
-        self.fdocument.qid  = "Document"
+        self.fdocument.tag = "document"
+        self.fdocument.id  = "Document"
         self.html = ''
         self.headhtml = ''
         self.foothtml = ''
-        self.lvars = MarkTwoParser._getDefaultLayoutVars()
+        self.lvars = {
+                # THREE INLINE TEXT ELEMENTS ALIGNED LEFT, CENTER, RIGHT; RESPECTIVELY
+                "lcr":[
+                    "<table style='width:100%;table-layout:fixed;' class='lcrContainer'>",
+                    "<tbody>",
+                    "<tr>",
+                    "<td id style='width:50%;text-align:left;'></td>",
+                    "<td id style='width:50%;text-align:center;'></td>",
+                    "<td id style='width:50%;text-align:right;'></td>",
+                    "</tr>",
+                    "</tbody>",
+                    "</table>"
+                    ],
+                # TWO INLINE TEXT ELEMENTS ALIGNED LEFT, RIGHT; RESPECTIVELY
+                "lr": [
+                    "<table style='width:100%;table-layout:fixed;' class='lrContainer'>",
+                    "<tbody>",
+                    "<tr>",
+                    "<td id style='width:50%;text-align:left;'></td>",
+                    "<td id style='width:50%;text-align:right;'></td>",
+                    "</tr>",
+                    "</tbody>",
+                    "</table>"
+                    ]
+                }
         self.content = {}
         self.headcontent = {}
         self.footcontent = {}
@@ -255,34 +281,6 @@ class MarkTwoParser:
         self.headhtml += f"\n<script>\n{self.script}\n</script>"
         self.foothtml += f"\n<script>\n{self.script}\n</script>"
 
-    @staticmethod
-    def _getDefaultLayoutVars() -> dict:
-        return {
-                 # THREE INLINE TEXT ELEMENTS ALIGNED LEFT, CENTER, RIGHT; RESPECTIVELY
-                 "lcr":[
-                        "<table style='width:100%;table-layout:fixed;' class='lcrContainer'>",
-                        "<tbody>",
-                        "<tr>",
-                        "<td id style='width:50%;text-align:left;'></td>",
-                        "<td id style='width:50%;text-align:center;'></td>",
-                        "<td id style='width:50%;text-align:right;'></td>",
-                        "</tr>",
-                        "</tbody>",
-                        "</table>"
-                       ],
-                 # TWO INLINE TEXT ELEMENTS ALIGNED LEFT, RIGHT; RESPECTIVELY
-                 "lr": [
-                        "<table style='width:100%;table-layout:fixed;' class='lrContainer'>",
-                        "<tbody>",
-                        "<tr>",
-                        "<td id style='width:50%;text-align:left;'></td>",
-                        "<td id style='width:50%;text-align:right;'></td>",
-                        "</tr>",
-                        "</tbody>",
-                        "</table>"
-                       ]
-                }
-
     def pullHeader(self, arr:list) -> list:
         self.headarr = None
         contentstart = arrFind('<!HEADCONTENT>',arr)
@@ -462,16 +460,31 @@ class MarkTwoParser:
         return text
 
     @staticmethod
+    def getInlineOpenDiffClose(text, opendiffclose):
+        for tagname in opendiffclose.keys():
+            openpat = opendiffclose[tagname]["open"]
+            clospat = opendiffclose[tagname]["close"]
+            text    = re.sub(openpat,f"\\<{tagname}\\>",text)
+            text    = re.sub(clospat,f"\\</{tagname}\\>",text)
+        return text
+
+    @staticmethod
+    def getInlineOpenClose(text, openclose):
+        for key in openclose.keys():
+            matches = re.findall(key,text)
+            count   = len(matches)
+            evenodd = count%2
+            for i in range(count-evenodd):
+                if i%2 == 0:
+                    text = re.sub(key,f"<{openclose[key]}>",text,1)
+                elif i%2 == 1:
+                    text = re.sub(key,f"</{openclose[key]}>",text,1)
+        return text
+
+    @staticmethod
     def checkContentForInline(text:str) -> str:
         try:
-            openclose = {
-                    r"(?<!\\)_"          : "em",
-                    r"(?<!\\)\*"         : "strong",
-                    r"(?<![\\\-])-(?!-)" : "s",
-                    r"(?<![\\])\|"       : "li",
-                    r"(?<![\\])\^"       : "sup",
-                    r"(?<![\\])\~"       : "sub"
-                    }
+            text = MarkTwoParser.checkContentForLiteral(text)
 
             opendiffclose = {
                              "ul" : {
@@ -499,42 +512,35 @@ class MarkTwoParser:
                                     "close" : r"(?<![\\])\<\!"
                                 },
                             }
+            text = MarkTwoParser.getInlineOpenDiffClose(text, opendiffclose)
+
+            openclose = {
+                    r"(?<!\\)_"          : "em",
+                    r"(?<!\\)\*"         : "strong",
+                    r"(?<![\\\-])-(?!-)" : "s",
+                    r"(?<![\\])\|"       : "li",
+                    r"(?<![\\])\^"       : "sup",
+                    r"(?<![\\])\~"       : "sub"
+                    }
+            text = MarkTwoParser.getInlineOpenClose(text, openclose)
 
             standalone = {r"(?<!\\)[\s]*\-\-[\s]*" : "br"} # space due to how content processes
-            linktextpat = r"(?<=\[).+(?=\])"
-            linkpat = r"(?<=\().+(?=\))"
-
-            text = MarkTwoParser.checkContentForLiteral(text)
-
-            for tagname in opendiffclose.keys():
-                openpat = opendiffclose[tagname]["open"]
-                clospat = opendiffclose[tagname]["close"]
-                text    = re.sub(openpat,f"\\<{tagname}\\>",text)
-                text    = re.sub(clospat,f"\\</{tagname}\\>",text)
-
-            for key in openclose.keys():
-                matches = re.findall(key,text)
-                count   = len(matches)
-                evenodd = count%2
-                for i in range(count-evenodd):
-                    if i%2 == 0:
-                        text = re.sub(key,f"<{openclose[key]}>",text,1)
-                    elif i%2 == 1:
-                        text = re.sub(key,f"</{openclose[key]}>",text,1)
-
             for key in standalone.keys():
                 matches = re.findall(key,text)
                 text = re.sub(key,f"<{standalone[key]}>",text)
 
-            matchobj    = [(m.start(0),m.end(0)) for m in re.finditer(linktextpat,text)]
-            match       = matchobj[0]
-            linkstr     = text[match[0]:match[1]]
-            removestr   = r"\["+linkstr+"\]"
-            matchobj    = [(m.start(0),m.end(0)) for m in re.finditer(linkpat,text)]
-            match       = matchobj[0]
-            linkhyper   = text[match[0]:match[1]]
-            text        = text.replace('=','\\=').replace('/','\\/').replace('?','\\?')
-            linkhyper   = linkhyper.replace('=','\\=').replace('/','\\/').replace('?','\\?')
+            linktextpat = r"(?<=\[).+(?=\])"
+            linkpat = r"(?<=\().+(?=\))"
+
+            matchobj = [(m.start(0),m.end(0)) for m in re.finditer(linktextpat,text)]
+            match = matchobj[0]
+            linkstr = text[match[0]:match[1]]
+            removestr = r"\["+linkstr+"\]"
+            matchobj = [(m.start(0),m.end(0)) for m in re.finditer(linkpat,text)]
+            match = matchobj[0]
+            linkhyper = text[match[0]:match[1]]
+            text = text.replace('=','\\=').replace('/','\\/').replace('?','\\?')
+            linkhyper = linkhyper.replace('=','\\=').replace('/','\\/').replace('?','\\?')
             if linkstr not in (None,'') and linkhyper not in (None,''):
                 text = re.sub(removestr,f"<a href=\"{linkhyper}\">{linkstr}</a>",text)
                 text = re.sub(r"\([a-zA-Z0-9\.\\\/\:\&\?]+\)","",text)
@@ -617,31 +623,31 @@ class MarkTwoParser:
             elementstr    = line
             qelement      = MarkTwoElement()
             ename         = re.findall(r"[a-zA-Z0-9]+",elementstr)[0]
-            qelement.qtag = ename
+            qelement.tag = ename
             elementstr    = elementstr.replace(ename,'',1).rstrip().lstrip()
             eattrs        = re.findall(r"[a-zA-Z0-9]+(?=\=[\'\"][a-zA-Z0-9\-\_\:\%\; ]+[\'\"])",elementstr)
             if len(eattrs) > 0:
                 for attr in eattrs:
                     val = re.findall(f"(?<={attr}=[\'\"])[a-zA-Z0-9\-\_\:\%\; ]+(?=[\'\"])",elementstr)[0]
                     if attr == 'id':
-                        qelement.qid = val
+                        qelement.id = val
                     if attr == 'class':
                         classes = val.split(' ')
                         for clas in classes:
                             if clas.rstrip().lstrip() != '':
-                                qelement.qclass.append(clas)
+                                qelement.clas.append(clas)
                                 self.allClasses.append(clas)
                     if attr != 'class' and attr != 'id':
-                        qelement.qattributes.append({attr:val})
+                        qelement.attributes.append({attr:val})
                     substr     = f"{attr}=[\'\"]{val}[\"\']"
                     elementstr = re.sub(substr,'',elementstr).rstrip().lstrip()
             eprops        = re.findall(r"[a-zA-Z0-9]+(?!\=)",elementstr)
             eid           = re.findall(r"(?<=id=[\'\"])[a-zA-Z0-9]+(?=[\'\"])",elementstr)
             if len(eid) > 0:
-                qelement.qid = eid[0]
+                qelement.id = eid[0]
                 elementstr   = elementstr.replace(eid[0],'',1)
                 elementstr   = re.sub(r"id=[\'\"][\'\"]",'',elementstr).lstrip().rstrip()
-            qelement.generateHtml()
+            qelement.generateHtmlTags()
             return qelement
 
         locstr = None
@@ -754,17 +760,17 @@ class MarkTwoParser:
                             self.foothtml += f"{qelement.opentag}"
 
                         if loc == None:
-                            if qelement.qid in self.content.keys():
-                                self.html += f"{self.content[qelement.qid]}"
+                            if qelement.id in self.content.keys():
+                                self.html += f"{self.content[qelement.id]}"
                         elif loc == "header":
-                            if qelement.qid in self.headcontent.keys():
-                                self.headhtml += f"{self.headcontent[qelement.qid]}"
+                            if qelement.id in self.headcontent.keys():
+                                self.headhtml += f"{self.headcontent[qelement.id]}"
                         elif loc == "footer":
-                            if qelement.qid in self.footcontent.keys():
-                                self.foothtml += f"{self.footcontent[qelement.qid]}"
+                            if qelement.id in self.footcontent.keys():
+                                self.foothtml += f"{self.footcontent[qelement.id]}"
 
-                        nestpath[nestcount].qinner.append(qelement)
-                        nestpath.append(nestpath[nestcount].qinner[len(nestpath[nestcount].qinner)-1])
+                        nestpath[nestcount].inner.append(qelement)
+                        nestpath.append(nestpath[nestcount].inner[len(nestpath[nestcount].inner)-1])
                         nestcount += 1
                     if hasclose:
                         removedpath =  nestpath[nestcount:len(nestpath)]
