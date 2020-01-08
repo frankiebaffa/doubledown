@@ -33,7 +33,8 @@ class MarkTwoParser:
                 "margin-top":None,
                 "margin-right":None,
                 "margin-bottom":None,
-                "margin-left":None
+                "margin-left":None,
+                "font-scale":None
                 }
         self.constants = {
                 "indent":None
@@ -130,15 +131,30 @@ class MarkTwoParser:
             "hr,sup,sub{line-height:0;}"+\
             "table{table-layout:fixed;width:100%;}"+\
             "td{vertical-align:top;}"+\
-            "h1{font-size:22px;}"+\
-            "h2{font-size:20px;}"+\
-            "h3{font-size:18px;}"+\
-            "h4{font-size:16px;}"+\
-            "h5{font-size:14px;}"+\
-            "h6{font-size:12px;}"+\
-            "p,span,li,td{font-size:12px;}"+\
             "pre,code,a{font-size:inherit;}"+\
             "table>tbody>tr>td{width:100%;}"
+        fontoverrides = {
+                "sm": ""+\
+                    "h1{font-size:20px;}"+\
+                    "h2{font-size:18px;}"+\
+                    "h3{font-size:16px;}"+\
+                    "h4{font-size:14px;}"+\
+                    "h5{font-size:12px;}"+\
+                    "h6{font-size:10px;}"+\
+                    "p,span,li,td{font-size:10px;}",
+                "rg": ""+\
+                    "h1{font-size:22px;}"+\
+                    "h2{font-size:20px;}"+\
+                    "h3{font-size:18px;}"+\
+                    "h4{font-size:16px;}"+\
+                    "h5{font-size:14px;}"+\
+                    "h6{font-size:12px;}"+\
+                    "p,span,li,td{font-size:12px;}",
+                }
+        if (fontscale := self.overrides["font-scale"]) != None:
+            self.css += fontoverrides[fontscale]
+        else:
+            self.css += fontoverrides["rg"]
 
     def _appendScripts(self) -> None:
         self.html     += f"\n<script>\n{self.script}\n</script>"
@@ -681,6 +697,7 @@ class MarkTwoParser:
                 self.css += f"{line}"
 
     def getScript(self, arr:list) -> None:
+        self.script = ""
         scriptstart = arrFind('<!JS>',arr)
         scriptend   = arrFind('<!/JS>',arr)
         has = MarkTwoParser._blockStartEnd(scriptstart,scriptend,f"Script Block")
